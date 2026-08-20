@@ -1,0 +1,90 @@
+@import "tailwindcss";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/600.css";
+
+/* ---------------------------------------------------
+   Nova Forge design tokens
+   Palette: cool off-white base, ink navy text,
+   electric blue primary, deep navy panels.
+   --------------------------------------------------- */
+@theme {
+  --color-nf-base: #f5f7fa;      /* page background: very light grey for sections */
+  --color-nf-panel: #ffffff;      /* card / surface background */
+  --color-nf-ink: #0a0e1a;        /* primary text, near-black navy */
+  --color-nf-ink-soft: #4a5268;   /* secondary text */
+  --color-nf-line: #dbe0ee;       /* hairline borders on light surfaces */
+
+  --color-nf-navy: #0b1230;       /* deep navy for dark panels (hero, footer) */
+  --color-nf-navy-soft: #141b3d;  /* elevated dark surface */
+
+  --color-nf-blue: #2872A1;       /* primary brand blue (locked) */
+  --color-nf-blue-bright: #CBDDE9; /* light blue accent (locked) */
+  --color-nf-blue-deep: #1a5580;  /* pressed / deep blue */
+
+  --color-nf-amber: #ffb020;      /* Monster-adjacent warm accent, used sparingly */
+
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-nf-base);
+  color: var(--color-nf-ink);
+  font-family: var(--font-body);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hexagon clip-path utility — the recurring signature motif,
+   echoing the NF mark's hexagonal shell. */
+.hex-clip {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.hex-border {
+  clip-path: polygon(25% 3%, 75% 3%, 97% 50%, 75% 97%, 25% 97%, 3% 50%);
+}
+
+/* Faint hex-grid backdrop used behind dark panels */
+.hex-grid-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 28px 28px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-nf-blue);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: var(--color-nf-blue);
+  color: white;
+}
