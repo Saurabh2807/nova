@@ -11,8 +11,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS event_settings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   registration_open BOOLEAN NOT NULL DEFAULT true,
-  participant_limit INTEGER NOT NULL DEFAULT 64,
-  audience_limit INTEGER NOT NULL DEFAULT 500,
+  participant_limit INTEGER NOT NULL DEFAULT 250,
+  audience_limit INTEGER NOT NULL DEFAULT 1000,
   event_date TEXT NOT NULL DEFAULT '18–19 September 2026',
   venue TEXT NOT NULL DEFAULT 'LNCT Bhopal',
   reporting_time TEXT NOT NULL DEFAULT '09:00 AM IST',
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS event_settings (
 
 -- Insert default event settings if empty
 INSERT INTO event_settings (registration_open, participant_limit, audience_limit, event_date, venue, reporting_time)
-SELECT true, 64, 500, '18–19 September 2026', 'LNCT Bhopal', '09:00 AM IST'
+SELECT true, 250, 1000, '18–19 September 2026', 'LNCT Bhopal', '09:00 AM IST'
 WHERE NOT EXISTS (SELECT 1 FROM event_settings);
 
 -- 2. ADMIN PROFILES & ROLES

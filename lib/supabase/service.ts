@@ -19,8 +19,8 @@ const devStore = {
   settings: {
     id: "dev-event-settings",
     registration_open: true,
-    participant_limit: 64,
-    audience_limit: 500,
+    participant_limit: 250,
+    audience_limit: 1000,
     event_date: "18–19 September 2026",
     venue: "LNCT Bhopal",
     reporting_time: "09:00 AM IST",
