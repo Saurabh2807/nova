@@ -554,19 +554,126 @@ export default function AdminPortalPage() {
                 </div>
               </div>
 
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3 text-xs text-white/70">
-                <div className="rounded-xl bg-white/5 p-3.5">
-                  <span className="text-[10px] uppercase font-bold text-white/40">Venue</span>
-                  <p className="mt-1 font-semibold text-white">{stats?.settings?.venue || "LNCT Bhopal"}</p>
+              {/* Editable Event Settings Grid */}
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+                    Live Event Parameters & Limits
+                  </span>
+                  {sessionUser.role === "admin" && (
+                    <span className="text-[10px] text-white/40 italic">
+                      Edit numbers below & click Save
+                    </span>
+                  )}
                 </div>
-                <div className="rounded-xl bg-white/5 p-3.5">
-                  <span className="text-[10px] uppercase font-bold text-white/40">Event Dates</span>
-                  <p className="mt-1 font-semibold text-white">{stats?.settings?.event_date || "18–19 Sep 2026"}</p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/5">
+                    <span className="text-[9.5px] uppercase font-bold text-white/40 block mb-1">Max Teams Limit</span>
+                    <input
+                      type="number"
+                      disabled={sessionUser.role !== "admin"}
+                      value={stats?.settings?.participant_limit ?? 250}
+                      onChange={(e) =>
+                        setStats((prev: any) => ({
+                          ...prev,
+                          settings: { ...prev?.settings, participant_limit: Number(e.target.value) },
+                        }))
+                      }
+                      className="w-full rounded-lg bg-white/10 px-2.5 py-1.5 font-bold text-white focus:outline-none focus:border-cyan-400 border border-transparent disabled:opacity-60"
+                    />
+                  </div>
+
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/5">
+                    <span className="text-[9.5px] uppercase font-bold text-white/40 block mb-1">Max Audience Limit</span>
+                    <input
+                      type="number"
+                      disabled={sessionUser.role !== "admin"}
+                      value={stats?.settings?.audience_limit ?? 1000}
+                      onChange={(e) =>
+                        setStats((prev: any) => ({
+                          ...prev,
+                          settings: { ...prev?.settings, audience_limit: Number(e.target.value) },
+                        }))
+                      }
+                      className="w-full rounded-lg bg-white/10 px-2.5 py-1.5 font-bold text-white focus:outline-none focus:border-cyan-400 border border-transparent disabled:opacity-60"
+                    />
+                  </div>
+
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/5">
+                    <span className="text-[9.5px] uppercase font-bold text-white/40 block mb-1">Venue</span>
+                    <input
+                      type="text"
+                      disabled={sessionUser.role !== "admin"}
+                      value={stats?.settings?.venue ?? "LNCT Bhopal"}
+                      onChange={(e) =>
+                        setStats((prev: any) => ({
+                          ...prev,
+                          settings: { ...prev?.settings, venue: e.target.value },
+                        }))
+                      }
+                      className="w-full rounded-lg bg-white/10 px-2.5 py-1.5 font-semibold text-white focus:outline-none focus:border-cyan-400 border border-transparent disabled:opacity-60"
+                    />
+                  </div>
+
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/5">
+                    <span className="text-[9.5px] uppercase font-bold text-white/40 block mb-1">Event Dates</span>
+                    <input
+                      type="text"
+                      disabled={sessionUser.role !== "admin"}
+                      value={stats?.settings?.event_date ?? "18–19 Sep 2026"}
+                      onChange={(e) =>
+                        setStats((prev: any) => ({
+                          ...prev,
+                          settings: { ...prev?.settings, event_date: e.target.value },
+                        }))
+                      }
+                      className="w-full rounded-lg bg-white/10 px-2.5 py-1.5 font-semibold text-white focus:outline-none focus:border-cyan-400 border border-transparent disabled:opacity-60"
+                    />
+                  </div>
+
+                  <div className="rounded-xl bg-white/5 p-3 border border-white/5">
+                    <span className="text-[9.5px] uppercase font-bold text-white/40 block mb-1">Reporting Time</span>
+                    <input
+                      type="text"
+                      disabled={sessionUser.role !== "admin"}
+                      value={stats?.settings?.reporting_time ?? "09:00 AM IST"}
+                      onChange={(e) =>
+                        setStats((prev: any) => ({
+                          ...prev,
+                          settings: { ...prev?.settings, reporting_time: e.target.value },
+                        }))
+                      }
+                      className="w-full rounded-lg bg-white/10 px-2.5 py-1.5 font-semibold text-white focus:outline-none focus:border-cyan-400 border border-transparent disabled:opacity-60"
+                    />
+                  </div>
                 </div>
-                <div className="rounded-xl bg-white/5 p-3.5">
-                  <span className="text-[10px] uppercase font-bold text-white/40">Reporting Time</span>
-                  <p className="mt-1 font-semibold text-white">{stats?.settings?.reporting_time || "09:00 AM IST"}</p>
-                </div>
+
+                {sessionUser.role === "admin" && (
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/admin/stats", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(stats?.settings),
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            alert("Event parameters saved successfully!");
+                            fetchStats();
+                          }
+                        } catch (err) {
+                          alert("Failed to update settings");
+                        }
+                      }}
+                      className="rounded-xl bg-cyan-600 hover:bg-cyan-500 px-5 py-2 text-xs font-bold text-white shadow transition"
+                    >
+                      Save Parameters
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
