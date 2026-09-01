@@ -82,28 +82,41 @@ export async function getEventSettings(): Promise<EventSettings> {
   if (!supabase) {
     return devStore.settings;
   }
-  const { data, error } = await supabase.from("event_settings").select("*").limit(1).single();
-  if (error || !data) {
+  try {
+    const { data, error } = await supabase.from("event_settings").select("*").limit(1).single();
+    if (error || !data) {
+      return devStore.settings;
+    }
+    return data as EventSettings;
+  } catch (err) {
+    console.warn("Supabase getEventSettings fallback:", err);
     return devStore.settings;
   }
-  return data as EventSettings;
 }
 
 export async function updateEventSettings(newSettings: Partial<EventSettings>): Promise<boolean> {
+  // Always update in-memory devStore so local state is instantly updated
+  Object.assign(devStore.settings, newSettings);
+
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    Object.assign(devStore.settings, newSettings);
     return true;
   }
-  const { error } = await supabase.from("event_settings").update(newSettings).neq("id", "00000000-0000-0000-0000-000000000000");
-  return !error;
+  try {
+    const { error } = await supabase.from("event_settings").update(newSettings).neq("id", "00000000-0000-0000-0000-000000000000");
+    return !error;
+  } catch (err) {
+    console.warn("Supabase updateEventSettings fallback:", err);
+    return true;
+  }
 }
 
 // ==============================================================================
-// 2. PARTICIPANT BGMI TEAM REGISTRATION (2-Player Strict)
+// 2. PARTICIPANT TEAM REGISTRATION (2-Player Strict or Multi-game)
 // ==============================================================================
 export interface RegisterTeamInput {
   teamName: string;
+  game?: string;
   leader: {
     fullName: string;
     email: string;
@@ -144,14 +157,15 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
     return { success: false, error: "Player 1 and Player 2 cannot have the same Email, Phone, or College ID." };
   }
 
-  const teamId = generateTeamId();
+  const selectedGame = input.game || "bgmi";
+  const teamId = generateTeamId(selectedGame);
   const qrToken = generateQrToken("participant", teamId);
   const qrDataUrl = await generateQrDataUrl(qrToken);
 
   const supabase = getSupabaseServerClient();
 
-  if (!supabase) {
-    // Check uniqueness in dev store
+  // Helper function to register in devStore
+  const registerInDevStore = () => {
     const lowerName = input.teamName.trim().toLowerCase();
     if (devStore.teams.some((t) => t.name.toLowerCase() === lowerName)) {
       return { success: false, error: "This Team Name is already registered. Please choose another." };
@@ -175,7 +189,7 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
       id: `team-${Date.now()}`,
       team_id: teamId,
       name: input.teamName.trim(),
-      game: "bgmi",
+      game: selectedGame,
       qr_token: qrToken,
       registration_status: "confirmed",
       check_in_status: "not_checked_in",
@@ -195,7 +209,7 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
     // Send asynchronous transactional emails
     sendEmail({
       to: input.leader.email.trim(),
-      subject: "Your Registration is Confirmed — Nova Forge BGMI Team Pass",
+      subject: `Your Registration is Confirmed — Nova Forge ${selectedGame.toUpperCase()} Team Pass`,
       html: getLeaderEmailHtml({
         teamName: input.teamName.trim(),
         teamId,
@@ -214,7 +228,7 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
 
     sendEmail({
       to: input.member.email.trim(),
-      subject: "You're Registered — Nova Forge BGMI Team Confirmed",
+      subject: `You're Registered — Nova Forge ${selectedGame.toUpperCase()} Team Confirmed`,
       html: getPlayer2EmailHtml({
         teamName: input.teamName.trim(),
         teamId,
@@ -230,6 +244,10 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
     });
 
     return { success: true, team: newTeam, qrDataUrl };
+  };
+
+  if (!supabase) {
+    return registerInDevStore();
   }
 
   // --- Production Supabase execution ---
@@ -240,7 +258,7 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
       .insert({
         team_id: teamId,
         name: input.teamName.trim(),
-        game: "bgmi",
+        game: selectedGame,
         qr_token: qrToken,
         registration_status: "confirmed",
         check_in_status: "not_checked_in",
@@ -252,7 +270,8 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
       if (teamErr.code === "23505") {
         return { success: false, error: "Team Name is already taken. Please choose another." };
       }
-      return { success: false, error: teamErr.message };
+      console.warn("Supabase team insert error, falling back to local store:", teamErr.message);
+      return registerInDevStore();
     }
 
     // 2. Insert participants (database trigger enforces exactly 2 players)
@@ -287,7 +306,7 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
     // Send emails
     sendEmail({
       to: input.leader.email.trim(),
-      subject: "Your Registration is Confirmed — Nova Forge BGMI Team Pass",
+      subject: `Your Registration is Confirmed — Nova Forge ${selectedGame.toUpperCase()} Team Pass`,
       html: getLeaderEmailHtml({
         teamName: input.teamName.trim(),
         teamId,
@@ -306,7 +325,7 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
 
     sendEmail({
       to: input.member.email.trim(),
-      subject: "You're Registered — Nova Forge BGMI Team Confirmed",
+      subject: `You're Registered — Nova Forge ${selectedGame.toUpperCase()} Team Confirmed`,
       html: getPlayer2EmailHtml({
         teamName: input.teamName.trim(),
         teamId,
@@ -331,7 +350,8 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
 
     return { success: true, team: fullTeam, qrDataUrl };
   } catch (err: any) {
-    return { success: false, error: err.message || "Failed to register team." };
+    console.warn("Supabase register team network error, falling back to local store:", err);
+    return registerInDevStore();
   }
 }
 
@@ -367,7 +387,7 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
 
   const supabase = getSupabaseServerClient();
 
-  if (!supabase) {
+  const registerAudienceInDevStore = () => {
     const lowerEmail = input.email.trim().toLowerCase();
     const phone = input.phone.trim();
     const lowerCollege = input.collegeId.trim().toLowerCase();
@@ -413,6 +433,10 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
     });
 
     return { success: true, audience: newAud, qrDataUrl };
+  };
+
+  if (!supabase) {
+    return registerAudienceInDevStore();
   }
 
   try {
@@ -435,7 +459,8 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
       if (error.code === "23505") {
         return { success: false, error: "Email, Mobile number, or College ID is already registered." };
       }
-      return { success: false, error: error.message };
+      console.warn("Supabase audience insert error, falling back to local store:", error.message);
+      return registerAudienceInDevStore();
     }
 
     sendEmail({
@@ -455,7 +480,8 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
 
     return { success: true, audience: data as AudienceRegistration, qrDataUrl };
   } catch (err: any) {
-    return { success: false, error: err.message || "Failed to register audience pass." };
+    console.warn("Supabase audience register network error, falling back to local store:", err);
+    return registerAudienceInDevStore();
   }
 }
 

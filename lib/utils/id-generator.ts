@@ -5,14 +5,15 @@ import crypto from "crypto";
  * Generate Participant Team ID: NF-BGMI-2026-XXXXX
  * 5 uppercase alphanumeric characters (excluding confusing 0/O, 1/I)
  */
-export function generateTeamId(): string {
+export function generateTeamId(game: string = "bgmi"): string {
   const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
   let salt = "";
   const randomBytes = crypto.randomBytes(5);
   for (let i = 0; i < 5; i++) {
     salt += chars[randomBytes[i] % chars.length];
   }
-  return `NF-BGMI-2026-${salt}`;
+  const gameTag = game.toUpperCase().replace(/[^A-Z0-9]/g, "") || "BGMI";
+  return `NF-${gameTag}-2026-${salt}`;
 }
 
 /**

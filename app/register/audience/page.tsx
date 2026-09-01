@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { AlertCircle, Loader2, Ticket, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { AlertCircle, Loader2, Ticket, Calendar, MapPin, Clock, Ban } from "lucide-react";
 import { RegisterShell, Field, inputClass } from "@/components/registration/RegisterShell";
 import { TicketCard } from "@/components/registration/TicketCard";
 import { flagshipEvent } from "@/lib/data";
@@ -16,6 +16,15 @@ export default function AudienceRegisterPage() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [eventSettings, setEventSettings] = useState<{
+    registration_open: boolean;
+    event_date: string;
+    venue: string;
+    reporting_time: string;
+    remainingAudienceSlots: number;
+    isAudienceFull: boolean;
+  } | null>(null);
+
   const [successData, setSuccessData] = useState<{
     passId: string;
     name: string;
@@ -24,6 +33,22 @@ export default function AudienceRegisterPage() {
     qrDataUrl: string;
   } | null>(null);
 
+  // Fetch live event settings on mount
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const res = await fetch("/api/event/settings");
+        const data = await res.json();
+        if (data.success && data.settings) {
+          setEventSettings(data.settings);
+        }
+      } catch (err) {
+        console.warn("Could not load dynamic settings:", err);
+      }
+    }
+    fetchSettings();
+  }, []);
+
   function update<K extends keyof typeof form>(key: K, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
   }
@@ -31,6 +56,16 @@ export default function AudienceRegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
+
+    if (eventSettings && !eventSettings.registration_open) {
+      setErrorMsg("Audience pass registrations are currently closed by the organizers.");
+      return;
+    }
+
+    if (eventSettings && eventSettings.isAudienceFull) {
+      setErrorMsg("Audience entry passes are completely full.");
+      return;
+    }
 
     const phoneRegex = /^\d{10}$/;
     if (!phoneRegex.test(form.phone.trim())) {
@@ -78,7 +113,7 @@ export default function AudienceRegisterPage() {
     return (
       <RegisterShell
         eyebrow="Audience Pass"
-        title="You&rsquo;re on the guest list."
+        title="You’re on the guest list."
         description="Here is your official entry pass for Nova Forge Campus Carnival."
       >
         <TicketCard
@@ -86,12 +121,14 @@ export default function AudienceRegisterPage() {
           phone={successData.phone}
           collegeId={successData.collegeId}
           ticketId={successData.passId}
-          eventLabel={`${flagshipEvent.name} · ${flagshipEvent.dateLabel}`}
+          eventLabel={`${flagshipEvent.name} · ${eventSettings?.event_date || flagshipEvent.dateLabel}`}
           qrDataUrl={successData.qrDataUrl}
         />
       </RegisterShell>
     );
   }
+
+  const isClosed = eventSettings !== null && (!eventSettings.registration_open || eventSettings.isAudienceFull);
 
   return (
     <RegisterShell
@@ -99,6 +136,22 @@ export default function AudienceRegisterPage() {
       title="Register as Audience"
       description="Claim your free entry ticket to the Nova Forge Campus Carnival at LNCT Bhopal."
     >
+      {/* Event Meta Live Banner */}
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-semibold text-nf-ink-soft bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5">
+        <div className="flex items-center gap-2">
+          <Calendar size={14} className="text-nf-blue shrink-0" />
+          <span>{eventSettings?.event_date || "18–19 Sep 2026"}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <MapPin size={14} className="text-nf-blue shrink-0" />
+          <span>{eventSettings?.venue || "LNCT Bhopal"}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Clock size={14} className="text-nf-blue shrink-0" />
+          <span>Entry: {eventSettings?.reporting_time || "09:00 AM"}</span>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Banner */}
         <div className="flex items-center justify-between rounded-2xl border border-nf-line bg-gradient-to-r from-blue-50/80 via-white to-gray-50 p-4">
@@ -111,10 +164,36 @@ export default function AudienceRegisterPage() {
               <p className="text-[11px] font-medium text-nf-ink-soft">Free entry with valid College ID</p>
             </div>
           </div>
-          <span className="rounded-full bg-cyan-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyan-800">
-            Free Pass
-          </span>
+          {isClosed ? (
+            <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-red-800">
+              <Ban size={12} /> Closed
+            </span>
+          ) : (
+            <div className="text-right">
+              <span className="rounded-full bg-cyan-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyan-800">
+                Free Pass
+              </span>
+              {eventSettings?.remainingAudienceSlots !== undefined && (
+                <p className="mt-1 text-[10px] font-bold text-slate-500">
+                  {eventSettings.remainingAudienceSlots} passes left
+                </p>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Closed Warning if applicable */}
+        {isClosed && (
+          <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs font-semibold text-amber-900">
+            <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />
+            <div>
+              <p className="font-bold">Audience pass registrations are currently closed or at full capacity.</p>
+              <p className="mt-0.5 text-amber-800/90 font-normal">
+                Please check with desk organizers on the event day for spot entry availability.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Error notification */}
         {errorMsg && (
@@ -128,6 +207,7 @@ export default function AudienceRegisterPage() {
           <Field label="Full Name">
             <input
               required
+              disabled={isClosed}
               className={inputClass}
               placeholder="Your full name"
               value={form.name}
@@ -139,6 +219,7 @@ export default function AudienceRegisterPage() {
             <Field label="Mobile Number (10 Digits)">
               <input
                 required
+                disabled={isClosed}
                 type="tel"
                 maxLength={10}
                 className={inputClass}
@@ -150,6 +231,7 @@ export default function AudienceRegisterPage() {
             <Field label="Email Address" hint="Pass will be emailed here">
               <input
                 required
+                disabled={isClosed}
                 type="email"
                 className={inputClass}
                 placeholder="you@example.com"
@@ -162,6 +244,7 @@ export default function AudienceRegisterPage() {
           <Field label="Enrollment / Scholar No (College ID)" hint="Required for gate verification">
             <input
               required
+              disabled={isClosed}
               className={inputClass}
               placeholder="e.g. 0103IT241045"
               value={form.collegeId}
@@ -172,7 +255,7 @@ export default function AudienceRegisterPage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || isClosed}
           className="w-full flex items-center justify-center gap-2 rounded-full bg-nf-blue py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-nf-blue-bright hover:shadow-lg active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
@@ -180,6 +263,8 @@ export default function AudienceRegisterPage() {
               <Loader2 size={16} className="animate-spin" />
               Generating Pass...
             </>
+          ) : isClosed ? (
+            "Passes Unavailable"
           ) : (
             "Claim Audience Pass"
           )}
