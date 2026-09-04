@@ -6,7 +6,7 @@ import { RegisterShell, Field, inputClass } from "@/components/registration/Regi
 import { TicketCard } from "@/components/registration/TicketCard";
 import { flagshipEvent } from "@/lib/data";
 
-export const COLLEGE_OPTIONS = [
+const COLLEGE_OPTIONS = [
   { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
   { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0176)", prefix: "0176" },
   { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0157)", prefix: "0157" },

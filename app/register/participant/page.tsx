@@ -5,7 +5,7 @@ import { Users, Shield, AlertCircle, Loader2, Gamepad2, Calendar, MapPin, Clock,
 import { RegisterShell, Field, inputClass } from "@/components/registration/RegisterShell";
 import { TeamCard } from "@/components/registration/TeamCard";
 
-export const COLLEGE_OPTIONS = [
+const COLLEGE_OPTIONS = [
   { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
   { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0176)", prefix: "0176" },
   { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0157)", prefix: "0157" },
