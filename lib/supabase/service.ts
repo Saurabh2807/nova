@@ -270,8 +270,8 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
       if (teamErr.code === "23505") {
         return { success: false, error: "Team Name is already taken. Please choose another." };
       }
-      console.warn("Supabase team insert error, falling back to local store:", teamErr.message);
-      return registerInDevStore();
+      console.error("Supabase team insert error:", teamErr.message);
+      return { success: false, error: teamErr.message || "Failed to save team registration." };
     }
 
     // 2. Insert participants (database trigger enforces exactly 2 players)
@@ -300,45 +300,47 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
       if (partErr.code === "23505") {
         return { success: false, error: "One of the emails, phone numbers, or college IDs is already registered." };
       }
+      console.error("Supabase participants insert error:", partErr.message);
       return { success: false, error: partErr.message };
     }
 
     // Send emails
-    sendEmail({
-      to: input.leader.email.trim(),
-      subject: `Your Registration is Confirmed — Nova Forge ${selectedGame.toUpperCase()} Team Pass`,
-      html: getLeaderEmailHtml({
-        teamName: input.teamName.trim(),
-        teamId,
-        leaderName: input.leader.fullName.trim(),
-        leaderPhone: input.leader.phone.trim(),
-        leaderCollegeId: input.leader.collegeId.trim(),
-        player2Name: input.member.fullName.trim(),
-        player2Phone: input.member.phone.trim(),
-        player2CollegeId: input.member.collegeId.trim(),
-        qrDataUrl,
-        eventDate: settings.event_date,
-        venue: settings.venue,
-        reportingTime: settings.reporting_time,
+    Promise.allSettled([
+      sendEmail({
+        to: input.leader.email.trim(),
+        subject: `Your Registration is Confirmed — Nova Forge ${selectedGame.toUpperCase()} Team Pass`,
+        html: getLeaderEmailHtml({
+          teamName: input.teamName.trim(),
+          teamId,
+          leaderName: input.leader.fullName.trim(),
+          leaderPhone: input.leader.phone.trim(),
+          leaderCollegeId: input.leader.collegeId.trim(),
+          player2Name: input.member.fullName.trim(),
+          player2Phone: input.member.phone.trim(),
+          player2CollegeId: input.member.collegeId.trim(),
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        }),
       }),
-    });
-
-    sendEmail({
-      to: input.member.email.trim(),
-      subject: `You're Registered — Nova Forge ${selectedGame.toUpperCase()} Team Confirmed`,
-      html: getPlayer2EmailHtml({
-        teamName: input.teamName.trim(),
-        teamId,
-        leaderName: input.leader.fullName.trim(),
-        player2Name: input.member.fullName.trim(),
-        player2Phone: input.member.phone.trim(),
-        player2CollegeId: input.member.collegeId.trim(),
-        qrDataUrl,
-        eventDate: settings.event_date,
-        venue: settings.venue,
-        reportingTime: settings.reporting_time,
+      sendEmail({
+        to: input.member.email.trim(),
+        subject: `You're Registered — Nova Forge ${selectedGame.toUpperCase()} Team Confirmed`,
+        html: getPlayer2EmailHtml({
+          teamName: input.teamName.trim(),
+          teamId,
+          leaderName: input.leader.fullName.trim(),
+          player2Name: input.member.fullName.trim(),
+          player2Phone: input.member.phone.trim(),
+          player2CollegeId: input.member.collegeId.trim(),
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        }),
       }),
-    });
+    ]).catch((e) => console.error("[Team Email Error]:", e));
 
     const fullTeam: Team = {
       ...teamData,
@@ -350,8 +352,8 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
 
     return { success: true, team: fullTeam, qrDataUrl };
   } catch (err: any) {
-    console.warn("Supabase register team network error, falling back to local store:", err);
-    return registerInDevStore();
+    console.error("Supabase register team network error:", err);
+    return { success: false, error: err?.message || "Failed to complete team registration." };
   }
 }
 
@@ -459,8 +461,8 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
       if (error.code === "23505") {
         return { success: false, error: "Email, Mobile number, or College ID is already registered." };
       }
-      console.warn("Supabase audience insert error, falling back to local store:", error.message);
-      return registerAudienceInDevStore();
+      console.error("Supabase audience insert error:", error.message);
+      return { success: false, error: error.message || "Failed to save audience registration." };
     }
 
     sendEmail({
@@ -476,12 +478,12 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
         venue: settings.venue,
         reportingTime: settings.reporting_time,
       }),
-    });
+    }).catch((e) => console.error("[Audience Email Error]:", e));
 
     return { success: true, audience: data as AudienceRegistration, qrDataUrl };
   } catch (err: any) {
-    console.warn("Supabase audience register network error, falling back to local store:", err);
-    return registerAudienceInDevStore();
+    console.error("Supabase audience register network error:", err);
+    return { success: false, error: err?.message || "Failed to complete audience registration." };
   }
 }
 
