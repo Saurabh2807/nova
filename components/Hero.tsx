@@ -73,6 +73,13 @@ const brandLogos = [
     height: 137,
     imgClass: "h-10 sm:h-12 md:h-13 w-auto object-contain",
   },
+  {
+    name: "BGMI",
+    src: "/logos/bgmi.png",
+    width: 240,
+    height: 80,
+    imgClass: "h-7.5 sm:h-9 md:h-10.5 w-auto object-contain",
+  },
 ];
 
 export function Hero() {
