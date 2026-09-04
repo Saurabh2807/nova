@@ -41,10 +41,8 @@ export const comingSoonEvents = [
 ];
 
 export const sponsors = [
-  { name: "Monster Energy", tier: "Title Sponsor", confirmed: true },
-  { name: "iQOO", tier: "Partner", confirmed: false },
-  { name: "BGMI Esports", tier: "Game Partner", confirmed: false },
-  { name: "Valorant", tier: "Game Partner", confirmed: false },
+  { name: "Monster Energy", tier: "Powered by", confirmed: true },
+  { name: "Nodwin Gaming", tier: "Official Esports Partner", confirmed: true },
 ];
 
 export const leadership = [

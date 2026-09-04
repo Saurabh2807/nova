@@ -137,36 +137,36 @@ export function Events() {
               </Link>
             </div>
 
-            {/* ── SPONSOR STRIP (POWERED BY + ASSOCIATE PARTNER) ── */}
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-[#e8ecf4] pt-5 mt-1">
-              {/* Powered By Monster */}
+            {/* ── SPONSOR STRIP (POWERED BY MONSTER + ESPORTS PARTNER NODWIN) ── */}
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-3.5 border-t border-[#e8ecf4] pt-5 mt-1">
+              {/* Powered By Monster Energy */}
               <div className="flex items-center gap-3">
-                <span className="text-[9.5px] font-black uppercase tracking-[0.2em] text-slate-400">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                   Powered by
                 </span>
                 <Image
-                  src="/logos/monster.svg"
+                  src="/logos/monster.png"
                   alt="Monster Energy"
-                  width={115}
-                  height={32}
-                  className="h-7 w-auto object-contain"
+                  width={150}
+                  height={68}
+                  className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-200 hover:scale-105"
                 />
               </div>
 
               {/* Divider */}
               <div className="hidden sm:block h-6 w-px bg-slate-200" />
 
-              {/* Associate Partner iQOO */}
+              {/* Official Esports Partner Nodwin Gaming */}
               <div className="flex items-center gap-3">
-                <span className="text-[9.5px] font-black uppercase tracking-[0.2em] text-slate-400">
-                  Associate Partner
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                  Esports Partner
                 </span>
                 <Image
-                  src="/logos/iqoo.svg"
-                  alt="iQOO"
-                  width={75}
-                  height={24}
-                  className="h-6 w-auto object-contain"
+                  src="/logos/nodwin.png"
+                  alt="Nodwin Gaming"
+                  width={150}
+                  height={44}
+                  className="h-6.5 sm:h-7.5 md:h-8 w-auto object-contain transition-transform duration-200 hover:scale-105"
                 />
               </div>
             </div>
@@ -216,17 +216,31 @@ export function Events() {
               </div>
 
               {/* Bottom Card Footer */}
-              <div className="flex items-center gap-2.5 px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/50">
-                <span className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
-                  Powered by
-                </span>
-                <Image
-                  src="/logos/monster.svg"
-                  alt="Monster Energy"
-                  width={90}
-                  height={22}
-                  className="h-5 w-auto object-contain"
-                />
+              <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[9.5px] font-black uppercase tracking-[0.18em] text-slate-400">
+                    Powered by
+                  </span>
+                  <Image
+                    src="/logos/monster.png"
+                    alt="Monster Energy"
+                    width={110}
+                    height={50}
+                    className="h-6 sm:h-7 w-auto object-contain"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9.5px] font-black uppercase tracking-[0.18em] text-slate-400">
+                    Partner
+                  </span>
+                  <Image
+                    src="/logos/nodwin.png"
+                    alt="Nodwin Gaming"
+                    width={95}
+                    height={28}
+                    className="h-5 sm:h-5.5 w-auto object-contain"
+                  />
+                </div>
               </div>
             </div>
 
@@ -271,17 +285,31 @@ export function Events() {
               </div>
 
               {/* Bottom Card Footer */}
-              <div className="flex items-center gap-2.5 px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/50">
-                <span className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">
-                  Powered by
-                </span>
-                <Image
-                  src="/logos/monster.svg"
-                  alt="Monster Energy"
-                  width={90}
-                  height={22}
-                  className="h-5 w-auto object-contain"
-                />
+              <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[9.5px] font-black uppercase tracking-[0.18em] text-slate-400">
+                    Powered by
+                  </span>
+                  <Image
+                    src="/logos/monster.png"
+                    alt="Monster Energy"
+                    width={110}
+                    height={50}
+                    className="h-6 sm:h-7 w-auto object-contain"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[9.5px] font-black uppercase tracking-[0.18em] text-slate-400">
+                    Esports Partner
+                  </span>
+                  <Image
+                    src="/logos/nodwin.png"
+                    alt="Nodwin Gaming"
+                    width={95}
+                    height={28}
+                    className="h-5 sm:h-5.5 w-auto object-contain"
+                  />
+                </div>
               </div>
             </div>
 
