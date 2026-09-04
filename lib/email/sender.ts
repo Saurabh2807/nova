@@ -59,6 +59,9 @@ export async function sendEmail({ to, subject, html, attachments = [] }: SendEma
           user: smtpUser,
           pass: smtpPass.replace(/\s+/g, ""), // strip accidental spaces in app password
         },
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: 15000,
       });
 
       const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || `Nova Forge <${smtpUser}>`;

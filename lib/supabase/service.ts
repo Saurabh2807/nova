@@ -387,43 +387,47 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
       }
     }
 
-    // Send emails
-    Promise.allSettled([
-      sendEmail({
-        to: input.leader.email.trim(),
-        subject: `Your Registration is Confirmed — Nova Forge ${selectedGame.toUpperCase()} Team Pass`,
-        html: getLeaderEmailHtml({
-          teamName: input.teamName.trim(),
-          teamId,
-          leaderName: input.leader.fullName.trim(),
-          leaderPhone: input.leader.phone.trim(),
-          leaderCollegeId: input.leader.collegeId.trim(),
-          player2Name: input.member.fullName.trim(),
-          player2Phone: input.member.phone.trim(),
-          player2CollegeId: input.member.collegeId.trim(),
-          qrDataUrl,
-          eventDate: settings.event_date,
-          venue: settings.venue,
-          reportingTime: settings.reporting_time,
+    // Send emails (awaited for serverless runtime persistence)
+    try {
+      await Promise.allSettled([
+        sendEmail({
+          to: input.leader.email.trim(),
+          subject: `Your Registration is Confirmed — Nova Forge ${selectedGame.toUpperCase()} Team Pass`,
+          html: getLeaderEmailHtml({
+            teamName: input.teamName.trim(),
+            teamId,
+            leaderName: input.leader.fullName.trim(),
+            leaderPhone: input.leader.phone.trim(),
+            leaderCollegeId: input.leader.collegeId.trim(),
+            player2Name: input.member.fullName.trim(),
+            player2Phone: input.member.phone.trim(),
+            player2CollegeId: input.member.collegeId.trim(),
+            qrDataUrl,
+            eventDate: settings.event_date,
+            venue: settings.venue,
+            reportingTime: settings.reporting_time,
+          }),
         }),
-      }),
-      sendEmail({
-        to: input.member.email.trim(),
-        subject: `You're Registered — Nova Forge ${selectedGame.toUpperCase()} Team Confirmed`,
-        html: getPlayer2EmailHtml({
-          teamName: input.teamName.trim(),
-          teamId,
-          leaderName: input.leader.fullName.trim(),
-          player2Name: input.member.fullName.trim(),
-          player2Phone: input.member.phone.trim(),
-          player2CollegeId: input.member.collegeId.trim(),
-          qrDataUrl,
-          eventDate: settings.event_date,
-          venue: settings.venue,
-          reportingTime: settings.reporting_time,
+        sendEmail({
+          to: input.member.email.trim(),
+          subject: `You're Registered — Nova Forge ${selectedGame.toUpperCase()} Team Confirmed`,
+          html: getPlayer2EmailHtml({
+            teamName: input.teamName.trim(),
+            teamId,
+            leaderName: input.leader.fullName.trim(),
+            player2Name: input.member.fullName.trim(),
+            player2Phone: input.member.phone.trim(),
+            player2CollegeId: input.member.collegeId.trim(),
+            qrDataUrl,
+            eventDate: settings.event_date,
+            venue: settings.venue,
+            reportingTime: settings.reporting_time,
+          }),
         }),
-      }),
-    ]).catch((e) => console.error("[Team Email Error]:", e));
+      ]);
+    } catch (e) {
+      console.error("[Team Email Error]:", e);
+    }
 
     const fullTeam: Team = {
       team_id: teamId,
@@ -592,20 +596,24 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
       createdAudience = data;
     }
 
-    sendEmail({
-      to: input.email.trim(),
-      subject: "Your Entry Ticket — Nova Forge Campus Carnival Pass",
-      html: getAudienceEmailHtml({
-        fullName: input.fullName.trim(),
-        passId,
-        phone: input.phone.trim(),
-        collegeId: input.collegeId.trim(),
-        qrDataUrl,
-        eventDate: settings.event_date,
-        venue: settings.venue,
-        reportingTime: settings.reporting_time,
-      }),
-    }).catch((e) => console.error("[Audience Email Error]:", e));
+    try {
+      await sendEmail({
+        to: input.email.trim(),
+        subject: "Your Entry Ticket — Nova Forge Campus Carnival Pass",
+        html: getAudienceEmailHtml({
+          fullName: input.fullName.trim(),
+          passId,
+          phone: input.phone.trim(),
+          collegeId: input.collegeId.trim(),
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        }),
+      });
+    } catch (e) {
+      console.error("[Audience Email Error]:", e);
+    }
 
     return { success: true, audience: createdAudience as AudienceRegistration, qrDataUrl };
   } catch (err: any) {
