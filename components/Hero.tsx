@@ -31,48 +31,6 @@ function DiscordIcon({ className }: { className?: string }) {
   );
 }
 
-function RedBullLogo() {
-  return (
-    <svg viewBox="0 0 110 38" className="h-6 sm:h-7 w-auto" fill="none">
-      <g transform="translate(2, 2)">
-        <circle cx="20" cy="15" r="8" fill="#FFC72C" />
-        <path
-          d="M4 22 C6 18 11 14 17 15 C19 13 17 11 13 11 C11 8 8 9 5 12 C4 14 2 17 4 22 Z"
-          fill="#DC0028"
-        />
-        <path
-          d="M36 22 C34 18 29 14 23 15 C21 13 23 11 27 11 C29 8 32 9 35 12 C36 14 38 17 36 22 Z"
-          fill="#DC0028"
-        />
-        <circle cx="12" cy="17" r="5" fill="#DC0028" />
-        <circle cx="28" cy="17" r="5" fill="#DC0028" />
-      </g>
-      <text
-        x="46"
-        y="17"
-        fontFamily="Arial Black, Impact, sans-serif"
-        fontWeight="900"
-        fontSize="11"
-        fill="#DC0028"
-        letterSpacing="-0.5"
-      >
-        Red
-      </text>
-      <text
-        x="46"
-        y="30"
-        fontFamily="Arial Black, Impact, sans-serif"
-        fontWeight="900"
-        fontSize="11"
-        fill="#002B7F"
-        letterSpacing="-0.5"
-      >
-        Bull
-      </text>
-    </svg>
-  );
-}
-
 const socialLinks = [
   { icon: InstagramIcon, label: "Instagram", href: "https://instagram.com/novaforge.gg" },
   { icon: YoutubeIcon, label: "YouTube", href: "#" },
@@ -82,47 +40,38 @@ const socialLinks = [
 const brandLogos = [
   {
     name: "Monster Energy",
-    type: "image",
     src: "/logos/monster.svg",
     width: 220,
     height: 60,
-    imgClass: "h-9 sm:h-11 md:h-12 w-auto object-contain",
+    imgClass: "h-8 sm:h-10 md:h-11 w-auto object-contain",
   },
   {
-    name: "iQOO",
-    type: "image",
-    src: "/logos/iqoo.svg",
-    width: 110,
-    height: 30,
-    imgClass: "h-6 sm:h-7.5 w-auto object-contain",
+    name: "Nodwin Gaming",
+    src: "/logos/nodwin.png",
+    width: 200,
+    height: 55,
+    imgClass: "h-6 sm:h-7.5 md:h-8.5 w-auto object-contain",
   },
   {
-    name: "BGMI",
-    type: "image",
-    src: "/logos/bgmi.png",
-    width: 140,
-    height: 48,
-    imgClass: "h-7 sm:h-9 w-auto object-contain",
+    name: "LNCT Group of Colleges",
+    src: "/logos/lnct.png",
+    width: 190,
+    height: 55,
+    imgClass: "h-7 sm:h-8.5 md:h-9.5 w-auto object-contain",
   },
   {
-    name: "VALORANT",
-    type: "image",
-    src: "/logos/valorant.svg",
-    width: 140,
-    height: 28,
-    imgClass: "h-5 sm:h-6.5 w-auto object-contain",
+    name: "JNCT Professional University",
+    src: "/logos/jnct.png",
+    width: 190,
+    height: 55,
+    imgClass: "h-7 sm:h-8.5 md:h-9.5 w-auto object-contain",
   },
   {
-    name: "FREE FIRE",
-    type: "image",
-    src: "/logos/free-fire.png",
-    width: 140,
-    height: 28,
-    imgClass: "h-6 sm:h-7.5 w-auto object-contain",
-  },
-  {
-    name: "Red Bull",
-    type: "svg",
+    name: "Vedx Events",
+    src: "/logos/vedx.png",
+    width: 200,
+    height: 55,
+    imgClass: "h-8 sm:h-9.5 md:h-10.5 w-auto object-contain",
   },
 ];
 
@@ -251,20 +200,16 @@ export function Hero() {
             {brandLogos.map((brand) => (
               <div
                 key={brand.name}
-                className="flex items-center opacity-80 transition-all duration-200 hover:opacity-100 hover:scale-105 cursor-pointer"
+                className="flex items-center opacity-85 transition-all duration-200 hover:opacity-100 hover:scale-105 cursor-pointer"
                 title={brand.name}
               >
-                {brand.type === "image" && brand.src ? (
-                  <Image
-                    src={brand.src}
-                    alt={`${brand.name} Logo`}
-                    width={brand.width}
-                    height={brand.height}
-                    className={brand.imgClass}
-                  />
-                ) : (
-                  <RedBullLogo />
-                )}
+                <Image
+                  src={brand.src}
+                  alt={`${brand.name} Logo`}
+                  width={brand.width}
+                  height={brand.height}
+                  className={brand.imgClass}
+                />
               </div>
             ))}
 

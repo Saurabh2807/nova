@@ -10,22 +10,58 @@ const partnerLogos = [
     src: "/logos/monster.svg",
     width: 380,
     height: 110,
-    imgClass: "h-18 sm:h-22 md:h-24 w-auto object-contain scale-110",
+    imgClass: "h-14 sm:h-16 md:h-18 w-auto object-contain",
     glowColor: "rgba(0, 255, 1, 0.2)",
     accentColor: "#00ff01",
     tag: "Energy Partner",
   },
   {
-    name: "iQOO",
-    tier: "Official Device Partner",
+    name: "Nodwin Gaming",
+    tier: "Official Esports Partner",
     type: "image",
-    src: "/logos/iqoo.svg",
-    width: 180,
-    height: 48,
-    imgClass: "h-10 sm:h-12 w-auto object-contain",
-    glowColor: "rgba(255, 184, 0, 0.18)",
-    accentColor: "#FFB800",
-    tag: "Device Partner",
+    src: "/logos/nodwin.png",
+    width: 260,
+    height: 80,
+    imgClass: "h-11 sm:h-13 w-auto object-contain",
+    glowColor: "rgba(108, 46, 185, 0.18)",
+    accentColor: "#6C2EB9",
+    tag: "Esports Partner",
+  },
+  {
+    name: "LNCT Group",
+    tier: "Official Academic Partner",
+    type: "image",
+    src: "/logos/lnct.png",
+    width: 240,
+    height: 70,
+    imgClass: "h-11 sm:h-13 w-auto object-contain",
+    glowColor: "rgba(227, 82, 5, 0.18)",
+    accentColor: "#E35205",
+    tag: "Academic Partner",
+  },
+  {
+    name: "JNCT University",
+    tier: "Official University Partner",
+    type: "image",
+    src: "/logos/jnct.png",
+    width: 240,
+    height: 70,
+    imgClass: "h-11 sm:h-13 w-auto object-contain",
+    glowColor: "rgba(0, 91, 172, 0.18)",
+    accentColor: "#005BAC",
+    tag: "University Partner",
+  },
+  {
+    name: "Vedx Events",
+    tier: "Official Production Partner",
+    type: "image",
+    src: "/logos/vedx.png",
+    width: 240,
+    height: 70,
+    imgClass: "h-12 sm:h-14 w-auto object-contain",
+    glowColor: "rgba(212, 175, 55, 0.18)",
+    accentColor: "#D4AF37",
+    tag: "Production Partner",
   },
   {
     name: "BGMI",
@@ -34,7 +70,7 @@ const partnerLogos = [
     src: "/logos/bgmi.png",
     width: 240,
     height: 80,
-    imgClass: "h-14 sm:h-16 w-auto object-contain",
+    imgClass: "h-12 sm:h-14 w-auto object-contain",
     glowColor: "rgba(255, 157, 12, 0.18)",
     accentColor: "#FF9D0C",
     tag: "Featured Game",
@@ -63,61 +99,7 @@ const partnerLogos = [
     accentColor: "#FFB700",
     tag: "Featured Game",
   },
-  {
-    name: "Red Bull",
-    tier: "Esports & Community Partner",
-    type: "svg",
-    accentColor: "#DC0028",
-    glowColor: "rgba(220, 0, 40, 0.15)",
-    tag: "Community Partner",
-  },
 ];
-
-function RedBullLogo() {
-  return (
-    <svg viewBox="0 0 150 52" className="h-12 sm:h-14 w-auto" fill="none">
-      <g transform="translate(4, 4)">
-        {/* Yellow Sun */}
-        <circle cx="30" cy="20" r="12" fill="#FFC72C" />
-        {/* Left Bull */}
-        <path
-          d="M6 32 C9 27 16 20 25 22 C27 19 25 15 20 15 C18 12 13 13 8 18 C6 20 4 25 6 32 Z"
-          fill="#DC0028"
-        />
-        {/* Right Bull */}
-        <path
-          d="M54 32 C51 27 44 20 35 22 C33 19 35 15 40 15 C42 12 47 13 52 18 C54 20 56 25 54 32 Z"
-          fill="#DC0028"
-        />
-        {/* Bull body silhouettes */}
-        <circle cx="18" cy="25" r="8" fill="#DC0028" />
-        <circle cx="42" cy="25" r="8" fill="#DC0028" />
-      </g>
-      <text
-        x="70"
-        y="24"
-        fontFamily="Arial Black, Impact, sans-serif"
-        fontWeight="900"
-        fontSize="16"
-        fill="#DC0028"
-        letterSpacing="-0.5"
-      >
-        Red
-      </text>
-      <text
-        x="70"
-        y="42"
-        fontFamily="Arial Black, Impact, sans-serif"
-        fontWeight="900"
-        fontSize="16"
-        fill="#002B7F"
-        letterSpacing="-0.5"
-      >
-        Bull
-      </text>
-    </svg>
-  );
-}
 
 export function Sponsors() {
   return (
@@ -135,7 +117,7 @@ export function Sponsors() {
             </h2>
           </div>
           <p className="text-sm text-nf-ink-soft max-w-md">
-            Collaborating with industry-defining gaming publishers, hardware innovators, and lifestyle partners.
+            Collaborating with industry-defining gaming publishers, hardware innovators, and academic partners.
           </p>
         </div>
 
@@ -169,7 +151,7 @@ export function Sponsors() {
 
               {/* Logo Area (Large & Centered) */}
               <div className="flex flex-1 items-center justify-center py-2">
-                {p.type === "image" && p.src ? (
+                {p.src && (
                   <Image
                     src={p.src}
                     alt={`${p.name} Logo`}
@@ -177,10 +159,6 @@ export function Sponsors() {
                     height={p.height}
                     className={`${p.imgClass} transition-transform duration-300 group-hover:scale-110`}
                   />
-                ) : (
-                  <div className="transition-transform duration-300 group-hover:scale-110">
-                    <RedBullLogo />
-                  </div>
                 )}
               </div>
 
