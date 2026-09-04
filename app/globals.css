@@ -88,3 +88,24 @@ body {
   background: var(--color-nf-blue);
   color: white;
 }
+
+/* ---------------------------------------------------
+   Rotating Glow Border & Beam Utilities
+   --------------------------------------------------- */
+@keyframes glow-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-glow-rotate {
+  animation: glow-rotate 4s linear infinite;
+}
+
+.animate-glow-rotate-slow {
+  animation: glow-rotate 6s linear infinite;
+}
+

@@ -40,13 +40,22 @@ export function EventBanner() {
           </div>
         </div>
 
-        {/* Right: Premium CTA */}
+        {/* Right: Premium CTA with Rotating Glow Border */}
         <Link
           href="#events"
-          className="group inline-flex w-full sm:w-auto justify-center shrink-0 items-center gap-2 rounded-md border border-[#2872A1] bg-[#2872A1]/30 px-5 py-2 sm:py-1.5 text-[12.5px] font-bold text-white shadow-xs backdrop-blur-sm transition-all duration-200 hover:bg-[#2872A1] hover:shadow-[0_2px_12px_rgba(40,114,161,0.4)] active:scale-[0.98]"
+          className="group relative inline-flex w-full sm:w-auto justify-center shrink-0 items-center overflow-hidden rounded-md p-[1.5px] shadow-sm transition-all duration-300 hover:shadow-[0_0_20px_rgba(56,189,248,0.4)] active:scale-[0.98]"
         >
-          <span>REGISTER NOW</span>
-          <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+          {/* Rotating Conic Beam */}
+          <span
+            className="absolute -inset-[100%] animate-glow-rotate"
+            style={{
+              background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, #2872A1 90deg, #38bdf8 180deg, transparent 270deg, #2872A1 360deg)",
+            }}
+          />
+          <span className="relative flex w-full items-center justify-center gap-2 rounded-[5px] bg-[#091522] px-5 py-2 sm:py-1.5 text-[12.5px] font-bold text-white transition-colors group-hover:bg-[#102a45]">
+            <span>REGISTER NOW</span>
+            <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5" />
+          </span>
         </Link>
       </div>
     </div>
