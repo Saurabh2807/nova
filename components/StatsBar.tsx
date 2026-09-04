@@ -70,19 +70,26 @@ function CountUp({ value }: { value: string }) {
 
 export function StatsBar() {
   return (
-    <div className="border-b border-nf-line bg-white">
+    <div className="border-b border-[#e8ecf4] bg-white">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid grid-cols-2 divide-x divide-nf-line sm:grid-cols-3 lg:grid-cols-5">
-          {statsData.map((s) => {
+        <div className="grid grid-cols-2 divide-y divide-[#e8ecf4] sm:grid-cols-3 sm:divide-y-0 sm:divide-x lg:grid-cols-5">
+          {statsData.map((s, idx) => {
             const Icon = s.icon;
             return (
-              <div key={s.label} className="flex flex-col items-center py-7 text-center">
-                <Icon size={20} className="text-nf-blue mb-2" strokeWidth={1.5} />
-                <div className="font-display text-2xl font-bold text-nf-ink sm:text-3xl">
-                  <CountUp value={s.value} />
+              <div
+                key={s.label}
+                className={`flex flex-col items-center justify-center py-7 sm:py-8 px-4 text-center transition-colors duration-200 hover:bg-slate-50/50 ${
+                  idx === 4 ? "col-span-2 sm:col-span-1 border-t sm:border-t-0" : ""
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Icon size={16} className="text-[#2872A1]" strokeWidth={2} />
+                  <span className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">
+                    {s.label}
+                  </span>
                 </div>
-                <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-nf-ink-soft">
-                  {s.label}
+                <div className="font-display text-3xl sm:text-3.5xl lg:text-4xl font-black tracking-tight text-[#091522]">
+                  <CountUp value={s.value} />
                 </div>
               </div>
             );

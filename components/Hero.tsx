@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, Plus, Trophy } from "lucide-react";
 import Image from "next/image";
 
 // Social icons
@@ -84,17 +84,17 @@ const brandLogos = [
     name: "Monster Energy",
     type: "image",
     src: "/logos/monster.svg",
-    width: 380,
-    height: 110,
-    imgClass: "h-14 sm:h-18 md:h-20 w-auto object-contain scale-110",
+    width: 220,
+    height: 60,
+    imgClass: "h-9 sm:h-11 md:h-12 w-auto object-contain",
   },
   {
     name: "iQOO",
     type: "image",
     src: "/logos/iqoo.svg",
-    width: 100,
-    height: 28,
-    imgClass: "h-7 sm:h-8 w-auto object-contain",
+    width: 110,
+    height: 30,
+    imgClass: "h-6 sm:h-7.5 w-auto object-contain",
   },
   {
     name: "BGMI",
@@ -102,7 +102,7 @@ const brandLogos = [
     src: "/logos/bgmi.png",
     width: 140,
     height: 48,
-    imgClass: "h-8 sm:h-10 w-auto object-contain",
+    imgClass: "h-7 sm:h-9 w-auto object-contain",
   },
   {
     name: "VALORANT",
@@ -110,7 +110,7 @@ const brandLogos = [
     src: "/logos/valorant.svg",
     width: 140,
     height: 28,
-    imgClass: "h-6 sm:h-7 w-auto object-contain",
+    imgClass: "h-5 sm:h-6.5 w-auto object-contain",
   },
   {
     name: "FREE FIRE",
@@ -118,7 +118,7 @@ const brandLogos = [
     src: "/logos/free-fire.png",
     width: 140,
     height: 28,
-    imgClass: "h-7 sm:h-8 w-auto object-contain",
+    imgClass: "h-6 sm:h-7.5 w-auto object-contain",
   },
   {
     name: "Red Bull",
@@ -128,125 +128,130 @@ const brandLogos = [
 
 export function Hero() {
   return (
-    <section className="relative bg-white">
-      {/* Main hero grid */}
-      <div className="grid lg:grid-cols-[440px_1fr] xl:grid-cols-[490px_1fr]">
-        {/* Left: text content */}
-        <div className="flex flex-col justify-center px-6 py-10 sm:px-10 lg:py-14 xl:px-14">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="mb-3.5 text-[11px] font-bold uppercase tracking-[0.22em] text-nf-blue"
-          >
-            Rise From The Middle
-          </motion.div>
-
-          <h1 className="font-display leading-[1.0]">
-            <motion.span
-              initial={{ opacity: 0, y: 15 }}
+    <section className="relative overflow-hidden bg-white border-b border-[#e8ecf4]">
+      {/* ── Continuous Cinematic Stage Layout ── */}
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] xl:grid-cols-[1.15fr_0.85fr] items-center min-h-[460px] sm:min-h-[500px] lg:min-h-[540px]">
+          
+          {/* ══ Left: Editorial Typography & Actions ══ */}
+          <div className="relative z-20 flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:py-20 xl:px-12">
+            
+            {/* Campaign Label Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.05 }}
-              className="block text-[3rem] font-black text-nf-ink sm:text-[3.5rem] lg:text-[3.3rem] xl:text-[3.8rem]"
+              transition={{ duration: 0.35 }}
+              className="mb-4 inline-flex items-center gap-2 self-start rounded-full border border-[#2872A1]/20 bg-[#2872A1]/6 px-3.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.24em] text-[#2872A1]"
             >
-              WE FORGE
-            </motion.span>
-            <motion.span
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: 0.12 }}
-              className="block text-[3rem] font-black text-nf-blue sm:text-[3.5rem] lg:text-[3.3rem] xl:text-[3.8rem]"
-            >
-              LEGENDS
-            </motion.span>
-          </h1>
+              <span className="h-1.5 w-1.5 rounded-full bg-[#2872A1] animate-pulse" />
+              <span>Rise From The Middle</span>
+            </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.25 }}
-            className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-nf-ink-soft sm:text-[14px]"
-          >
-            India&apos;s premium esports tournaments, creator programs and gaming ecosystem.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.35 }}
-            className="mt-7 flex flex-row flex-wrap gap-3"
-          >
-            <a
-              href="#events"
-              className="group inline-flex items-center gap-2.5 rounded-md border-2 border-nf-blue bg-white px-6 py-3 text-sm font-bold text-nf-blue shadow-sm transition-all duration-300 hover:bg-nf-blue hover:text-white hover:shadow-[0_4px_20px_rgba(40,114,161,0.35)]"
-            >
-              <span>Explore the Event</span>
-              <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
-            </a>
-          </motion.div>
-        </div>
-
-        {/* Right: esports arena visual with smooth atmospheric haze transition */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="relative min-h-[320px] sm:min-h-[360px] lg:min-h-[420px] overflow-hidden"
-        >
-          {/* Arena Background Image */}
-          <Image
-            src="/esports-arena.jpg"
-            alt="Nova Forge Esports Championship Arena"
-            fill
-            className="object-cover object-center"
-            priority
-          />
-
-          {/* Smooth Cinematic Haze Transition: Arena -> Soft Blue/White Haze -> Pure White */}
-          <div className="absolute inset-y-0 left-0 w-3/5 sm:w-1/2 lg:w-2/5 bg-gradient-to-r from-white via-white/80 via-[#CBDDE9]/25 to-transparent z-10 pointer-events-none" />
-
-          {/* Subtle atmospheric blue tint wash to unify color palette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-white/15 via-transparent to-transparent z-10 pointer-events-none" />
-
-          {/* Integrated Broadcast Stage Indicator */}
-          <div className="absolute top-4 right-4 z-20 hidden sm:flex items-center gap-2 rounded-full bg-black/40 backdrop-blur-md px-3 py-1 border border-white/20 shadow-sm">
-            <div className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/90">
-              Live Stage
-            </span>
-          </div>
-
-          {/* Subtle Integrated Social Links */}
-          <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1.5">
-            {socialLinks.map(({ icon: Icon, label, href }) => (
-              <motion.a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="flex h-7 w-7 items-center justify-center rounded-md bg-black/35 backdrop-blur-md border border-white/20 text-white/70 shadow-sm transition-all hover:bg-black/60 hover:text-white hover:scale-105"
+            {/* Main Headline */}
+            <h1 className="font-display leading-[0.98] tracking-tight">
+              <motion.span
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.05 }}
+                className="block text-[3rem] font-black tracking-tight text-[#091522] sm:text-[3.8rem] lg:text-[4.1rem] xl:text-[4.6rem]"
               >
-                <Icon className="h-3.5 w-3.5" />
-              </motion.a>
-            ))}
+                WE FORGE
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.12 }}
+                className="block text-[3rem] font-black tracking-tight text-[#2872A1] sm:text-[3.8rem] lg:text-[4.1rem] xl:text-[4.6rem]"
+              >
+                LEGENDS
+              </motion.span>
+            </h1>
+
+            {/* Editorial Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="mt-4 max-w-md text-[14.5px] font-medium leading-relaxed text-slate-600 sm:text-[15.5px]"
+            >
+              India&apos;s premium esports tournaments, creator programs and gaming ecosystem.
+            </motion.p>
+
+            {/* CTAs and Integrated Social Controls */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.28 }}
+              className="mt-8 flex flex-wrap items-center gap-4"
+            >
+              <a
+                href="#events"
+                className="group inline-flex items-center gap-2.5 rounded-md bg-[#2872A1] px-6 py-3 text-[14px] font-bold text-white shadow-[0_3px_14px_rgba(40,114,161,0.28)] transition-all duration-200 hover:bg-[#1f5f87] hover:shadow-[0_5px_20px_rgba(40,114,161,0.38)] active:scale-[0.98]"
+              >
+                <span>Explore the Event</span>
+                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+              </a>
+
+              {/* Integrated Social Channels */}
+              <div className="flex items-center gap-1.5 border-l border-slate-200/80 pl-4">
+                {socialLinks.map(({ icon: Icon, label, href }) => (
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="flex h-8.5 w-8.5 items-center justify-center rounded-lg border border-slate-200/90 bg-slate-50/80 text-slate-600 transition-all duration-200 hover:border-[#2872A1]/40 hover:bg-white hover:text-[#2872A1] hover:scale-105 active:scale-95"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            </motion.div>
           </div>
-        </motion.div>
+
+          {/* ══ Right: Atmospheric Esports Arena Scene ══ */}
+          <div className="relative h-[280px] sm:h-[340px] lg:h-full lg:min-h-[520px] w-full overflow-hidden">
+            {/* Background Image */}
+            <Image
+              src="/esports-arena.jpg"
+              alt="Nova Forge Esports Championship Arena"
+              fill
+              className="object-cover object-center scale-[1.03]"
+              priority
+            />
+
+            {/* Seamless Left-to-Right Atmospheric Gradient Blending */}
+            <div className="absolute inset-y-0 left-0 w-full sm:w-4/5 lg:w-3/5 bg-gradient-to-r from-white via-white/90 via-[#CBDDE9]/35 to-transparent z-10 pointer-events-none" />
+            
+            {/* Top & Bottom Soft Feathering */}
+            <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white via-white/30 to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/30 to-transparent z-10 pointer-events-none" />
+
+            {/* Broadcast Arena Badge */}
+            <div className="absolute top-5 right-5 z-20 hidden sm:flex items-center gap-2 rounded-full bg-black/45 backdrop-blur-md px-3.5 py-1.5 border border-white/20 shadow-md">
+              <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-white/95">
+                Official Arena
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* TRUSTED BY Strip - Full Width with generous spacing */}
-      <div className="w-full border-t border-nf-line bg-gradient-to-r from-gray-50/90 via-white to-gray-50/90 py-5">
-        <div className="w-full px-6 sm:px-12 lg:px-16 xl:px-20">
-          <div className="flex flex-wrap items-center justify-center gap-x-10 sm:gap-x-12 md:gap-x-16 gap-y-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-nf-ink-soft/80">
+      {/* ── Editorial "Trusted By" Ecosystem Strip ── */}
+      <div className="w-full border-t border-[#e8ecf4] bg-gradient-to-b from-slate-50/70 to-white py-4.5 sm:py-5">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 sm:gap-x-12 md:gap-x-14 gap-y-3.5">
+            <span className="text-[10.5px] font-extrabold uppercase tracking-[0.25em] text-slate-400">
               Trusted By
             </span>
-            <div className="hidden h-4 w-px bg-nf-line sm:block" />
+            <div className="hidden h-4 w-px bg-slate-200 sm:block" />
 
             {brandLogos.map((brand) => (
               <div
                 key={brand.name}
-                className="flex items-center opacity-85 transition-all duration-200 hover:opacity-100 hover:scale-105 cursor-pointer"
+                className="flex items-center opacity-80 transition-all duration-200 hover:opacity-100 hover:scale-105 cursor-pointer"
                 title={brand.name}
               >
                 {brand.type === "image" && brand.src ? (
@@ -264,7 +269,7 @@ export function Hero() {
             ))}
 
             {/* "and many more..." pill */}
-            <div className="flex items-center gap-1.5 rounded-full bg-nf-blue/10 px-3 py-1 text-[11px] font-bold text-nf-blue transition-all duration-200 hover:bg-nf-blue hover:text-white">
+            <div className="flex items-center gap-1.5 rounded-full bg-[#2872A1]/8 px-3 py-1 text-[11px] font-bold text-[#2872A1] transition-all duration-200 hover:bg-[#2872A1] hover:text-white">
               <Plus size={12} strokeWidth={3} />
               <span>and many more...</span>
             </div>
@@ -274,3 +279,4 @@ export function Hero() {
     </section>
   );
 }
+
