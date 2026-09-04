@@ -1,12 +1,49 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDays, MapPin, Ticket, Users, Trophy, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CalendarDays, MapPin, Ticket, Users, Trophy, ArrowRight, ChevronDown, ListOrdered, Sparkles } from "lucide-react";
 import { flagshipEvent } from "@/lib/data";
 import { EventCountdown } from "./EventCountdown";
 
+// Day 1 & Day 2 Activity Flows from Official Programme Schedule (No timings, pure activity names)
+const day1Activities = [
+  "Volunteer & Guest Arrival",
+  "Lamp Lighting Ceremony",
+  "Cultural Dance & Guest Felicitation",
+  "Chief Guest Keynote Speech",
+  "Live Band Performance",
+  "Special Guest Interview",
+  "Stage Dance Performance",
+  "Nova Forge Introduction",
+  "Credits Video & Reveal",
+  "Dance Performance Showcase",
+  "Creator Competitions & Activities",
+  "Wrap-Up & Sampling Activity",
+  "Post-Lunch Community Engagement",
+];
+
+const day2Activities = [
+  "Lamp Lighting Ceremony",
+  "Cultural Dance Performance",
+  "Lobby Game #1 (BGMI LAN)",
+  "Stage Dance Performance",
+  "Lobby Game #2 (BGMI LAN)",
+  "Stage Dance Performance",
+  "Lobby Game #3 (BGMI LAN)",
+  "Nova Forge Introduction",
+  "Lobby Game #4 (BGMI LAN)",
+  "Nova Forge Esports Team Introduction",
+  "Lobby Game #5 (BGMI LAN)",
+  "TDM Showdown — Top 2 Teams",
+  "Grand Finals & Results Announcement",
+];
+
 export function Events() {
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+
   return (
     <section id="events" className="bg-white py-14 sm:py-20 border-t border-nf-line/60">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -172,18 +209,28 @@ export function Events() {
             </div>
           </div>
 
-          {/* ══ RIGHT COLUMN: Stacked Day 1 & Day 2 Cards ══ */}
-          <div className="flex flex-col gap-4">
+          {/* ══ RIGHT COLUMN: Stacked Day 1 & Day 2 Cards with Hover Expansion ══ */}
+          <div className="flex flex-col gap-5">
 
-            {/* DAY 1 — CREATION DAY */}
-            <div className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-[#c8d8e8]">
-              <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[160px]">
+            {/* ── DAY 1 — CREATION DAY CARD ── */}
+            <div
+              className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#2872A1]/40"
+              onMouseEnter={() => setHoveredCard(1)}
+              onMouseLeave={() => setHoveredCard(null)}
+            >
+              <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[165px]">
                 {/* Left Info */}
-                <div className="p-5 flex flex-col justify-between">
+                <div className="p-5 sm:p-6 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-nf-blue">
-                      Day 1 · 18 Sep
-                    </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-nf-blue">
+                        Day 1 · 18 Sep
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-nf-blue transition-colors">
+                        <span>Event Flow</span>
+                        <ChevronDown size={13} className={`transition-transform duration-300 ${hoveredCard === 1 ? "rotate-180 text-nf-blue" : ""}`} />
+                      </span>
+                    </div>
                     <h3 className="mt-1 font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-nf-ink leading-none">
                       Creation Day
                     </h3>
@@ -215,6 +262,51 @@ export function Events() {
                 </div>
               </div>
 
+              {/* ── EXPANDABLE DAY 1 EVENT FLOW (OPENS ON HOVER) ── */}
+              <AnimatePresence>
+                {hoveredCard === 1 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden border-t border-[#e2e8f0] bg-gradient-to-b from-slate-50/90 to-white"
+                  >
+                    <div className="p-5 sm:p-6">
+                      <div className="mb-3.5 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-nf-blue/10 text-nf-blue">
+                            <Sparkles size={11} />
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-nf-blue">
+                            Day 1 Programme Flow
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400">
+                          13 Activities
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {day1Activities.map((act, index) => (
+                          <div
+                            key={act}
+                            className="flex items-center gap-2.5 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-[12px] font-semibold text-nf-ink shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-colors hover:border-nf-blue/40 hover:bg-nf-blue/[0.02]"
+                          >
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9.5px] font-black text-nf-blue">
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <span className="truncate leading-tight text-slate-700">
+                              {act}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Bottom Card Footer */}
               <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
                 <div className="flex items-center gap-2.5">
@@ -244,15 +336,25 @@ export function Events() {
               </div>
             </div>
 
-            {/* DAY 2 — GAMING DAY */}
-            <div className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:border-[#c8d8e8]">
-              <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[160px]">
+            {/* ── DAY 2 — GAMING DAY CARD ── */}
+            <div
+              className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#2872A1]/40"
+              onMouseEnter={() => setHoveredCard(2)}
+              onMouseLeave={() => setHoveredCard(null)}
+            >
+              <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[165px]">
                 {/* Left Info */}
-                <div className="p-5 flex flex-col justify-between">
+                <div className="p-5 sm:p-6 flex flex-col justify-between">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-nf-blue">
-                      Day 2 · 19 Sep
-                    </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-nf-blue">
+                        Day 2 · 19 Sep
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-nf-blue transition-colors">
+                        <span>Event Flow</span>
+                        <ChevronDown size={13} className={`transition-transform duration-300 ${hoveredCard === 2 ? "rotate-180 text-nf-blue" : ""}`} />
+                      </span>
+                    </div>
                     <h3 className="mt-1 font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-nf-ink leading-none">
                       Gaming Day
                     </h3>
@@ -283,6 +385,51 @@ export function Events() {
                   <div className="absolute inset-0 bg-gradient-to-r from-white/30 via-transparent to-transparent pointer-events-none" />
                 </div>
               </div>
+
+              {/* ── EXPANDABLE DAY 2 EVENT FLOW (OPENS ON HOVER) ── */}
+              <AnimatePresence>
+                {hoveredCard === 2 && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden border-t border-[#e2e8f0] bg-gradient-to-b from-slate-50/90 to-white"
+                  >
+                    <div className="p-5 sm:p-6">
+                      <div className="mb-3.5 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-nf-blue/10 text-nf-blue">
+                            <Sparkles size={11} />
+                          </div>
+                          <span className="text-[11px] font-black uppercase tracking-[0.2em] text-nf-blue">
+                            Day 2 Tournament & Watch Party Flow
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-400">
+                          13 Activities
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {day2Activities.map((act, index) => (
+                          <div
+                            key={act}
+                            className="flex items-center gap-2.5 rounded-lg border border-slate-200/80 bg-white px-3 py-2 text-[12px] font-semibold text-nf-ink shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition-colors hover:border-nf-blue/40 hover:bg-nf-blue/[0.02]"
+                          >
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[9.5px] font-black text-nf-blue">
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <span className="truncate leading-tight text-slate-700">
+                              {act}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Bottom Card Footer */}
               <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
