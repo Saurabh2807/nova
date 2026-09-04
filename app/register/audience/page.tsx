@@ -6,11 +6,22 @@ import { RegisterShell, Field, inputClass } from "@/components/registration/Regi
 import { TicketCard } from "@/components/registration/TicketCard";
 import { flagshipEvent } from "@/lib/data";
 
+export const COLLEGE_OPTIONS = [
+  { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
+  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0176)", prefix: "0176" },
+  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0157)", prefix: "0157" },
+  { id: "lnctu", name: "LNCT University (LNCTU), Bhopal", prefix: "LNCTU" },
+  { id: "lncp", name: "LNCP (Pharmacy), Bhopal", prefix: "LNCP" },
+  { id: "lnct-mca-mba", name: "LNCT MCA / MBA Department", prefix: "LNCT-PG" },
+  { id: "other", name: "Other College / External Institution", prefix: "" },
+];
+
 export default function AudienceRegisterPage() {
   const [form, setForm] = useState({
     name: "",
     phone: "",
     email: "",
+    college: "LNCT Main, Bhopal (0103)",
     collegeId: "",
   });
 
@@ -241,37 +252,53 @@ export default function AudienceRegisterPage() {
             </Field>
           </div>
 
-          <Field label="Enrollment / Scholar No (College ID)" hint="Required for gate verification">
-            <input
-              required
-              disabled={isClosed}
-              className={inputClass}
-              placeholder="e.g. 0103IT241045"
-              value={form.collegeId}
-              onChange={(e) => update("collegeId", e.target.value)}
-            />
-          </Field>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Select College / Campus">
+              <select
+                disabled={isClosed}
+                value={form.college}
+                onChange={(e) => update("college", e.target.value)}
+                className={`${inputClass} font-medium text-slate-800`}
+              >
+                {COLLEGE_OPTIONS.map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Enrollment / Scholar No" hint="Must match physical College ID card">
+              <input
+                required
+                disabled={isClosed}
+                className={inputClass}
+                placeholder="e.g. 0103IT241045"
+                value={form.collegeId}
+                onChange={(e) => update("collegeId", e.target.value.toUpperCase())}
+              />
+            </Field>
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={loading || isClosed}
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-nf-blue py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-nf-blue-bright hover:shadow-lg active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-2xl bg-nf-blue py-4 font-display font-extrabold text-white text-base shadow-md transition-all hover:bg-nf-blue-bright active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
-              <Loader2 size={16} className="animate-spin" />
-              Generating Pass...
+              <Loader2 size={18} className="animate-spin" />
+              <span>Generating Entry Pass & QR Code...</span>
             </>
           ) : isClosed ? (
-            "Passes Unavailable"
+            <span>Passes Unavailable</span>
           ) : (
-            "Claim Audience Pass"
+            <span>Claim Free Audience Pass</span>
           )}
         </button>
 
-        <p className="text-center text-[11px] text-nf-ink-soft">
-          Please carry your official College ID card to the arena along with your digital ticket.
+        <p className="text-center text-[11.5px] text-nf-ink-soft">
+          Please carry your physical College ID card to the arena along with your digital QR pass.
         </p>
       </form>
     </RegisterShell>

@@ -96,8 +96,8 @@ export function getLeaderEmailHtml({
         <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.1em;">Official Team ID</div>
         <div class="team-id">${teamId}</div>
         
-        <div class="qr-container">
-          <img src="${qrDataUrl}" alt="Team QR Pass" />
+        <div class="qr-container" style="margin: 16px auto; width: 180px; height: 180px; background: #ffffff; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+          <img src="${qrDataUrl}" alt="Team QR Pass" width="160" height="160" style="display: block; margin: 0 auto; width: 160px; height: 160px; border: 0;" />
         </div>
         <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Scan at LNCT check-in desk for entry</p>
       </div>
@@ -193,8 +193,8 @@ export function getPlayer2EmailHtml({
         <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.1em;">Team ID</div>
         <div class="team-id">${teamId}</div>
         
-        <div class="qr-container">
-          <img src="${qrDataUrl}" alt="Team QR Pass" />
+        <div class="qr-container" style="margin: 16px auto; width: 180px; height: 180px; background: #ffffff; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
+          <img src="${qrDataUrl}" alt="Team QR Pass" width="160" height="160" style="display: block; margin: 0 auto; width: 160px; height: 160px; border: 0;" />
         </div>
         <p style="font-size: 11px; color: #64748b; margin: 4px 0 0 0;">Shared Squad QR Code</p>
       </div>
@@ -281,9 +281,10 @@ export function getAudienceEmailHtml({
         <div style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.1em;">Audience Pass ID</div>
         <div class="pass-id">${passId}</div>
         
-        <div class="qr-container">
-          <img src="${qrDataUrl}" alt="Audience QR Code" />
+        <div class="qr-container" style="margin: 14px auto; width: 170px; height: 170px; background: #ffffff; padding: 8px; border-radius: 10px; border: 1px solid #cbd5e1; text-align: center;">
+          <img src="${qrDataUrl}" alt="Audience QR Code" width="154" height="154" style="display: block; margin: 0 auto; width: 154px; height: 154px; border: 0;" />
         </div>
+        <div style="font-family: monospace; font-size: 14px; font-weight: 800; color: #2872A1; letter-spacing: 0.1em; margin-top: 6px;">${passId}</div>
         <p style="font-size: 12px; font-weight: 700; color: #091522; margin: 6px 0 0 0;">${venue} · ${eventDate}</p>
         <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Gates Open: ${reportingTime}</p>
       </div>

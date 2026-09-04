@@ -481,7 +481,72 @@ export default function AdminPortalPage() {
         {/* ==================================================================== */}
         {activeTab === "dashboard" && (
           <div className="space-y-6">
-            {/* Stats Grid */}
+            {/* Top Capacity & Status Summary Bar */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-2xl border border-white/10 bg-[#0d1f33] p-5 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/50 block">Registration Status</span>
+                  <p className="mt-1 font-display text-2xl font-black text-white">
+                    {stats?.settings?.registration_open ? (
+                      <span className="text-emerald-400">OPEN</span>
+                    ) : (
+                      <span className="text-rose-400">CLOSED</span>
+                    )}
+                  </p>
+                </div>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider ${
+                    stats?.settings?.registration_open
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                      : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
+                  }`}
+                >
+                  {stats?.settings?.registration_open ? "● Live / Accepting" : "■ Blocked / Locked"}
+                </span>
+              </div>
+
+              <div className="rounded-2xl border border-cyan-500/30 bg-cyan-950/20 p-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-cyan-300">Participant Capacity</span>
+                  <span className="text-xs font-black text-cyan-400">
+                    {stats?.totalTeams ?? 0} / {stats?.settings?.participant_limit ?? 250} Teams
+                  </span>
+                </div>
+                <div className="mt-3 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className="h-full bg-cyan-400 rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(100, Math.round(((stats?.totalTeams ?? 0) / (stats?.settings?.participant_limit || 1)) * 100))}%`,
+                    }}
+                  />
+                </div>
+                <p className="mt-2 text-[11px] text-cyan-200/70">
+                  {stats?.totalParticipants ?? (stats?.totalTeams ?? 0) * 2} Registered Players (2 per squad)
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-purple-500/30 bg-purple-950/20 p-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-purple-300">Audience Capacity</span>
+                  <span className="text-xs font-black text-purple-400">
+                    {stats?.totalAudience ?? 0} / {stats?.settings?.audience_limit ?? 1000} Passes
+                  </span>
+                </div>
+                <div className="mt-3 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                  <div
+                    className="h-full bg-purple-400 rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(100, Math.round(((stats?.totalAudience ?? 0) / (stats?.settings?.audience_limit || 1)) * 100))}%`,
+                    }}
+                  />
+                </div>
+                <p className="mt-2 text-[11px] text-purple-200/70">
+                  Free Student Entry Tickets
+                </p>
+              </div>
+            </div>
+
+            {/* Detailed Metrics Grid */}
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
               <div className="rounded-2xl border border-white/10 bg-[#0d1f33] p-5">
                 <span className="text-[10.5px] font-bold uppercase tracking-wider text-white/50">Total Teams (BGMI)</span>
@@ -489,7 +554,7 @@ export default function AdminPortalPage() {
                   {stats?.totalTeams ?? "—"}
                 </p>
                 <p className="mt-1 text-[11px] text-white/40">
-                  {stats?.totalParticipants ?? 0} total registered players
+                  {stats?.totalParticipants ?? 0} Total Players
                 </p>
               </div>
 
@@ -498,7 +563,7 @@ export default function AdminPortalPage() {
                 <p className="mt-2 font-display text-3xl font-black text-white">
                   {stats?.totalAudience ?? "—"}
                 </p>
-                <p className="mt-1 text-[11px] text-white/40">Free guest entry passes</p>
+                <p className="mt-1 text-[11px] text-white/40">Registered Audience</p>
               </div>
 
               <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-5">
@@ -507,7 +572,7 @@ export default function AdminPortalPage() {
                   {stats?.totalCheckedIn ?? "—"}
                 </p>
                 <p className="mt-1 text-[11px] text-emerald-400/70">
-                  {stats?.checkInRate ?? 0}% live turnout rate
+                  {stats?.teamsCheckedIn ?? 0} Teams · {stats?.audienceCheckedIn ?? 0} Audience ({stats?.checkInRate ?? 0}%)
                 </p>
               </div>
 
@@ -516,7 +581,7 @@ export default function AdminPortalPage() {
                 <p className="mt-2 font-display text-3xl font-black text-amber-300">
                   {stats?.pendingCheckIn ?? "—"}
                 </p>
-                <p className="mt-1 text-[11px] text-amber-400/70">Awaiting desk entry</p>
+                <p className="mt-1 text-[11px] text-amber-400/70">Awaiting gate entry</p>
               </div>
             </div>
 

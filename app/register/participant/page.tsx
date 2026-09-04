@@ -1,29 +1,34 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Shield, AlertCircle, Loader2, Gamepad2, Calendar, MapPin, Clock, CheckCircle, Ban } from "lucide-react";
+import { Users, Shield, AlertCircle, Loader2, Gamepad2, Calendar, MapPin, Clock, Building2, Ban, Flame } from "lucide-react";
 import { RegisterShell, Field, inputClass } from "@/components/registration/RegisterShell";
 import { TeamCard } from "@/components/registration/TeamCard";
 
-const GAME_OPTIONS = [
-  { id: "bgmi", name: "BGMI", type: "Duo (2 Players)", badge: "Featured" },
-  { id: "valorant", name: "Valorant", type: "Squad / Duo", badge: "PC Esports" },
-  { id: "freefire", name: "Free Fire", type: "Duo Squad", badge: "Mobile" },
+export const COLLEGE_OPTIONS = [
+  { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
+  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0176)", prefix: "0176" },
+  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0157)", prefix: "0157" },
+  { id: "lnctu", name: "LNCT University (LNCTU), Bhopal", prefix: "LNCTU" },
+  { id: "lncp", name: "LNCP (Pharmacy), Bhopal", prefix: "LNCP" },
+  { id: "lnct-mca-mba", name: "LNCT MCA / MBA Department", prefix: "LNCT-PG" },
+  { id: "other", name: "Other College / External Institution", prefix: "" },
 ];
 
 export default function ParticipantRegisterPage() {
-  const [selectedGame, setSelectedGame] = useState("bgmi");
   const [teamName, setTeamName] = useState("");
   const [leader, setLeader] = useState({
     fullName: "",
     email: "",
     phone: "",
+    college: "LNCT Main, Bhopal (0103)",
     collegeId: "",
   });
   const [member, setMember] = useState({
     fullName: "",
     email: "",
     phone: "",
+    college: "LNCT Main, Bhopal (0103)",
     collegeId: "",
   });
 
@@ -48,7 +53,6 @@ export default function ParticipantRegisterPage() {
     qrDataUrl: string;
   } | null>(null);
 
-  // Fetch live event settings on mount
   useEffect(() => {
     async function fetchSettings() {
       try {
@@ -78,26 +82,13 @@ export default function ParticipantRegisterPage() {
       return;
     }
 
-    // Client-side quick validations
     const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(leader.phone.trim())) {
-      setErrorMsg("Team Leader phone number must be exactly 10 digits.");
-      return;
-    }
-    if (!phoneRegex.test(member.phone.trim())) {
-      setErrorMsg("Player 2 phone number must be exactly 10 digits.");
+    if (!phoneRegex.test(leader.phone.trim()) || !phoneRegex.test(member.phone.trim())) {
+      setErrorMsg("Phone numbers must be exactly 10 digits.");
       return;
     }
     if (leader.email.trim().toLowerCase() === member.email.trim().toLowerCase()) {
       setErrorMsg("Player 1 and Player 2 cannot have the same email address.");
-      return;
-    }
-    if (leader.phone.trim() === member.phone.trim()) {
-      setErrorMsg("Player 1 and Player 2 cannot have the same phone number.");
-      return;
-    }
-    if (leader.collegeId.trim().toLowerCase() === member.collegeId.trim().toLowerCase()) {
-      setErrorMsg("Player 1 and Player 2 cannot have the same College Enrollment / Scholar No.");
       return;
     }
 
@@ -109,26 +100,27 @@ export default function ParticipantRegisterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           teamName: teamName.trim(),
-          game: selectedGame,
+          game: "bgmi",
           leader: {
             fullName: leader.fullName.trim(),
             email: leader.email.trim(),
             phone: leader.phone.trim(),
+            college: leader.college,
             collegeId: leader.collegeId.trim(),
           },
           member: {
             fullName: member.fullName.trim(),
             email: member.email.trim(),
             phone: member.phone.trim(),
+            college: member.college,
             collegeId: member.collegeId.trim(),
           },
         }),
       });
 
       const data = await res.json();
-
       if (!res.ok || !data.success) {
-        setErrorMsg(data.error || "Failed to complete registration. Please check your details.");
+        setErrorMsg(data.error || "Failed to complete registration.");
         setLoading(false);
         return;
       }
@@ -143,7 +135,7 @@ export default function ParticipantRegisterPage() {
         qrDataUrl: data.qrDataUrl,
       });
     } catch (err: any) {
-      setErrorMsg("An unexpected network error occurred. Please try again.");
+      setErrorMsg("An unexpected network error occurred.");
     } finally {
       setLoading(false);
     }
@@ -154,7 +146,7 @@ export default function ParticipantRegisterPage() {
       <RegisterShell
         eyebrow="Participant Pass"
         title="Squad Slot Confirmed"
-        description={`Your ${selectedGame.toUpperCase()} duo team is registered for the Nova Forge Campus Carnival on Day 2.`}
+        description="Your BGMI duo team is registered for the Nova Forge Campus Carnival on Day 2."
       >
         <TeamCard
           teamName={successData.teamName}
@@ -174,10 +166,9 @@ export default function ParticipantRegisterPage() {
   return (
     <RegisterShell
       eyebrow="Tournament Entry"
-      title="Register as Participant"
-      description="Battle it out at Nova Forge Campus Carnival. Register your 2-player squad for the championship."
+      title="BGMI Championship Registration"
+      description="Register your 2-player BGMI squad for the LAN Esports Championship at LNCT Bhopal."
     >
-      {/* Event Meta Live Banner */}
       <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-semibold text-nf-ink-soft bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5">
         <div className="flex items-center gap-2">
           <Calendar size={14} className="text-nf-blue shrink-0" />
@@ -194,59 +185,33 @@ export default function ParticipantRegisterPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Game Selector */}
-        <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-nf-ink">
-            Select Tournament Game
-          </label>
-          <div className="grid grid-cols-3 gap-2.5">
-            {GAME_OPTIONS.map((g) => {
-              const active = selectedGame === g.id;
-              return (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => setSelectedGame(g.id)}
-                  className={`flex flex-col items-start justify-between rounded-xl border p-3 text-left transition-all ${
-                    active
-                      ? "border-nf-blue bg-blue-50/60 shadow-xs ring-2 ring-nf-blue/20"
-                      : "border-nf-line bg-white hover:border-slate-300"
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full mb-1">
-                    <span className="font-display font-black text-sm text-nf-ink">{g.name}</span>
-                    {active && <CheckCircle size={14} className="text-nf-blue" />}
-                  </div>
-                  <span className="text-[10.5px] font-medium text-nf-ink-soft">{g.type}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Live Registration Status Banner */}
-        <div className="flex items-center justify-between rounded-2xl border border-nf-line bg-gradient-to-r from-blue-50/80 via-white to-gray-50 p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-nf-blue text-white shadow-sm">
-              <Gamepad2 size={20} />
+        <div className="flex items-center justify-between rounded-2xl border border-nf-blue/30 bg-gradient-to-r from-blue-900/10 via-slate-900/5 to-transparent p-4 shadow-sm">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-nf-blue text-white shadow-md">
+              <Gamepad2 size={24} />
             </div>
             <div>
-              <p className="font-display text-sm font-extrabold text-nf-ink">
-                {selectedGame.toUpperCase()} Championship
-              </p>
-              <p className="text-[11px] font-medium text-nf-ink-soft">
-                Team Size: Exactly 2 Players (Duo Roster)
+              <div className="flex items-center gap-2">
+                <p className="font-display text-base font-black text-nf-ink tracking-tight">
+                  BGMI LAN TOURNAMENT
+                </p>
+                <span className="flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[9.5px] font-black uppercase tracking-wider text-amber-700">
+                  <Flame size={11} className="text-amber-600" /> Day 2 LAN
+                </span>
+              </div>
+              <p className="text-[11.5px] font-semibold text-nf-ink-soft">
+                Team Format: <strong>2 Players (Duo Squad)</strong> · Erangel & Miramar
               </p>
             </div>
           </div>
           {isClosed ? (
-            <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-red-800">
+            <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-[10.5px] font-extrabold uppercase tracking-wider text-red-800">
               <Ban size={12} /> Closed
             </span>
           ) : (
             <div className="text-right">
               <span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800">
-                Registrations Open
+                Slots Open
               </span>
               {eventSettings?.remainingTeamSlots !== undefined && (
                 <p className="mt-1 text-[10px] font-bold text-slate-500">
@@ -257,20 +222,18 @@ export default function ParticipantRegisterPage() {
           )}
         </div>
 
-        {/* Closed Warning if applicable */}
         {isClosed && (
           <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs font-semibold text-amber-900">
             <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />
             <div>
-              <p className="font-bold">Registrations for this tournament are currently paused or full.</p>
+              <p className="font-bold">BGMI tournament slots are currently full or registrations are closed.</p>
               <p className="mt-0.5 text-amber-800/90 font-normal">
-                Please check back later or register as an Audience pass to attend and watch the tournament live!
+                Please check back later or register for an Audience Pass to watch the LAN matches live!
               </p>
             </div>
           </div>
         )}
 
-        {/* Error notification */}
         {errorMsg && (
           <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
             <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
@@ -278,11 +241,10 @@ export default function ParticipantRegisterPage() {
           </div>
         )}
 
-        {/* Team Details */}
         <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
           <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
             <Users size={16} className="text-nf-blue" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-nf-ink">Team Information</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-nf-ink">Team / Squad Information</h3>
           </div>
           <Field label="Team / Squad Name" hint="Must be unique across the tournament">
             <input
@@ -296,7 +258,6 @@ export default function ParticipantRegisterPage() {
           </Field>
         </div>
 
-        {/* Player 1: Team Leader */}
         <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div className="flex items-center gap-2">
@@ -345,26 +306,41 @@ export default function ParticipantRegisterPage() {
             </Field>
           </div>
 
-          <Field label="Enrollment / Scholar No (College ID)" hint="Must match physical college ID card">
-            <input
-              required
-              disabled={isClosed}
-              className={inputClass}
-              placeholder="e.g. 0103CS231001"
-              value={leader.collegeId}
-              onChange={(e) => setLeader((l) => ({ ...l, collegeId: e.target.value }))}
-            />
-          </Field>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Select College / Campus">
+              <select
+                disabled={isClosed}
+                value={leader.college}
+                onChange={(e) => setLeader((l) => ({ ...l, college: e.target.value }))}
+                className={`${inputClass} font-medium text-slate-800`}
+              >
+                {COLLEGE_OPTIONS.map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Enrollment / Scholar No" hint="Must match your physical College ID card">
+              <input
+                required
+                disabled={isClosed}
+                className={inputClass}
+                placeholder="e.g. 0103CS231045"
+                value={leader.collegeId}
+                onChange={(e) => setLeader((l) => ({ ...l, collegeId: e.target.value.toUpperCase() }))}
+              />
+            </Field>
+          </div>
         </div>
 
-        {/* Player 2: Team Member */}
         <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div className="flex items-center gap-2">
-              <Users size={16} className="text-gray-500" />
+              <Users size={16} className="text-cyan-600" />
               <h3 className="text-sm font-bold uppercase tracking-wider text-nf-ink">Player 2 (Team Member)</h3>
             </div>
-            <span className="text-[10.5px] font-bold text-gray-500 bg-gray-100 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10.5px] font-bold text-cyan-600 bg-cyan-50 px-2.5 py-0.5 rounded-full border border-cyan-100">
               Duo Partner
             </span>
           </div>
@@ -381,7 +357,7 @@ export default function ParticipantRegisterPage() {
           </Field>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Mobile Number (10 Digits)">
+            <Field label="Mobile Number (10 Digits)" hint="WhatsApp / Calling">
               <input
                 required
                 disabled={isClosed}
@@ -399,45 +375,58 @@ export default function ParticipantRegisterPage() {
                 disabled={isClosed}
                 type="email"
                 className={inputClass}
-                placeholder="member@example.com"
+                placeholder="player2@example.com"
                 value={member.email}
                 onChange={(e) => setMember((m) => ({ ...m, email: e.target.value }))}
               />
             </Field>
           </div>
 
-          <Field label="Enrollment / Scholar No (College ID)" hint="Must match physical college ID card">
-            <input
-              required
-              disabled={isClosed}
-              className={inputClass}
-              placeholder="e.g. 0103CS231002"
-              value={member.collegeId}
-              onChange={(e) => setMember((m) => ({ ...m, collegeId: e.target.value }))}
-            />
-          </Field>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Select College / Campus">
+              <select
+                disabled={isClosed}
+                value={member.college}
+                onChange={(e) => setMember((m) => ({ ...m, college: e.target.value }))}
+                className={`${inputClass} font-medium text-slate-800`}
+              >
+                {COLLEGE_OPTIONS.map((c) => (
+                  <option key={c.id} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Enrollment / Scholar No" hint="Must match physical College ID card">
+              <input
+                required
+                disabled={isClosed}
+                className={inputClass}
+                placeholder="e.g. 0103CS231089"
+                value={member.collegeId}
+                onChange={(e) => setMember((m) => ({ ...m, collegeId: e.target.value.toUpperCase() }))}
+              />
+            </Field>
+          </div>
         </div>
 
-        {/* Submit button */}
         <button
           type="submit"
           disabled={loading || isClosed}
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-nf-blue py-3.5 text-sm font-bold text-white shadow-md transition-all hover:bg-nf-blue-bright hover:shadow-lg active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full rounded-2xl bg-nf-blue py-4 font-display font-extrabold text-white text-base shadow-md transition-all hover:bg-nf-blue-bright active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
-              <Loader2 size={16} className="animate-spin" />
-              Registering Squad...
+              <Loader2 size={18} className="animate-spin" />
+              <span>Generating Squad Tickets & QR Passes...</span>
             </>
-          ) : isClosed ? (
-            "Registrations Closed"
           ) : (
-            `Complete ${selectedGame.toUpperCase()} Squad Registration`
+            <span>Complete BGMI Duo Registration</span>
           )}
         </button>
 
-        <p className="text-center text-[11px] text-nf-ink-soft">
-          By registering, you confirm that both players are enrolled students and will bring valid College ID cards to the event.
+        <p className="text-center text-[11.5px] text-nf-ink-soft">
+          By registering, both players agree to arrive at LNCT Bhopal by <strong>{eventSettings?.reporting_time || "09:00 AM"}</strong> with their physical College ID card.
         </p>
       </form>
     </RegisterShell>

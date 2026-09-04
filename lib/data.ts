@@ -28,8 +28,8 @@ export const flagshipEvent = {
       date: "19 Sep",
       title: "Gaming Day",
       description:
-        "Squad up and battle it out across three of the biggest competitive titles on campus.",
-      tracks: ["BGMI", "Valorant", "Free Fire"],
+        "Squad up and battle it out in the flagship BGMI LAN Tournament at LNCT Bhopal.",
+      tracks: ["BGMI Esports", "LAN Arena", "Duo Squads"],
     },
   ],
 };

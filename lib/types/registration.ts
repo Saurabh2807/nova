@@ -7,6 +7,7 @@ export interface EventSettings {
   registration_open: boolean;
   participant_limit: number;
   audience_limit: number;
+  event_name?: string;
   event_date: string;
   venue: string;
   reporting_time: string;

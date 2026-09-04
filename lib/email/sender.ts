@@ -8,13 +8,39 @@ import nodemailer from "nodemailer";
  * 3. Fallback warning logger in development
  */
 
+export interface EmailAttachment {
+  filename: string;
+  content?: Buffer | string;
+  path?: string;
+  cid?: string;
+  contentType?: string;
+}
+
 interface SendEmailParams {
   to: string;
   subject: string;
   html: string;
+  attachments?: EmailAttachment[];
 }
 
-export async function sendEmail({ to, subject, html }: SendEmailParams): Promise<{ success: boolean; error?: string }> {
+export async function sendEmail({ to, subject, html, attachments = [] }: SendEmailParams): Promise<{ success: boolean; error?: string }> {
+  // Auto-convert any embedded base64 data URIs into CID inline attachments for Gmail, Outlook & mobile mail clients
+  let processedHtml = html;
+  const finalAttachments: EmailAttachment[] = [...attachments];
+  let imgIndex = finalAttachments.length;
+
+  processedHtml = processedHtml.replace(/src=["']data:image\/(png|jpeg|jpg|webp|gif);base64,([^"']+)["']/gi, (_match, mimeType, base64Data) => {
+    imgIndex++;
+    const cid = `qr-ticket-${imgIndex}@novaforge`;
+    finalAttachments.push({
+      filename: `ticket-qr-${imgIndex}.${mimeType === "jpeg" ? "jpg" : mimeType}`,
+      content: Buffer.from(base64Data, "base64"),
+      cid: cid,
+      contentType: `image/${mimeType}`,
+    });
+    return `src="cid:${cid}"`;
+  });
+
   const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
   const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
 
@@ -41,7 +67,13 @@ export async function sendEmail({ to, subject, html }: SendEmailParams): Promise
         from: fromAddress.includes("<") ? fromAddress : `Nova Forge <${fromAddress}>`,
         to,
         subject,
-        html,
+        html: processedHtml,
+        attachments: finalAttachments.map((a) => ({
+          filename: a.filename,
+          content: a.content,
+          cid: a.cid,
+          contentType: a.contentType,
+        })),
       });
 
       console.log(`[Google SMTP] Email sent successfully to ${to}. MessageId: ${info.messageId}`);
@@ -67,7 +99,12 @@ export async function sendEmail({ to, subject, html }: SendEmailParams): Promise
           from: fromAddress.includes("<") ? fromAddress : `Nova Forge <${fromAddress}>`,
           to: [to],
           subject,
-          html,
+          html: processedHtml,
+          attachments: finalAttachments.map((a) => ({
+            filename: a.filename,
+            content: Buffer.isBuffer(a.content) ? a.content.toString("base64") : a.content,
+            content_id: a.cid,
+          })),
         }),
       });
 

@@ -21,6 +21,7 @@ const devStore = {
     registration_open: true,
     participant_limit: 250,
     audience_limit: 1000,
+    event_name: "Nova Forge Campus Carnival",
     event_date: "18–19 September 2026",
     venue: "LNCT Bhopal",
     reporting_time: "09:00 AM IST",
@@ -112,7 +113,7 @@ export async function updateEventSettings(newSettings: Partial<EventSettings>): 
 }
 
 // ==============================================================================
-// 2. PARTICIPANT TEAM REGISTRATION (2-Player Strict or Multi-game)
+// 2. PARTICIPANT TEAM REGISTRATION (Strictly Atomic, 2-Player Transaction)
 // ==============================================================================
 export interface RegisterTeamInput {
   teamName: string;
@@ -138,17 +139,19 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
   error?: string;
 }> {
   const settings = await getEventSettings();
+
+  // 1. Check if registration is open
   if (!settings.registration_open) {
-    return { success: false, error: "Registrations are currently closed by the organizers." };
+    return { success: false, error: "Registration is currently closed." };
   }
 
-  // Validate 10-digit mobile
+  // 2. Validate 10-digit mobile numbers (any 10 digits allowed)
   const phoneRegex = /^\d{10}$/;
   if (!phoneRegex.test(input.leader.phone.trim()) || !phoneRegex.test(input.member.phone.trim())) {
     return { success: false, error: "Mobile number must be exactly 10 digits." };
   }
 
-  // Validate distinct players within the team
+  // 3. Validate distinct players within the team
   if (
     input.leader.email.trim().toLowerCase() === input.member.email.trim().toLowerCase() ||
     input.leader.phone.trim() === input.member.phone.trim() ||
@@ -164,11 +167,17 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
 
   const supabase = getSupabaseServerClient();
 
-  // Helper function to register in devStore
+  // Helper function to register in devStore (Atomic)
   const registerInDevStore = () => {
+    // Check participant limit (number of teams)
+    const activeTeamsCount = devStore.teams.filter((t) => t.registration_status !== "cancelled").length;
+    if (activeTeamsCount >= settings.participant_limit) {
+      return { success: false, error: "Participant registrations are full." };
+    }
+
     const lowerName = input.teamName.trim().toLowerCase();
-    if (devStore.teams.some((t) => t.name.toLowerCase() === lowerName)) {
-      return { success: false, error: "This Team Name is already registered. Please choose another." };
+    if (devStore.teams.some((t) => t.name.toLowerCase() === lowerName && t.registration_status !== "cancelled")) {
+      return { success: false, error: "Team Name is already taken. Please choose another." };
     }
 
     const allEmails = [input.leader.email.trim().toLowerCase(), input.member.email.trim().toLowerCase()];
@@ -200,13 +209,14 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
       ],
     };
 
+    // Atomic addition
     devStore.teams.unshift(newTeam);
     devStore.participants.push(
       { team_id: teamId, role: "leader", full_name: input.leader.fullName.trim(), email: input.leader.email.trim(), phone: input.leader.phone.trim(), college_id: input.leader.collegeId.trim(), created_at: new Date().toISOString() },
       { team_id: teamId, role: "member", full_name: input.member.fullName.trim(), email: input.member.email.trim(), phone: input.member.phone.trim(), college_id: input.member.collegeId.trim(), created_at: new Date().toISOString() }
     );
 
-    // Send asynchronous transactional emails
+    // Dispatch emails
     sendEmail({
       to: input.leader.email.trim(),
       subject: `Your Registration is Confirmed — Nova Forge ${selectedGame.toUpperCase()} Team Pass`,
@@ -252,56 +262,87 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
 
   // --- Production Supabase execution ---
   try {
-    // 1. Insert team
-    const { data: teamData, error: teamErr } = await supabase
+    // 1. Check participant team capacity limit first
+    const { count: teamCount, error: countErr } = await supabase
       .from("teams")
-      .insert({
-        team_id: teamId,
-        name: input.teamName.trim(),
-        game: selectedGame,
-        qr_token: qrToken,
-        registration_status: "confirmed",
-        check_in_status: "not_checked_in",
-      })
-      .select()
-      .single();
+      .select("id", { count: "exact", head: true })
+      .neq("registration_status", "cancelled");
 
-    if (teamErr) {
-      if (teamErr.code === "23505") {
-        return { success: false, error: "Team Name is already taken. Please choose another." };
-      }
-      console.error("Supabase team insert error:", teamErr.message);
-      return { success: false, error: teamErr.message || "Failed to save team registration." };
+    if (!countErr && typeof teamCount === "number" && teamCount >= settings.participant_limit) {
+      return { success: false, error: "Participant registrations are full." };
     }
 
-    // 2. Insert participants (database trigger enforces exactly 2 players)
-    const { error: partErr } = await supabase.from("participants").insert([
-      {
-        team_id: teamId,
-        role: "leader",
-        full_name: input.leader.fullName.trim(),
-        email: input.leader.email.trim().toLowerCase(),
-        phone: input.leader.phone.trim(),
-        college_id: input.leader.collegeId.trim(),
-      },
-      {
-        team_id: teamId,
-        role: "member",
-        full_name: input.member.fullName.trim(),
-        email: input.member.email.trim().toLowerCase(),
-        phone: input.member.phone.trim(),
-        college_id: input.member.collegeId.trim(),
-      },
-    ]);
+    // 2. Execute Atomic Registration via Postgres Function / RPC
+    const { data: rpcData, error: rpcErr } = await supabase.rpc("register_team_atomic", {
+      p_team_id: teamId,
+      p_team_name: input.teamName.trim(),
+      p_game: selectedGame,
+      p_qr_token: qrToken,
+      p_leader_name: input.leader.fullName.trim(),
+      p_leader_email: input.leader.email.trim().toLowerCase(),
+      p_leader_phone: input.leader.phone.trim(),
+      p_leader_college_id: input.leader.collegeId.trim(),
+      p_member_name: input.member.fullName.trim(),
+      p_member_email: input.member.email.trim().toLowerCase(),
+      p_member_phone: input.member.phone.trim(),
+      p_member_college_id: input.member.collegeId.trim(),
+    });
 
-    if (partErr) {
-      // Rollback team on error
-      await supabase.from("teams").delete().eq("team_id", teamId);
-      if (partErr.code === "23505") {
-        return { success: false, error: "One of the emails, phone numbers, or college IDs is already registered." };
+    if (rpcErr) {
+      // If RPC is missing or throws an error, handle gracefully
+      if (rpcErr.message && !rpcErr.message.includes("does not exist") && !rpcErr.message.includes("function") && rpcErr.code !== "42883") {
+        return { success: false, error: rpcErr.message };
       }
-      console.error("Supabase participants insert error:", partErr.message);
-      return { success: false, error: partErr.message };
+
+      // Fallback: Atomic batch insert with automatic rollback on error
+      const { data: teamData, error: teamErr } = await supabase
+        .from("teams")
+        .insert({
+          team_id: teamId,
+          name: input.teamName.trim(),
+          game: selectedGame,
+          qr_token: qrToken,
+          registration_status: "confirmed",
+          check_in_status: "not_checked_in",
+        })
+        .select()
+        .single();
+
+      if (teamErr) {
+        if (teamErr.code === "23505") {
+          return { success: false, error: "Team Name is already taken. Please choose another." };
+        }
+        return { success: false, error: teamErr.message || "Failed to save team registration." };
+      }
+
+      // Insert both players atomically
+      const { error: partErr } = await supabase.from("participants").insert([
+        {
+          team_id: teamId,
+          role: "leader",
+          full_name: input.leader.fullName.trim(),
+          email: input.leader.email.trim().toLowerCase(),
+          phone: input.leader.phone.trim(),
+          college_id: input.leader.collegeId.trim(),
+        },
+        {
+          team_id: teamId,
+          role: "member",
+          full_name: input.member.fullName.trim(),
+          email: input.member.email.trim().toLowerCase(),
+          phone: input.member.phone.trim(),
+          college_id: input.member.collegeId.trim(),
+        },
+      ]);
+
+      if (partErr) {
+        // Rollback entire team immediately if participants fail
+        await supabase.from("teams").delete().eq("team_id", teamId);
+        if (partErr.code === "23505") {
+          return { success: false, error: "One of the emails, phone numbers, or college IDs is already registered." };
+        }
+        return { success: false, error: partErr.message };
+      }
     }
 
     // Send emails
@@ -343,7 +384,12 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
     ]).catch((e) => console.error("[Team Email Error]:", e));
 
     const fullTeam: Team = {
-      ...teamData,
+      team_id: teamId,
+      name: input.teamName.trim(),
+      game: selectedGame,
+      qr_token: qrToken,
+      registration_status: "confirmed",
+      check_in_status: "not_checked_in",
       members: [
         { role: "leader", full_name: input.leader.fullName.trim(), email: input.leader.email.trim(), phone: input.leader.phone.trim(), college_id: input.leader.collegeId.trim() },
         { role: "member", full_name: input.member.fullName.trim(), email: input.member.email.trim(), phone: input.member.phone.trim(), college_id: input.member.collegeId.trim() },
@@ -358,7 +404,7 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
 }
 
 // ==============================================================================
-// 3. AUDIENCE REGISTRATION
+// 3. AUDIENCE REGISTRATION (Atomic)
 // ==============================================================================
 export interface RegisterAudienceInput {
   fullName: string;
@@ -374,10 +420,13 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
   error?: string;
 }> {
   const settings = await getEventSettings();
+
+  // 1. Check if registration is open
   if (!settings.registration_open) {
-    return { success: false, error: "Audience registrations are currently closed." };
+    return { success: false, error: "Registration is currently closed." };
   }
 
+  // 2. Validate 10-digit mobile number
   const phoneRegex = /^\d{10}$/;
   if (!phoneRegex.test(input.phone.trim())) {
     return { success: false, error: "Mobile number must be exactly 10 digits." };
@@ -390,18 +439,24 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
   const supabase = getSupabaseServerClient();
 
   const registerAudienceInDevStore = () => {
+    // Check audience capacity limit
+    const activeAudCount = devStore.audience.filter((a) => a.registration_status !== "cancelled").length;
+    if (activeAudCount >= settings.audience_limit) {
+      return { success: false, error: "Audience registrations are full." };
+    }
+
     const lowerEmail = input.email.trim().toLowerCase();
     const phone = input.phone.trim();
     const lowerCollege = input.collegeId.trim().toLowerCase();
 
-    if (devStore.audience.some((a) => a.email.toLowerCase() === lowerEmail)) {
-      return { success: false, error: "This Email is already registered for an Audience pass." };
+    if (devStore.audience.some((a) => a.email.toLowerCase() === lowerEmail && a.registration_status !== "cancelled")) {
+      return { success: false, error: "Email, Mobile number, or College ID is already registered." };
     }
-    if (devStore.audience.some((a) => a.phone === phone)) {
-      return { success: false, error: "This Mobile number is already registered for an Audience pass." };
+    if (devStore.audience.some((a) => a.phone === phone && a.registration_status !== "cancelled")) {
+      return { success: false, error: "Email, Mobile number, or College ID is already registered." };
     }
-    if (devStore.audience.some((a) => a.college_id.toLowerCase() === lowerCollege)) {
-      return { success: false, error: "This College ID is already registered for an Audience pass." };
+    if (devStore.audience.some((a) => a.college_id.toLowerCase() === lowerCollege && a.registration_status !== "cancelled")) {
+      return { success: false, error: "Email, Mobile number, or College ID is already registered." };
     }
 
     const newAud: AudienceRegistration = {
@@ -442,27 +497,57 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
   }
 
   try {
-    const { data, error } = await supabase
+    // 1. Check audience capacity limit
+    const { count: audCount, error: countErr } = await supabase
       .from("audience_registrations")
-      .insert({
-        pass_id: passId,
-        full_name: input.fullName.trim(),
-        email: input.email.trim().toLowerCase(),
-        phone: input.phone.trim(),
-        college_id: input.collegeId.trim(),
-        qr_token: qrToken,
-        registration_status: "confirmed",
-        check_in_status: "not_checked_in",
-      })
-      .select()
-      .single();
+      .select("id", { count: "exact", head: true })
+      .neq("registration_status", "cancelled");
 
-    if (error) {
-      if (error.code === "23505") {
-        return { success: false, error: "Email, Mobile number, or College ID is already registered." };
+    if (!countErr && typeof audCount === "number" && audCount >= settings.audience_limit) {
+      return { success: false, error: "Audience registrations are full." };
+    }
+
+    // 2. Try atomic RPC first
+    const { data: rpcData, error: rpcErr } = await supabase.rpc("register_audience_atomic", {
+      p_pass_id: passId,
+      p_full_name: input.fullName.trim(),
+      p_email: input.email.trim().toLowerCase(),
+      p_phone: input.phone.trim(),
+      p_college_id: input.collegeId.trim(),
+      p_qr_token: qrToken,
+    });
+
+    let createdAudience = rpcData;
+
+    if (rpcErr) {
+      if (rpcErr.message && !rpcErr.message.includes("does not exist") && !rpcErr.message.includes("function") && rpcErr.code !== "42883") {
+        return { success: false, error: rpcErr.message };
       }
-      console.error("Supabase audience insert error:", error.message);
-      return { success: false, error: error.message || "Failed to save audience registration." };
+
+      // Standard insert fallback
+      const { data, error } = await supabase
+        .from("audience_registrations")
+        .insert({
+          pass_id: passId,
+          full_name: input.fullName.trim(),
+          email: input.email.trim().toLowerCase(),
+          phone: input.phone.trim(),
+          college_id: input.collegeId.trim(),
+          qr_token: qrToken,
+          registration_status: "confirmed",
+          check_in_status: "not_checked_in",
+        })
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === "23505") {
+          return { success: false, error: "Email, Mobile number, or College ID is already registered." };
+        }
+        return { success: false, error: error.message || "Failed to save audience registration." };
+      }
+
+      createdAudience = data;
     }
 
     sendEmail({
@@ -480,7 +565,7 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
       }),
     }).catch((e) => console.error("[Audience Email Error]:", e));
 
-    return { success: true, audience: data as AudienceRegistration, qrDataUrl };
+    return { success: true, audience: createdAudience as AudienceRegistration, qrDataUrl };
   } catch (err: any) {
     console.error("Supabase audience register network error:", err);
     return { success: false, error: err?.message || "Failed to complete audience registration." };
@@ -855,55 +940,67 @@ export async function getDashboardStats() {
   const supabase = getSupabaseServerClient();
 
   if (!supabase) {
-    const totalTeams = devStore.teams.length;
+    const totalTeams = devStore.teams.filter((t) => t.registration_status !== "cancelled").length;
     const totalParticipants = devStore.participants.length;
-    const totalAudience = devStore.audience.length;
-    const teamsCheckedIn = devStore.teams.filter((t) => t.check_in_status === "checked_in").length;
-    const audienceCheckedIn = devStore.audience.filter((a) => a.check_in_status === "checked_in").length;
+    const totalAudience = devStore.audience.filter((a) => a.registration_status !== "cancelled").length;
+    const teamsCheckedIn = devStore.teams.filter((t) => t.check_in_status === "checked_in" && t.registration_status !== "cancelled").length;
+    const checkedInParticipants = teamsCheckedIn * 2;
+    const audienceCheckedIn = devStore.audience.filter((a) => a.check_in_status === "checked_in" && a.registration_status !== "cancelled").length;
     const totalCheckedIn = teamsCheckedIn + audienceCheckedIn;
     const totalRegistrations = totalTeams + totalAudience;
+    const settings = devStore.settings;
 
     return {
       totalTeams,
       totalParticipants,
       totalAudience,
       teamsCheckedIn,
+      checkedInParticipants,
+      checkedInAudience: audienceCheckedIn,
       audienceCheckedIn,
       totalCheckedIn,
-      pendingCheckIn: totalRegistrations - totalCheckedIn,
+      pendingCheckIn: Math.max(0, totalRegistrations - totalCheckedIn),
       checkInRate: totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0,
-      settings: devStore.settings,
+      participantCapacity: `${totalTeams} / ${settings.participant_limit} Teams`,
+      audienceCapacity: `${totalAudience} / ${settings.audience_limit}`,
+      settings,
     };
   }
 
   try {
     const [teamsRes, partsRes, audRes, settingsRes] = await Promise.all([
-      supabase.from("teams").select("id, check_in_status"),
+      supabase.from("teams").select("id, check_in_status, registration_status"),
       supabase.from("participants").select("id", { count: "exact", head: true }),
-      supabase.from("audience_registrations").select("id, check_in_status"),
+      supabase.from("audience_registrations").select("id, check_in_status, registration_status"),
       getEventSettings(),
     ]);
 
-    const teams = teamsRes.data || [];
-    const audience = audRes.data || [];
+    const teams = (teamsRes.data || []).filter((t: any) => t.registration_status !== "cancelled");
+    const audience = (audRes.data || []).filter((a: any) => a.registration_status !== "cancelled");
     const totalTeams = teams.length;
     const totalParticipants = partsRes.count || totalTeams * 2;
     const totalAudience = audience.length;
-    const teamsCheckedIn = teams.filter((t) => t.check_in_status === "checked_in").length;
-    const audienceCheckedIn = audience.filter((a) => a.check_in_status === "checked_in").length;
+    const teamsCheckedIn = teams.filter((t: any) => t.check_in_status === "checked_in").length;
+    const checkedInParticipants = teamsCheckedIn * 2;
+    const audienceCheckedIn = audience.filter((a: any) => a.check_in_status === "checked_in").length;
     const totalCheckedIn = teamsCheckedIn + audienceCheckedIn;
     const totalRegistrations = totalTeams + totalAudience;
+    const settings = settingsRes;
 
     return {
       totalTeams,
       totalParticipants,
       totalAudience,
       teamsCheckedIn,
+      checkedInParticipants,
+      checkedInAudience: audienceCheckedIn,
       audienceCheckedIn,
       totalCheckedIn,
-      pendingCheckIn: totalRegistrations - totalCheckedIn,
+      pendingCheckIn: Math.max(0, totalRegistrations - totalCheckedIn),
       checkInRate: totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0,
-      settings: settingsRes,
+      participantCapacity: `${totalTeams} / ${settings.participant_limit} Teams`,
+      audienceCapacity: `${totalAudience} / ${settings.audience_limit}`,
+      settings,
     };
   } catch (err) {
     return {
@@ -911,10 +1008,14 @@ export async function getDashboardStats() {
       totalParticipants: 0,
       totalAudience: 0,
       teamsCheckedIn: 0,
+      checkedInParticipants: 0,
+      checkedInAudience: 0,
       audienceCheckedIn: 0,
       totalCheckedIn: 0,
       pendingCheckIn: 0,
       checkInRate: 0,
+      participantCapacity: `0 / ${devStore.settings.participant_limit} Teams`,
+      audienceCapacity: `0 / ${devStore.settings.audience_limit}`,
       settings: devStore.settings,
     };
   }

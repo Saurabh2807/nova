@@ -243,11 +243,11 @@ export function Events() {
                       Gaming Day
                     </h3>
                     <p className="mt-2 text-[12.5px] leading-relaxed text-nf-ink-soft">
-                      Squad up and battle it out across three of the biggest competitive titles on campus.
+                      Squad up and battle it out in the flagship BGMI LAN Tournament at LNCT Campus.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-3">
-                    {["BGMI", "Valorant", "Free Fire"].map((tag) => (
+                    {["BGMI Esports", "LAN Arena", "Duo Squads"].map((tag) => (
                       <span
                         key={tag}
                         className="rounded-md border border-[#e2e8f0] bg-gray-50 px-2.5 py-0.5 text-[10.5px] font-semibold text-nf-ink-soft"
