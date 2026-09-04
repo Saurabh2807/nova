@@ -15,7 +15,8 @@ export type AuthResult =
 
 /**
  * Server-side verification of Supabase Auth session and admin_profiles role.
- * NEVER trusts client-supplied roles.
+ * Strictly verifies real Supabase Bearer JWT token against the admin_profiles database table.
+ * NEVER trusts client-supplied roles or custom dev headers.
  *
  * @param req NextRequest
  * @param requiredRole 'admin' | 'volunteer' (default 'volunteer' - allows both admin and volunteer)
@@ -26,136 +27,107 @@ export async function authenticateAdminRequest(
 ): Promise<AuthResult> {
   const supabase = getSupabaseServerClient();
 
-  // 1. Check for Dev / Test mode simulation headers in development environment
-  if (process.env.NODE_ENV === "development") {
-    const devRoleHeader = req.headers.get("x-dev-role");
-    const devAuth = req.headers.get("x-dev-auth");
-    if (devRoleHeader && devAuth) {
-      const role: AdminRole = devRoleHeader === "admin" ? "admin" : "volunteer";
-      if (requiredRole === "admin" && role !== "admin") {
-        return {
-          success: false,
-          error: "Forbidden: Only Admin role can perform this operation",
-          status: 403,
-        };
-      }
-      return {
-        success: true,
-        user: {
-          userId: `dev-${role}-user`,
-          email: `${role}@novaforge.gg`,
-          fullName: role === "admin" ? "Lead Admin (Dev)" : "Arena Volunteer (Dev)",
-          role,
-        },
-      };
-    }
+  if (!supabase || !isServerSupabaseConfigured) {
+    return {
+      success: false,
+      error: "Authentication service unavailable: Supabase server is not configured",
+      status: 503,
+    };
   }
 
-  // 2. Production Mode with Supabase
-  if (supabase && isServerSupabaseConfigured) {
-    const authHeader = req.headers.get("authorization") || "";
-    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+  // 1. Extract Bearer token from Authorization header
+  const authHeader = req.headers.get("authorization") || "";
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim();
 
-    if (!token) {
-      return { success: false, error: "Unauthorized: Missing authentication token", status: 401 };
+  if (!token) {
+    return {
+      success: false,
+      error: "Unauthorized: Missing authentication token",
+      status: 401,
+    };
+  }
+
+  try {
+    // 2. Verify token with Supabase Auth
+    const {
+      data: { user },
+      error: authErr,
+    } = await supabase.auth.getUser(token);
+
+    if (authErr || !user) {
+      return {
+        success: false,
+        error: "Unauthorized: Invalid or expired session",
+        status: 401,
+      };
     }
 
-    try {
-      // Verify token with Supabase Auth
-      const {
-        data: { user },
-        error: authErr,
-      } = await supabase.auth.getUser(token);
+    // 3. Query admin_profiles table in Supabase by authenticated user's ID
+    let profile: { role?: string; full_name?: string; email?: string } | null = null;
 
-      if (authErr || !user) {
-        return { success: false, error: "Unauthorized: Invalid or expired session", status: 401 };
-      }
+    // Check by id
+    const { data: byId, error: errById } = await supabase
+      .from("admin_profiles")
+      .select("role, full_name, email")
+      .eq("id", user.id)
+      .maybeSingle();
 
-      // Query database for admin_profiles role (checking id or user_id)
-      let profile: any = null;
-      const { data: byId } = await supabase
+    if (byId) {
+      profile = byId;
+    } else if (!errById) {
+      // Fallback check by user_id column if schema uses user_id
+      const { data: byUserId } = await supabase
         .from("admin_profiles")
         .select("role, full_name, email")
-        .eq("id", user.id)
+        .eq("user_id", user.id)
         .maybeSingle();
-
-      if (byId) {
-        profile = byId;
-      } else {
-        const { data: byUserId } = await supabase
-          .from("admin_profiles")
-          .select("role, full_name, email")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        profile = byUserId;
-      }
-
-      if (!profile) {
-        return {
-          success: false,
-          error: "Forbidden: Account is not authorized in admin_profiles",
-          status: 403,
-        };
-      }
-
-      const role = profile.role as AdminRole;
-
-      // Role check: if 'admin' is required, volunteers must be rejected
-      if (requiredRole === "admin" && role !== "admin") {
-        return {
-          success: false,
-          error: "Forbidden: Only Admin role can perform this operation",
-          status: 403,
-        };
-      }
-
-      return {
-        success: true,
-        user: {
-          userId: user.id,
-          email: profile.email || user.email || "",
-          fullName: profile.full_name || user.email?.split("@")[0] || "Organizer",
-          role,
-        },
-      };
-    } catch (err: any) {
-      return { success: false, error: "Authentication service error", status: 500 };
+      profile = byUserId;
     }
-  }
 
-  // 2. Dev / Offline Fallback Mode (Used only when Supabase is not configured locally)
-  const devAuth = req.headers.get("x-dev-auth") || req.headers.get("authorization") || "";
-  const devRoleHeader = req.headers.get("x-dev-role") || (devAuth.includes("admin") ? "admin" : "volunteer");
-  const role: AdminRole = devRoleHeader === "admin" ? "admin" : "volunteer";
+    // 4. If user is authenticated in Supabase but not present in admin_profiles
+    if (!profile || !profile.role) {
+      return {
+        success: false,
+        error: "Forbidden: Account is not authorized in admin_profiles",
+        status: 403,
+      };
+    }
 
-  if (!devAuth) {
-    // If no header is provided in dev mode, default to authenticated developer admin for seamless testing
+    const role = profile.role as AdminRole;
+
+    // Validate role value
+    if (role !== "admin" && role !== "volunteer") {
+      return {
+        success: false,
+        error: "Forbidden: Invalid role assignment in admin_profiles",
+        status: 403,
+      };
+    }
+
+    // 5. Enforce role permissions server-side
+    // If 'admin' is required, volunteers must be strictly rejected
+    if (requiredRole === "admin" && role !== "admin") {
+      return {
+        success: false,
+        error: "Forbidden: Only Admin role can perform this operation",
+        status: 403,
+      };
+    }
+
     return {
       success: true,
       user: {
-        userId: "dev-admin-user",
-        email: "admin@novaforge.gg",
-        fullName: "Lead Admin (Dev)",
-        role: requiredRole === "admin" ? "admin" : role,
+        userId: user.id,
+        email: profile.email || user.email || "",
+        fullName: profile.full_name || user.email?.split("@")[0] || "Organizer",
+        role,
       },
     };
-  }
-
-  if (requiredRole === "admin" && role !== "admin") {
+  } catch (err: any) {
     return {
       success: false,
-      error: "Forbidden: Only Admin role can perform this operation",
-      status: 403,
+      error: err?.message || "Authentication service error",
+      status: 500,
     };
   }
-
-  return {
-    success: true,
-    user: {
-      userId: `dev-${role}-user`,
-      email: `${role}@novaforge.gg`,
-      fullName: role === "admin" ? "Lead Admin" : "Arena Volunteer",
-      role,
-    },
-  };
 }

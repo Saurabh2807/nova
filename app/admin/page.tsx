@@ -88,10 +88,6 @@ export default function AdminPortalPage() {
     if (sessionUser?.token) {
       headers["Authorization"] = `Bearer ${sessionUser.token}`;
     }
-    if (sessionUser) {
-      headers["x-dev-auth"] = sessionUser.email;
-      headers["x-dev-role"] = sessionUser.role;
-    }
     return headers;
   }
 
