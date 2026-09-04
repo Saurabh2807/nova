@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Sparkles, Plus, ArrowUpRight } from "lucide-react";
+import { Sparkles, ArrowUpRight } from "lucide-react";
 
 // Partner & Game brand logos with their authentic branding colors and assets
 const partnerLogos = [
@@ -53,7 +53,7 @@ const partnerLogos = [
   },
   {
     name: "Vedx Events",
-    tier: "Official Production Partner",
+    tier: "Official Guide",
     type: "image",
     src: "/logos/vedx.png",
     width: 240,
@@ -61,7 +61,7 @@ const partnerLogos = [
     imgClass: "h-12 sm:h-14 w-auto object-contain",
     glowColor: "rgba(212, 175, 55, 0.18)",
     accentColor: "#D4AF37",
-    tag: "Production Partner",
+    tag: "Guide",
   },
   {
     name: "BGMI",
@@ -173,40 +173,6 @@ export function Sponsors() {
               </div>
             </div>
           ))}
-
-          {/* Prominent "and many more..." Card */}
-          <div
-            className="group relative flex flex-col justify-between rounded-2xl border-2 border-dashed border-nf-blue/30 bg-gradient-to-b from-nf-blue/[0.02] to-nf-blue/[0.06] p-6 sm:p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-nf-blue hover:shadow-xl hover:bg-nf-blue/[0.08]"
-            style={{ minHeight: "180px" }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <span className="rounded-md bg-nf-blue/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-nf-blue">
-                Roster Expanding
-              </span>
-              <Sparkles size={15} className="text-nf-blue/60 group-hover:text-nf-blue transition-colors" />
-            </div>
-
-            <div className="flex flex-1 flex-col items-center justify-center py-3 text-center">
-              <div className="mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-nf-blue/10 text-nf-blue transition-all duration-300 group-hover:scale-115 group-hover:bg-nf-blue group-hover:text-white group-hover:shadow-lg">
-                <Plus size={22} strokeWidth={2.5} />
-              </div>
-              <span className="font-display text-base font-black uppercase tracking-wider text-nf-blue">
-                and many more...
-              </span>
-              <p className="mt-1 text-[11px] text-nf-ink-soft">
-                More top brands & college partners joining soon
-              </p>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-nf-blue/10 text-center">
-              <a
-                href="#contact"
-                className="text-[11px] font-bold uppercase tracking-wider text-nf-blue hover:underline"
-              >
-                Become a Partner →
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </section>

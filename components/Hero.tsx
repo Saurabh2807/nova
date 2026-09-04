@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Plus, Trophy } from "lucide-react";
+import { ArrowRight, Trophy } from "lucide-react";
 import Image from "next/image";
 
 // Social icons
@@ -246,12 +246,6 @@ export function Hero() {
                 </div>
               ))}
             </motion.div>
-          </div>
-
-          {/* "and many more..." badge */}
-          <div className="hidden xl:flex items-center gap-1.5 shrink-0 rounded-full bg-[#2872A1]/8 px-3.5 py-1 text-[11px] font-bold text-[#2872A1] transition-all duration-200 hover:bg-[#2872A1] hover:text-white">
-            <Plus size={12} strokeWidth={3} />
-            <span className="whitespace-nowrap">and many more</span>
           </div>
         </div>
       </div>

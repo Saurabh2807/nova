@@ -193,10 +193,10 @@ export function Events() {
               {/* Divider */}
               <div className="hidden sm:block h-6 w-px bg-slate-200" />
 
-              {/* Official Esports Partner Nodwin Gaming */}
+              {/* Official Partner Nodwin Gaming */}
               <div className="flex items-center gap-3">
                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                  Esports Partner
+                  Partner
                 </span>
                 <Image
                   src="/logos/nodwin.png"
@@ -505,7 +505,7 @@ export function Events() {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[9.5px] font-black uppercase tracking-[0.18em] text-slate-400">
-                    Esports Partner
+                    Partner
                   </span>
                   <Image
                     src="/logos/nodwin.png"
