@@ -189,11 +189,6 @@ export default function AudienceRegisterPage() {
               <span className="rounded-full bg-cyan-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyan-800">
                 Free Pass
               </span>
-              {eventSettings?.remainingAudienceSlots !== undefined && (
-                <p className="mt-1 text-[10px] font-bold text-slate-500">
-                  {eventSettings.remainingAudienceSlots} passes left
-                </p>
-              )}
             </div>
           )}
         </div>

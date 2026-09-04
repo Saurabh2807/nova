@@ -217,11 +217,6 @@ export default function ParticipantRegisterPage() {
               <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-orange-800">
                 <Flame size={12} className="text-orange-600" /> Slots Active
               </span>
-              {eventSettings?.remainingTeamSlots !== undefined && (
-                <p className="mt-1 text-[10px] font-bold text-slate-500">
-                  {eventSettings.remainingTeamSlots} team slots left
-                </p>
-              )}
             </div>
           )}
         </div>
