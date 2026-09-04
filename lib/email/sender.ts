@@ -41,13 +41,16 @@ export async function sendEmail({ to, subject, html, attachments = [] }: SendEma
     return `src="cid:${cid}"`;
   });
 
-  const smtpUser = process.env.SMTP_USER || process.env.GMAIL_USER;
-  const smtpPass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD;
+  const smtpUserRaw = process.env.SMTP_USER || process.env.GMAIL_USER || "";
+  const smtpPassRaw = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || "";
+
+  const smtpUser = smtpUserRaw.replace(/^["']|["']$/g, "").trim();
+  const smtpPass = smtpPassRaw.replace(/^["']|["']$/g, "").replace(/\s+/g, "").trim();
 
   // 1. Preferred: Google SMTP / Custom SMTP
   if (smtpUser && smtpPass) {
     try {
-      const host = process.env.SMTP_HOST || "smtp.gmail.com";
+      const host = (process.env.SMTP_HOST || "smtp.gmail.com").replace(/^["']|["']$/g, "").trim();
       const port = Number(process.env.SMTP_PORT) || 465;
       const isSecure = port === 465;
 
@@ -57,14 +60,15 @@ export async function sendEmail({ to, subject, html, attachments = [] }: SendEma
         secure: isSecure, // true for 465, false for 587
         auth: {
           user: smtpUser,
-          pass: smtpPass.replace(/\s+/g, ""), // strip accidental spaces in app password
+          pass: smtpPass,
         },
         connectionTimeout: 10000,
         greetingTimeout: 10000,
         socketTimeout: 15000,
       });
 
-      const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || `Nova Forge <${smtpUser}>`;
+      const rawFrom = (process.env.SMTP_FROM || process.env.EMAIL_FROM || "").replace(/^["']|["']$/g, "").trim();
+      const fromAddress = rawFrom || `Nova Forge <${smtpUser}>`;
 
       const info = await transporter.sendMail({
         from: fromAddress.includes("<") ? fromAddress : `Nova Forge <${fromAddress}>`,
