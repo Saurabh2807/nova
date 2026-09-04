@@ -188,36 +188,51 @@ export function Hero() {
         </div>
       </div>
 
-      {/* ── Editorial "Trusted By" Ecosystem Strip ── */}
-      <div className="w-full border-t border-[#e8ecf4] bg-gradient-to-b from-slate-50/70 to-white py-4.5 sm:py-5">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-x-8 sm:gap-x-12 md:gap-x-14 gap-y-3.5">
-            <span className="text-[10.5px] font-extrabold uppercase tracking-[0.25em] text-slate-400">
+      {/* ── Editorial "Trusted By" Infinite Rotating Ecosystem Strip ── */}
+      <div className="w-full border-t border-[#e8ecf4] bg-gradient-to-b from-slate-50/80 to-white py-4.5 sm:py-5 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-4 md:gap-6">
+          
+          {/* Static Title Header */}
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-[10.5px] font-extrabold uppercase tracking-[0.25em] text-slate-400 whitespace-nowrap">
               Trusted By
             </span>
-            <div className="hidden h-4 w-px bg-slate-200 sm:block" />
+            <div className="hidden h-5 w-px bg-slate-200 md:block" />
+          </div>
 
-            {brandLogos.map((brand) => (
-              <div
-                key={brand.name}
-                className="flex items-center opacity-85 transition-all duration-200 hover:opacity-100 hover:scale-105 cursor-pointer"
-                title={brand.name}
-              >
-                <Image
-                  src={brand.src}
-                  alt={`${brand.name} Logo`}
-                  width={brand.width}
-                  height={brand.height}
-                  className={brand.imgClass}
-                />
-              </div>
-            ))}
+          {/* Infinite Smooth Carousel Track with Gradient Feathering */}
+          <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
+            <motion.div
+              className="flex items-center w-max"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{
+                duration: 24,
+                ease: "linear",
+                repeat: Infinity,
+              }}
+            >
+              {[...brandLogos, ...brandLogos, ...brandLogos, ...brandLogos].map((brand, idx) => (
+                <div
+                  key={`${brand.name}-${idx}`}
+                  className="flex items-center justify-center shrink-0 px-6 sm:px-8 md:px-10 opacity-85 transition-all duration-200 hover:opacity-100 hover:scale-105 cursor-pointer"
+                  title={brand.name}
+                >
+                  <Image
+                    src={brand.src}
+                    alt={`${brand.name} Logo`}
+                    width={brand.width}
+                    height={brand.height}
+                    className={brand.imgClass}
+                  />
+                </div>
+              ))}
+            </motion.div>
+          </div>
 
-            {/* "and many more..." pill */}
-            <div className="flex items-center gap-1.5 rounded-full bg-[#2872A1]/8 px-3 py-1 text-[11px] font-bold text-[#2872A1] transition-all duration-200 hover:bg-[#2872A1] hover:text-white">
-              <Plus size={12} strokeWidth={3} />
-              <span>and many more...</span>
-            </div>
+          {/* "and many more..." badge */}
+          <div className="hidden xl:flex items-center gap-1.5 shrink-0 rounded-full bg-[#2872A1]/8 px-3.5 py-1 text-[11px] font-bold text-[#2872A1] transition-all duration-200 hover:bg-[#2872A1] hover:text-white">
+            <Plus size={12} strokeWidth={3} />
+            <span className="whitespace-nowrap">and many more</span>
           </div>
         </div>
       </div>
