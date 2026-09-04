@@ -78,19 +78,38 @@ const brandLogos = [
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-white border-b border-[#e8ecf4]">
-      {/* ── Continuous Cinematic Stage Layout ── */}
+      {/* ── MOBILE HERO VISUAL (Intentional Phone Composition: Compact preview under Navbar) ── */}
+      <div className="relative h-44 sm:h-56 w-full overflow-hidden lg:hidden">
+        <Image
+          src="/esports-arena.jpg"
+          alt="Nova Forge Esports Championship Arena"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        {/* Soft bottom-to-top blend into white content */}
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white via-white/70 to-transparent pointer-events-none" />
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-3 py-1 border border-white/20 shadow-xs">
+          <div className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-white">
+            Official Arena
+          </span>
+        </div>
+      </div>
+
+      {/* ── Continuous Cinematic Stage Layout (Desktop & Mobile Content) ── */}
       <div className="relative mx-auto max-w-7xl">
-        <div className="grid lg:grid-cols-[1.1fr_0.9fr] xl:grid-cols-[1.15fr_0.85fr] items-center min-h-[460px] sm:min-h-[500px] lg:min-h-[540px]">
+        <div className="grid lg:grid-cols-[1.1fr_0.9fr] xl:grid-cols-[1.15fr_0.85fr] items-center min-h-0 lg:min-h-[520px]">
           
-          {/* ══ Left: Editorial Typography & Actions ══ */}
-          <div className="relative z-20 flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:py-20 xl:px-12">
+          {/* ══ Editorial Typography & Actions ══ */}
+          <div className="relative z-20 flex flex-col justify-center px-5 py-8 sm:px-10 sm:py-12 lg:py-20 xl:px-12">
             
             {/* Campaign Label Badge */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35 }}
-              className="mb-4 inline-flex items-center gap-2 self-start rounded-full border border-[#2872A1]/20 bg-[#2872A1]/6 px-3.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.24em] text-[#2872A1]"
+              className="mb-3 sm:mb-4 inline-flex items-center gap-2 self-start rounded-full border border-[#2872A1]/20 bg-[#2872A1]/6 px-3 py-1 text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.24em] text-[#2872A1]"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-[#2872A1] animate-pulse" />
               <span>Rise From The Middle</span>
@@ -102,7 +121,7 @@ export function Hero() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.05 }}
-                className="block text-[3rem] font-black tracking-tight text-[#091522] sm:text-[3.8rem] lg:text-[4.1rem] xl:text-[4.6rem]"
+                className="block text-[2.6rem] font-black tracking-tight text-[#091522] sm:text-[3.6rem] lg:text-[4.1rem] xl:text-[4.6rem]"
               >
                 WE FORGE
               </motion.span>
@@ -110,7 +129,7 @@ export function Hero() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.12 }}
-                className="block text-[3rem] font-black tracking-tight text-[#2872A1] sm:text-[3.8rem] lg:text-[4.1rem] xl:text-[4.6rem]"
+                className="block text-[2.6rem] font-black tracking-tight text-[#2872A1] sm:text-[3.6rem] lg:text-[4.1rem] xl:text-[4.6rem]"
               >
                 LEGENDS
               </motion.span>
@@ -121,7 +140,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="mt-4 max-w-md text-[14.5px] font-medium leading-relaxed text-slate-600 sm:text-[15.5px]"
+              className="mt-3 sm:mt-4 max-w-md text-[14px] font-medium leading-relaxed text-slate-600 sm:text-[15.5px]"
             >
               India&apos;s premium esports tournaments, creator programs and gaming ecosystem.
             </motion.p>
@@ -131,18 +150,18 @@ export function Hero() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.28 }}
-              className="mt-8 flex flex-wrap items-center gap-4"
+              className="mt-6 sm:mt-8 flex flex-wrap items-center gap-3.5 sm:gap-4"
             >
               <a
                 href="#events"
-                className="group inline-flex items-center gap-2.5 rounded-md bg-[#2872A1] px-6 py-3 text-[14px] font-bold text-white shadow-[0_3px_14px_rgba(40,114,161,0.28)] transition-all duration-200 hover:bg-[#1f5f87] hover:shadow-[0_5px_20px_rgba(40,114,161,0.38)] active:scale-[0.98]"
+                className="group inline-flex items-center gap-2 rounded-md bg-[#2872A1] px-5 sm:px-6 py-2.5 sm:py-3 text-[13.5px] sm:text-[14px] font-bold text-white shadow-[0_3px_14px_rgba(40,114,161,0.28)] transition-all duration-200 hover:bg-[#1f5f87] hover:shadow-[0_5px_20px_rgba(40,114,161,0.38)] active:scale-[0.98]"
               >
                 <span>Explore the Event</span>
-                <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+                <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-1" />
               </a>
 
               {/* Integrated Social Channels */}
-              <div className="flex items-center gap-1.5 border-l border-slate-200/80 pl-4">
+              <div className="flex items-center gap-1.5 border-l border-slate-200/80 pl-3 sm:pl-4">
                 {socialLinks.map(({ icon: Icon, label, href }) => (
                   <a
                     key={label}
@@ -159,26 +178,26 @@ export function Hero() {
             </motion.div>
           </div>
 
-          {/* ══ Right: Atmospheric Esports Arena Scene ══ */}
-          <div className="relative h-[280px] sm:h-[340px] lg:h-full lg:min-h-[520px] w-full overflow-hidden">
+          {/* ══ DESKTOP RIGHT: Atmospheric Esports Arena Scene with Seamless Multi-Stop Fade ══ */}
+          <div className="relative hidden lg:block h-full min-h-[520px] w-full overflow-hidden">
             {/* Background Image */}
             <Image
               src="/esports-arena.jpg"
               alt="Nova Forge Esports Championship Arena"
               fill
-              className="object-cover object-center scale-[1.03]"
+              className="object-cover object-center scale-[1.02]"
               priority
             />
 
-            {/* Seamless Left-to-Right Atmospheric Gradient Blending */}
-            <div className="absolute inset-y-0 left-0 w-full sm:w-4/5 lg:w-3/5 bg-gradient-to-r from-white via-white/90 via-[#CBDDE9]/35 to-transparent z-10 pointer-events-none" />
+            {/* Seamless Natural Multi-Stop Horizontal Blend */}
+            <div className="absolute inset-y-0 left-0 w-3/5 bg-gradient-to-r from-white via-white/85 via-[#CBDDE9]/25 to-transparent z-10 pointer-events-none" />
             
-            {/* Top & Bottom Soft Feathering */}
+            {/* Soft Top & Bottom Edge Softening */}
             <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white via-white/30 to-transparent z-10 pointer-events-none" />
             <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/30 to-transparent z-10 pointer-events-none" />
 
-            {/* Broadcast Arena Badge */}
-            <div className="absolute top-5 right-5 z-20 hidden sm:flex items-center gap-2 rounded-full bg-black/45 backdrop-blur-md px-3.5 py-1.5 border border-white/20 shadow-md">
+            {/* Arena Indicator */}
+            <div className="absolute top-5 right-5 z-20 flex items-center gap-2 rounded-full bg-black/45 backdrop-blur-md px-3.5 py-1.5 border border-white/20 shadow-md">
               <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
               <span className="text-[10.5px] font-bold uppercase tracking-[0.2em] text-white/95">
                 Official Arena

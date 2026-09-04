@@ -228,11 +228,25 @@ export function Events() {
                 }
               }}
             >
-              <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[165px]">
+              <div className="flex flex-col sm:grid sm:grid-cols-[1fr_210px] items-stretch min-h-0 sm:min-h-[165px]">
+                {/* Mobile Stage Image (Top on mobile, Right on tablet/desktop) */}
+                <div className="relative h-40 w-full overflow-hidden bg-slate-900 sm:hidden">
+                  <Image
+                    src="/creation-day.png"
+                    alt="Creation Day Festival Stage"
+                    fill
+                    className="object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                  <span className="absolute bottom-3 left-4 text-[10px] font-black uppercase tracking-[0.2em] text-white">
+                    Day 1 · 18 Sep 2026
+                  </span>
+                </div>
+
                 {/* Left Info */}
                 <div className="p-5 sm:p-6 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="hidden sm:flex items-center justify-between gap-2">
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-nf-blue">
                         Day 1 · 18 Sep
                       </span>
@@ -241,7 +255,7 @@ export function Events() {
                         <ChevronDown size={13} className={`transition-transform duration-300 ${hoveredCard === 1 ? "rotate-180 text-nf-blue" : ""}`} />
                       </span>
                     </div>
-                    <h3 className="mt-1 font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-nf-ink leading-none">
+                    <h3 className="mt-0 sm:mt-1 font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-nf-ink leading-none">
                       Creation Day
                     </h3>
                     <p className="mt-2 text-[12.5px] leading-relaxed text-nf-ink-soft">
@@ -260,8 +274,8 @@ export function Events() {
                   </div>
                 </div>
 
-                {/* Right Stage Image */}
-                <div className="relative overflow-hidden bg-slate-900">
+                {/* Desktop Stage Image */}
+                <div className="relative hidden sm:block overflow-hidden bg-slate-900">
                   <Image
                     src="/creation-day.png"
                     alt="Creation Day Festival Stage"
@@ -272,7 +286,7 @@ export function Events() {
                 </div>
               </div>
 
-              {/* ── EXPANDABLE DAY 1 EVENT FLOW (OPENS ON HOVER) ── */}
+              {/* ── EXPANDABLE DAY 1 EVENT FLOW (OPENS ON HOVER / TAP) ── */}
               <AnimatePresence>
                 {hoveredCard === 1 && (
                   <motion.div
@@ -282,7 +296,7 @@ export function Events() {
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     className="overflow-hidden border-t border-[#e2e8f0] bg-gradient-to-b from-slate-50/90 to-white"
                   >
-                    <div className="p-5 sm:p-6">
+                    <div className="p-4 sm:p-6">
                       <div className="mb-3.5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="flex h-5 w-5 items-center justify-center rounded-full bg-nf-blue/10 text-nf-blue">
@@ -323,7 +337,7 @@ export function Events() {
               </AnimatePresence>
 
               {/* Bottom Card Footer */}
-              <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
+              <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
                 <div className="flex items-center gap-2.5">
                   <span className="text-[9.5px] font-black uppercase tracking-[0.18em] text-slate-400">
                     Powered by
@@ -367,11 +381,25 @@ export function Events() {
                 }
               }}
             >
-              <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[165px]">
+              <div className="flex flex-col sm:grid sm:grid-cols-[1fr_210px] items-stretch min-h-0 sm:min-h-[165px]">
+                {/* Mobile Stage Image (Top on mobile, Right on tablet/desktop) */}
+                <div className="relative h-40 w-full overflow-hidden bg-slate-900 sm:hidden">
+                  <Image
+                    src="/gaming-day.png"
+                    alt="Gaming Day Tournament Stage"
+                    fill
+                    className="object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                  <span className="absolute bottom-3 left-4 text-[10px] font-black uppercase tracking-[0.2em] text-white">
+                    Day 2 · 19 Sep 2026
+                  </span>
+                </div>
+
                 {/* Left Info */}
                 <div className="p-5 sm:p-6 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="hidden sm:flex items-center justify-between gap-2">
                       <span className="text-[10px] font-black uppercase tracking-[0.2em] text-nf-blue">
                         Day 2 · 19 Sep
                       </span>
@@ -380,7 +408,7 @@ export function Events() {
                         <ChevronDown size={13} className={`transition-transform duration-300 ${hoveredCard === 2 ? "rotate-180 text-nf-blue" : ""}`} />
                       </span>
                     </div>
-                    <h3 className="mt-1 font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-nf-ink leading-none">
+                    <h3 className="mt-0 sm:mt-1 font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-nf-ink leading-none">
                       Gaming Day
                     </h3>
                     <p className="mt-2 text-[12.5px] leading-relaxed text-nf-ink-soft">
@@ -399,8 +427,8 @@ export function Events() {
                   </div>
                 </div>
 
-                {/* Right Stage Image */}
-                <div className="relative overflow-hidden bg-slate-900">
+                {/* Desktop Stage Image */}
+                <div className="relative hidden sm:block overflow-hidden bg-slate-900">
                   <Image
                     src="/gaming-day.png"
                     alt="Gaming Day Tournament Stage"
@@ -411,7 +439,7 @@ export function Events() {
                 </div>
               </div>
 
-              {/* ── EXPANDABLE DAY 2 EVENT FLOW (OPENS ON HOVER) ── */}
+              {/* ── EXPANDABLE DAY 2 EVENT FLOW (OPENS ON HOVER / TAP) ── */}
               <AnimatePresence>
                 {hoveredCard === 2 && (
                   <motion.div
@@ -421,7 +449,7 @@ export function Events() {
                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                     className="overflow-hidden border-t border-[#e2e8f0] bg-gradient-to-b from-slate-50/90 to-white"
                   >
-                    <div className="p-5 sm:p-6">
+                    <div className="p-4 sm:p-6">
                       <div className="mb-3.5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className="flex h-5 w-5 items-center justify-center rounded-full bg-nf-blue/10 text-nf-blue">
@@ -462,7 +490,7 @@ export function Events() {
               </AnimatePresence>
 
               {/* Bottom Card Footer */}
-              <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
+              <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-t border-[#f0f4f8] bg-slate-50/70">
                 <div className="flex items-center gap-2.5">
                   <span className="text-[9.5px] font-black uppercase tracking-[0.18em] text-slate-400">
                     Powered by

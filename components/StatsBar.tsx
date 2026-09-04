@@ -71,24 +71,25 @@ function CountUp({ value }: { value: string }) {
 export function StatsBar() {
   return (
     <div className="border-b border-[#e8ecf4] bg-white">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid grid-cols-2 divide-y divide-[#e8ecf4] sm:grid-cols-3 sm:divide-y-0 sm:divide-x lg:grid-cols-5">
+      <div className="mx-auto max-w-7xl px-4 sm:px-8">
+        <div className="grid grid-cols-2 divide-x divide-y divide-[#e8ecf4] sm:grid-cols-3 sm:divide-y-0 sm:divide-x lg:grid-cols-5">
           {statsData.map((s, idx) => {
             const Icon = s.icon;
+            const isLast = idx === 4;
             return (
               <div
                 key={s.label}
-                className={`flex flex-col items-center justify-center py-7 sm:py-8 px-4 text-center transition-colors duration-200 hover:bg-slate-50/50 ${
-                  idx === 4 ? "col-span-2 sm:col-span-1 border-t sm:border-t-0" : ""
+                className={`flex flex-col items-center justify-center py-4.5 sm:py-8 px-3 sm:px-4 text-center transition-colors duration-200 hover:bg-slate-50/50 ${
+                  isLast ? "col-span-2 sm:col-span-1" : ""
                 }`}
               >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Icon size={16} className="text-[#2872A1]" strokeWidth={2} />
-                  <span className="text-[10px] font-extrabold uppercase tracking-[0.22em] text-slate-400">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                  <Icon size={14} className="text-[#2872A1]" strokeWidth={2.2} />
+                  <span className="text-[10px] sm:text-[10.5px] font-bold uppercase tracking-[0.16em] text-slate-400">
                     {s.label}
                   </span>
                 </div>
-                <div className="font-display text-3xl sm:text-3.5xl lg:text-4xl font-black tracking-tight text-[#091522]">
+                <div className="font-display text-2.5xl sm:text-3.5xl lg:text-4xl font-black tracking-tight text-[#091522]">
                   <CountUp value={s.value} />
                 </div>
               </div>

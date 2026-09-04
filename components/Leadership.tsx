@@ -1,4 +1,5 @@
 import { leadership } from "@/lib/data";
+import { ArrowUpRight } from "lucide-react";
 
 function LinkedInIcon({ className }: { className?: string }) {
   return (
@@ -8,60 +9,87 @@ function LinkedInIcon({ className }: { className?: string }) {
   );
 }
 
-// Avatar colors for each person
-const avatarColors = [
-  { bg: "#1a3a6b", text: "#CBDDE9" },
-  { bg: "#2a1a4b", text: "#d4b8ff" },
-  { bg: "#0a3020", text: "#86efac" },
+// Subtle brand avatar styles
+const avatarStyles = [
+  { bg: "linear-gradient(135deg, #102640 0%, #1a3a6b 100%)", text: "#CBDDE9", border: "rgba(40,114,161,0.25)" },
+  { bg: "linear-gradient(135deg, #181d36 0%, #2a2558 100%)", text: "#d4b8ff", border: "rgba(108,46,185,0.25)" },
+  { bg: "linear-gradient(135deg, #0f2720 0%, #174836 100%)", text: "#86efac", border: "rgba(34,197,94,0.25)" },
 ];
 
 export function Leadership() {
   return (
-    <section id="team" className="bg-white py-16 sm:py-24">
+    <section id="team" className="bg-white py-14 sm:py-20 border-t border-nf-line">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-nf-blue">
-          Leadership
-        </span>
-        <h2 className="mt-3 font-display text-[1.9rem] font-bold leading-tight text-nf-ink sm:text-[2.2rem]">
-          Meet the Leaders<br />Behind Nova Forge.
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-nf-blue">
+              Core Leadership
+            </span>
+            <h2 className="mt-2.5 font-display text-2xl font-black uppercase tracking-tight text-nf-ink sm:text-3xl lg:text-4xl">
+              Meet the Team Behind Nova Forge
+            </h2>
+          </div>
+          <p className="max-w-md text-xs sm:text-sm text-nf-ink-soft leading-relaxed">
+            Building India’s most robust collegiate esports infrastructure and creator talent pipeline.
+          </p>
+        </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-3">
+        {/* Mobile: Compact Horizontal Profile Rows | Desktop: 3-Col Cards */}
+        <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-6">
           {leadership.map((p, i) => {
-            const color = avatarColors[i % avatarColors.length];
+            const style = avatarStyles[i % avatarStyles.length];
             const initials = p.name
               .split(" ")
               .map((n) => n[0])
               .slice(0, 2)
               .join("");
+
             return (
               <div
                 key={p.name}
-                className="rounded-2xl p-6 transition-shadow hover:shadow-md"
-                style={{ border: "1px solid #e8ecf4", background: "#fff" }}
+                className="group relative flex items-center justify-between rounded-xl border border-gray-200/90 bg-gradient-to-b from-white to-slate-50/50 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md sm:flex-col sm:items-start sm:p-6 sm:rounded-2xl"
               >
-                {/* Avatar */}
-                <div className="flex items-start justify-between">
-                  <div
-                    className="flex h-16 w-16 items-center justify-center rounded-2xl text-xl font-bold"
-                    style={{ background: color.bg, color: color.text }}
-                  >
-                    {initials}
+                {/* Mobile Row Layout */}
+                <div className="flex items-center gap-3.5 sm:w-full sm:flex-col sm:items-start sm:gap-0">
+                  <div className="flex items-center justify-between sm:w-full">
+                    {/* Avatar with Initials */}
+                    <div
+                      className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-base font-black tracking-wide shadow-inner sm:h-14 sm:w-14 sm:rounded-2xl sm:text-lg"
+                      style={{ background: style.bg, color: style.text, border: `1px solid ${style.border}` }}
+                    >
+                      {initials}
+                    </div>
+
+                    {/* LinkedIn icon (desktop corner) */}
+                    <a
+                      href="#"
+                      className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition-colors hover:bg-blue-50 hover:text-[#0077b5]"
+                      aria-label={`${p.name} on LinkedIn`}
+                    >
+                      <LinkedInIcon className="h-4 w-4" />
+                    </a>
                   </div>
-                  {/* LinkedIn icon */}
+
+                  <div className="sm:mt-4">
+                    <h3 className="font-display text-sm font-bold text-nf-ink sm:text-base">
+                      {p.name}
+                    </h3>
+                    <p className="text-[12px] font-medium text-nf-ink-soft sm:text-xs">
+                      {p.role}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mobile Trailing Arrow / LinkedIn */}
+                <div className="flex items-center gap-2 sm:hidden">
                   <a
                     href="#"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-blue-50"
-                    style={{ color: "#0077b5" }}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-400 hover:bg-blue-50 hover:text-[#0077b5]"
                     aria-label={`${p.name} on LinkedIn`}
                   >
-                    <LinkedInIcon className="h-4 w-4" />
+                    <ArrowUpRight size={16} className="text-gray-400 group-hover:text-nf-blue" />
                   </a>
                 </div>
-                <h3 className="mt-4 font-display text-base font-semibold text-nf-ink">
-                  {p.name}
-                </h3>
-                <p className="mt-0.5 text-sm text-nf-ink-soft">{p.role}</p>
               </div>
             );
           })}

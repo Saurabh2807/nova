@@ -1,4 +1,4 @@
-import { Instagram, Youtube, MessageCircle, Twitter, Headphones } from "lucide-react";
+import { Instagram, Youtube, Mail, MapPin } from "lucide-react";
 import { contact } from "@/lib/data";
 import { LogoLockup } from "./Logo";
 
@@ -10,8 +10,8 @@ function DiscordIcon({ className }: { className?: string }) {
   );
 }
 
-const quickLinks = [
-  { label: "Home", href: "/" },
+const exploreLinks = [
+  { label: "Home", href: "#hero" },
   { label: "Events", href: "#events" },
   { label: "Creators", href: "#creators" },
   { label: "Sponsors", href: "#sponsors" },
@@ -19,7 +19,7 @@ const quickLinks = [
 
 const companyLinks = [
   { label: "About Us", href: "#about" },
-  { label: "Our Team", href: "#team" },
+  { label: "Leadership", href: "#team" },
   { label: "Careers", href: "#" },
   { label: "Contact", href: "#contact" },
 ];
@@ -28,34 +28,91 @@ const legalLinks = [
   { label: "Privacy Policy", href: "#" },
   { label: "Terms of Service", href: "#" },
   { label: "Refund Policy", href: "#" },
+  { label: "Rulebook", href: "#" },
 ];
 
 export function ContactFooter() {
   return (
     <>
-      {/* Contact section */}
-      <section id="contact" className="bg-white py-16 sm:py-20" style={{ borderTop: "1px solid #e8ecf4" }}>
+      {/* Contact Section */}
+      <section id="contact" className="bg-slate-50/70 py-14 sm:py-20 border-t border-nf-line">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-nf-blue">
-            Contact Us
-          </span>
-          <h2 className="mt-3 max-w-lg font-display text-[1.9rem] font-bold leading-tight text-nf-ink sm:text-[2.1rem]">
-            Have questions or want to work with us?
-          </h2>
-          <p className="mt-2 text-sm text-nf-ink-soft">We&apos;d love to hear from you.</p>
+          <div className="max-w-2xl">
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-nf-blue">
+              Get in Touch
+            </span>
+            <h2 className="mt-2.5 font-display text-2xl font-black uppercase tracking-tight text-nf-ink sm:text-3xl lg:text-4xl">
+              Have Questions? We&apos;d Love to Hear From You.
+            </h2>
+            <p className="mt-3 text-xs sm:text-sm text-nf-ink-soft leading-relaxed">
+              Whether you are a university esports rep, gaming brand, content creator, or tournament participant, reach out to our team.
+            </p>
+          </div>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            {/* Support card */}
-            <div
-              className="flex items-center gap-3 rounded-2xl p-4"
-              style={{ border: "1px solid #e8ecf4", minWidth: 220 }}
+          {/* Contact Methods Grid */}
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Email */}
+            <a
+              href={`mailto:${contact.generalEmail}`}
+              className="group flex items-center gap-3.5 rounded-xl border border-gray-200/90 bg-white p-4.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-nf-base">
-                <Headphones size={18} className="text-nf-blue" />
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-nf-blue/10 text-nf-blue transition-colors group-hover:bg-nf-blue group-hover:text-white">
+                <Mail size={18} />
               </div>
-              <div>
-                <p className="text-xs font-semibold text-nf-ink">Contact Us</p>
-                <p className="text-xs text-nf-ink-soft">{contact.generalEmail}</p>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-nf-ink-soft">Email</p>
+                <p className="truncate text-xs sm:text-sm font-semibold text-nf-ink group-hover:text-nf-blue">
+                  {contact.generalEmail}
+                </p>
+              </div>
+            </a>
+
+            {/* Instagram */}
+            <a
+              href="https://instagram.com/novaforge.gg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3.5 rounded-xl border border-gray-200/90 bg-white p-4.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-pink-50 text-pink-600 transition-colors group-hover:bg-pink-600 group-hover:text-white">
+                <Instagram size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-nf-ink-soft">Instagram</p>
+                <p className="truncate text-xs sm:text-sm font-semibold text-nf-ink group-hover:text-pink-600">
+                  {contact.instagram}
+                </p>
+              </div>
+            </a>
+
+            {/* Discord */}
+            <a
+              href={`https://${contact.discord}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3.5 rounded-xl border border-gray-200/90 bg-white p-4.5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-gray-300 hover:shadow-md"
+            >
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                <DiscordIcon className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-nf-ink-soft">Discord</p>
+                <p className="truncate text-xs sm:text-sm font-semibold text-nf-ink group-hover:text-indigo-600">
+                  {contact.discord}
+                </p>
+              </div>
+            </a>
+
+            {/* Location */}
+            <div className="flex items-center gap-3.5 rounded-xl border border-gray-200/90 bg-white p-4.5 shadow-sm">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <MapPin size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-nf-ink-soft">Location</p>
+                <p className="truncate text-xs sm:text-sm font-semibold text-nf-ink">
+                  Bhopal, MP, India
+                </p>
               </div>
             </div>
           </div>
@@ -63,29 +120,56 @@ export function ContactFooter() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white" style={{ borderTop: "1px solid #e8ecf4" }}>
+      <footer className="bg-white border-t border-nf-line">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          {/* Top row */}
-          <div className="grid grid-cols-2 gap-8 py-12 sm:grid-cols-4 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1fr]">
-            {/* Brand */}
-            <div className="col-span-2 sm:col-span-1 lg:col-span-1">
+          {/* Main Footer Row */}
+          <div className="grid grid-cols-2 gap-8 py-10 sm:grid-cols-4 lg:grid-cols-[1.6fr_1fr_1fr_1fr_1fr] sm:py-14">
+            {/* Brand Column */}
+            <div className="col-span-2 sm:col-span-4 lg:col-span-1">
               <LogoLockup markClassName="h-7 w-7 text-nf-blue" wordmarkClassName="text-nf-ink" />
-              <p className="mt-3 text-[12px] leading-relaxed text-nf-ink-soft">
-                Rise From The Middle.
+              <p className="mt-3 text-xs leading-relaxed text-nf-ink-soft max-w-xs">
+                Rise From The Middle. India&apos;s premier collegiate esports championships and creator ecosystem.
               </p>
+              <div className="mt-4 flex items-center gap-2.5">
+                <a
+                  href="https://instagram.com/novaforge.gg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition-colors hover:border-pink-500 hover:text-pink-600 hover:bg-pink-50"
+                  aria-label="Instagram"
+                >
+                  <Instagram size={15} />
+                </a>
+                <a
+                  href={`https://${contact.discord}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition-colors hover:border-indigo-500 hover:text-indigo-600 hover:bg-indigo-50"
+                  aria-label="Discord"
+                >
+                  <DiscordIcon className="h-3.5 w-3.5" />
+                </a>
+                <a
+                  href="#"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition-colors hover:border-red-500 hover:text-red-600 hover:bg-red-50"
+                  aria-label="YouTube"
+                >
+                  <Youtube size={15} />
+                </a>
+              </div>
             </div>
 
-            {/* Quick Links */}
+            {/* Explore Links */}
             <div>
-              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
-                Quick Links
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
+                Explore
               </p>
-              <ul className="space-y-2.5">
-                {quickLinks.map((l) => (
+              <ul className="space-y-2">
+                {exploreLinks.map((l) => (
                   <li key={l.label}>
                     <a
                       href={l.href}
-                      className="text-[13px] text-nf-ink-soft transition-colors hover:text-nf-ink"
+                      className="text-xs text-nf-ink-soft transition-colors hover:text-nf-blue"
                     >
                       {l.label}
                     </a>
@@ -96,15 +180,15 @@ export function ContactFooter() {
 
             {/* Company */}
             <div>
-              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
                 Company
               </p>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2">
                 {companyLinks.map((l) => (
                   <li key={l.label}>
                     <a
                       href={l.href}
-                      className="text-[13px] text-nf-ink-soft transition-colors hover:text-nf-ink"
+                      className="text-xs text-nf-ink-soft transition-colors hover:text-nf-blue"
                     >
                       {l.label}
                     </a>
@@ -115,15 +199,15 @@ export function ContactFooter() {
 
             {/* Legal */}
             <div>
-              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
                 Legal
               </p>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2">
                 {legalLinks.map((l) => (
                   <li key={l.label}>
                     <a
                       href={l.href}
-                      className="text-[13px] text-nf-ink-soft transition-colors hover:text-nf-ink"
+                      className="text-xs text-nf-ink-soft transition-colors hover:text-nf-blue"
                     >
                       {l.label}
                     </a>
@@ -132,58 +216,28 @@ export function ContactFooter() {
               </ul>
             </div>
 
-            {/* Stay Connected */}
-            <div>
-              <p className="mb-4 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
-                Stay Connected
+            {/* Official Tournament */}
+            <div className="col-span-2 sm:col-span-1">
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
+                Campus Carnival
               </p>
-              <div className="flex gap-3">
+              <div className="rounded-xl border border-gray-100 bg-slate-50 p-3 text-[11px] text-nf-ink-soft">
+                <p className="font-bold text-nf-ink">LNCT Bhopal LAN</p>
+                <p className="mt-0.5 text-emerald-600 font-semibold">18–19 Sep 2026 • Free Entry</p>
                 <a
-                  href="https://instagram.com/novaforge.gg"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-nf-base"
-                  style={{ border: "1px solid #e8ecf4" }}
-                  aria-label="Instagram"
+                  href="#events"
+                  className="mt-2 inline-block font-bold text-nf-blue hover:underline"
                 >
-                  <Instagram size={16} className="text-nf-ink-soft" />
-                </a>
-                <a
-                  href={`https://${contact.discord}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-nf-base"
-                  style={{ border: "1px solid #e8ecf4" }}
-                  aria-label="Discord"
-                >
-                  <DiscordIcon className="h-4 w-4 text-nf-ink-soft" />
-                </a>
-                <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-nf-base"
-                  style={{ border: "1px solid #e8ecf4" }}
-                  aria-label="YouTube"
-                >
-                  <Youtube size={16} className="text-nf-ink-soft" />
-                </a>
-                <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:bg-nf-base"
-                  style={{ border: "1px solid #e8ecf4" }}
-                  aria-label="Twitter / X"
-                >
-                  <Twitter size={16} className="text-nf-ink-soft" />
+                  View Details →
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div
-            className="flex flex-col items-center justify-between gap-3 py-5 text-[12px] text-nf-ink-soft sm:flex-row"
-            style={{ borderTop: "1px solid #e8ecf4" }}
-          >
+          {/* Bottom Copyright */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-5 text-[11px] text-nf-ink-soft border-t border-nf-line">
             <p>© 2026 Nova Forge Esports. All rights reserved.</p>
+            <p className="text-gray-400">Crafted for the Indian Esports Ecosystem</p>
           </div>
         </div>
       </footer>
