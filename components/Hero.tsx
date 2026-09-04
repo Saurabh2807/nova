@@ -84,9 +84,9 @@ const brandLogos = [
     name: "Monster Energy",
     type: "image",
     src: "/logos/monster.svg",
-    width: 190,
-    height: 55,
-    imgClass: "h-10 sm:h-12 w-auto object-contain",
+    width: 380,
+    height: 110,
+    imgClass: "h-14 sm:h-18 md:h-20 w-auto object-contain scale-110",
   },
   {
     name: "iQOO",

@@ -32,9 +32,9 @@ export function SiteNav() {
       }`}
       style={{ borderBottom: "1px solid #e8ecf4" }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3 sm:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 sm:px-8">
         <Link href="/" onClick={() => setOpen(false)}>
-          <LogoLockup markClassName="h-8 w-8 text-nf-blue" wordmarkClassName="text-nf-ink" />
+          <LogoLockup markClassName="h-10 w-10 sm:h-11 sm:w-11 text-nf-blue" wordmarkClassName="text-nf-ink" />
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
@@ -53,7 +53,7 @@ export function SiteNav() {
 
         <div className="hidden md:block">
           <a
-            href="/register/participant"
+            href="#events"
             className="rounded-md bg-nf-blue px-5 py-2.5 text-sm font-bold text-white shadow-[0_4px_16px_rgba(40,114,161,0.4)] transition-all hover:bg-nf-blue-deep hover:shadow-[0_6px_20px_rgba(40,114,161,0.5)]"
           >
             Register Now
@@ -84,7 +84,7 @@ export function SiteNav() {
               </a>
             ))}
             <a
-              href="/register/participant"
+              href="#events"
               onClick={() => setOpen(false)}
               className="mt-2 rounded-md bg-nf-blue px-5 py-3 text-center text-sm font-semibold text-white"
             >

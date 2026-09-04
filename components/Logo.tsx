@@ -11,7 +11,7 @@ export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
 
 export function LogoLockup({
   className = "",
-  markClassName = "h-9 w-9 text-nf-navy",
+  markClassName = "h-10 w-10 text-nf-navy",
   wordmarkClassName = "text-nf-ink",
 }: {
   className?: string;
@@ -19,11 +19,11 @@ export function LogoLockup({
   wordmarkClassName?: string;
 }) {
   return (
-    <span className={`inline-flex items-center gap-2.5 ${className}`}>
+    <span className={`inline-flex items-center gap-2.5 sm:gap-3 ${className}`}>
       <LogoMark className={markClassName} />
       <span className={`font-display font-bold leading-none tracking-tight ${wordmarkClassName}`}>
-        <span className="block text-[0.95rem]">NOVA FORGE</span>
-        <span className="block text-[0.55rem] font-medium tracking-[0.25em] opacity-60">
+        <span className="block text-[1.1rem] sm:text-[1.25rem] tracking-tight">NOVA FORGE</span>
+        <span className="block text-[0.6rem] sm:text-[0.65rem] font-semibold tracking-[0.25em] text-nf-blue opacity-85">
           ESPORTS
         </span>
       </span>
