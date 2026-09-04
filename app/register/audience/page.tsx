@@ -8,8 +8,8 @@ import { flagshipEvent } from "@/lib/data";
 
 const COLLEGE_OPTIONS = [
   { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
-  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0176)", prefix: "0176" },
-  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0157)", prefix: "0157" },
+  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0176)", prefix: "0176" },
+  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0157)", prefix: "0157" },
   { id: "lnctu", name: "LNCT University (LNCTU), Bhopal", prefix: "LNCTU" },
   { id: "lncp", name: "LNCP (Pharmacy), Bhopal", prefix: "LNCP" },
   { id: "lnct-mca-mba", name: "LNCT MCA / MBA Department", prefix: "LNCT-PG" },
@@ -21,7 +21,7 @@ export default function AudienceRegisterPage() {
     name: "",
     phone: "",
     email: "",
-    college: "LNCT Main, Bhopal (0103)",
+    college: "",
     collegeId: "",
   });
 
@@ -75,6 +75,11 @@ export default function AudienceRegisterPage() {
 
     if (eventSettings && eventSettings.isAudienceFull) {
       setErrorMsg("Audience entry passes are completely full.");
+      return;
+    }
+
+    if (!form.college) {
+      setErrorMsg("Please select your college.");
       return;
     }
 
@@ -253,15 +258,19 @@ export default function AudienceRegisterPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Select College / Campus">
+            <Field label="Select College">
               <select
+                required
                 disabled={isClosed}
                 value={form.college}
                 onChange={(e) => update("college", e.target.value)}
-                className={`${inputClass} font-medium text-slate-800`}
+                className={`${inputClass} font-medium ${form.college ? "text-slate-800" : "text-slate-400"}`}
               >
+                <option value="" disabled>
+                  Select College
+                </option>
                 {COLLEGE_OPTIONS.map((c) => (
-                  <option key={c.id} value={c.name}>
+                  <option key={c.id} value={c.name} className="text-slate-800">
                     {c.name}
                   </option>
                 ))}

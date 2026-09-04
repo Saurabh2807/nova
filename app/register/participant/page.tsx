@@ -7,8 +7,8 @@ import { TeamCard } from "@/components/registration/TeamCard";
 
 const COLLEGE_OPTIONS = [
   { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
-  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0176)", prefix: "0176" },
-  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0157)", prefix: "0157" },
+  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0176)", prefix: "0176" },
+  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0157)", prefix: "0157" },
   { id: "lnctu", name: "LNCT University (LNCTU), Bhopal", prefix: "LNCTU" },
   { id: "lncp", name: "LNCP (Pharmacy), Bhopal", prefix: "LNCP" },
   { id: "lnct-mca-mba", name: "LNCT MCA / MBA Department", prefix: "LNCT-PG" },
@@ -21,14 +21,14 @@ export default function ParticipantRegisterPage() {
     fullName: "",
     email: "",
     phone: "",
-    college: "LNCT Main, Bhopal (0103)",
+    college: "",
     collegeId: "",
   });
   const [member, setMember] = useState({
     fullName: "",
     email: "",
     phone: "",
-    college: "LNCT Main, Bhopal (0103)",
+    college: "",
     collegeId: "",
   });
 
@@ -79,6 +79,11 @@ export default function ParticipantRegisterPage() {
 
     if (eventSettings && eventSettings.isTeamFull) {
       setErrorMsg("Tournament team slots are completely full.");
+      return;
+    }
+
+    if (!leader.college || !member.college) {
+      setErrorMsg("Please select college for both Player 1 and Player 2.");
       return;
     }
 
@@ -148,92 +153,93 @@ export default function ParticipantRegisterPage() {
         title="Squad Slot Confirmed"
         description="Your BGMI duo team is registered for the Nova Forge Campus Carnival on Day 2."
       >
-        <TeamCard
-          teamName={successData.teamName}
-          teamId={successData.teamId}
-          leaderName={successData.leaderName}
-          leaderPhone={successData.leaderPhone}
-          player2Name={successData.player2Name}
-          player2Phone={successData.player2Phone}
-          qrDataUrl={successData.qrDataUrl}
-        />
+        <div className="space-y-6">
+          <TeamCard
+            teamName={successData.teamName}
+            teamId={successData.teamId}
+            leaderName={successData.leaderName}
+            leaderPhone={successData.leaderPhone}
+            player2Name={successData.player2Name}
+            player2Phone={successData.player2Phone}
+            qrDataUrl={successData.qrDataUrl}
+          />
+        </div>
       </RegisterShell>
     );
   }
 
-  const isClosed = eventSettings !== null && (!eventSettings.registration_open || eventSettings.isTeamFull);
+  const isClosed = eventSettings ? !eventSettings.registration_open || eventSettings.isTeamFull : false;
 
   return (
     <RegisterShell
-      eyebrow="Tournament Entry"
-      title="BGMI Championship Registration"
+      eyebrow="Participant Pass"
+      title="BGMI Duo Squad Registration"
       description="Register your 2-player BGMI squad for the LAN Esports Championship at LNCT Bhopal."
     >
-      <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-semibold text-nf-ink-soft bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5">
-        <div className="flex items-center gap-2">
-          <Calendar size={14} className="text-nf-blue shrink-0" />
-          <span>{eventSettings?.event_date || "18–19 Sep 2026"}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <MapPin size={14} className="text-nf-blue shrink-0" />
-          <span>{eventSettings?.venue || "LNCT Bhopal"}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Clock size={14} className="text-nf-blue shrink-0" />
-          <span>Reporting: {eventSettings?.reporting_time || "09:00 AM"}</span>
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="flex items-center justify-between rounded-2xl border border-nf-blue/30 bg-gradient-to-r from-blue-900/10 via-slate-900/5 to-transparent p-4 shadow-sm">
-          <div className="flex items-center gap-3.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-nf-blue text-white shadow-md">
-              <Gamepad2 size={24} />
+        {/* Dynamic Tournament Banner */}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-nf-line bg-slate-50/70 p-4">
+          <div className="flex items-center gap-2.5 text-xs font-semibold text-nf-ink">
+            <Calendar size={15} className="text-nf-blue shrink-0" />
+            <span>{eventSettings?.event_date || "19 Sep 2026"} (Day 2)</span>
+            <span className="text-slate-300">•</span>
+            <MapPin size={15} className="text-nf-blue shrink-0" />
+            <span>{eventSettings?.venue || "LNCT Bhopal"}</span>
+            <span className="text-slate-300">•</span>
+            <Clock size={15} className="text-nf-blue shrink-0" />
+            <span>Report by {eventSettings?.reporting_time || "09:00 AM"}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800">
+              Free Entry
+            </span>
+          </div>
+        </div>
+
+        {/* Live Slot Status Bar */}
+        <div className="flex items-center justify-between rounded-2xl border border-nf-line bg-white p-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-nf-blue text-white shadow-sm">
+              <Gamepad2 size={20} />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <p className="font-display text-base font-black text-nf-ink tracking-tight">
-                  BGMI LAN TOURNAMENT
-                </p>
-                <span className="flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[9.5px] font-black uppercase tracking-wider text-amber-700">
-                  <Flame size={11} className="text-amber-600" /> Day 2 LAN
-                </span>
-              </div>
-              <p className="text-[11.5px] font-semibold text-nf-ink-soft">
-                Team Format: <strong>2 Players (Duo Squad)</strong> · Erangel & Miramar
-              </p>
+              <p className="font-display text-sm font-extrabold text-nf-ink">BGMI 2-Player Duo Format</p>
+              <p className="text-[11px] font-medium text-nf-ink-soft">LAN Final Stage • LNCT Campus</p>
             </div>
           </div>
           {isClosed ? (
-            <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-[10.5px] font-extrabold uppercase tracking-wider text-red-800">
-              <Ban size={12} /> Closed
+            <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-red-800">
+              <Ban size={12} /> Slots Full / Closed
             </span>
           ) : (
             <div className="text-right">
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800">
-                Slots Open
+              <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-orange-800">
+                <Flame size={12} className="text-orange-600" /> Slots Active
               </span>
               {eventSettings?.remainingTeamSlots !== undefined && (
                 <p className="mt-1 text-[10px] font-bold text-slate-500">
-                  {eventSettings.remainingTeamSlots} slots left
+                  {eventSettings.remainingTeamSlots} team slots left
                 </p>
               )}
             </div>
           )}
         </div>
 
+        {/* Closed Warning if applicable */}
         {isClosed && (
           <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs font-semibold text-amber-900">
             <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />
             <div>
-              <p className="font-bold">BGMI tournament slots are currently full or registrations are closed.</p>
+              <p className="font-bold">Team registrations are currently closed or tournament capacity is full.</p>
               <p className="mt-0.5 text-amber-800/90 font-normal">
-                Please check back later or register for an Audience Pass to watch the LAN matches live!
+                If additional spots or backup slots open up, they will be announced on the Nova Forge Discord.
               </p>
             </div>
           </div>
         )}
 
+        {/* Error notification */}
         {errorMsg && (
           <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
             <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
@@ -241,12 +247,9 @@ export default function ParticipantRegisterPage() {
           </div>
         )}
 
+        {/* Squad Details Card */}
         <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
-          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <Users size={16} className="text-nf-blue" />
-            <h3 className="text-sm font-bold uppercase tracking-wider text-nf-ink">Team / Squad Information</h3>
-          </div>
-          <Field label="Team / Squad Name" hint="Must be unique across the tournament">
+          <Field label="Team / Duo Name">
             <input
               required
               disabled={isClosed}
@@ -258,13 +261,14 @@ export default function ParticipantRegisterPage() {
           </Field>
         </div>
 
+        {/* Player 1 Card */}
         <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div className="flex items-center gap-2">
               <Shield size={16} className="text-nf-blue" />
               <h3 className="text-sm font-bold uppercase tracking-wider text-nf-ink">Player 1 (Team Leader)</h3>
             </div>
-            <span className="text-[10.5px] font-bold text-nf-blue bg-nf-blue/10 px-2.5 py-0.5 rounded-full">
+            <span className="text-[10.5px] font-bold text-nf-blue bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100">
               Primary Contact
             </span>
           </div>
@@ -274,7 +278,7 @@ export default function ParticipantRegisterPage() {
               required
               disabled={isClosed}
               className={inputClass}
-              placeholder="Leader's Full Name"
+              placeholder="Leader Full Name"
               value={leader.fullName}
               onChange={(e) => setLeader((l) => ({ ...l, fullName: e.target.value }))}
             />
@@ -307,21 +311,25 @@ export default function ParticipantRegisterPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Select College / Campus">
+            <Field label="Select College">
               <select
+                required
                 disabled={isClosed}
                 value={leader.college}
                 onChange={(e) => setLeader((l) => ({ ...l, college: e.target.value }))}
-                className={`${inputClass} font-medium text-slate-800`}
+                className={`${inputClass} font-medium ${leader.college ? "text-slate-800" : "text-slate-400"}`}
               >
+                <option value="" disabled>
+                  Select College
+                </option>
                 {COLLEGE_OPTIONS.map((c) => (
-                  <option key={c.id} value={c.name}>
+                  <option key={c.id} value={c.name} className="text-slate-800">
                     {c.name}
                   </option>
                 ))}
               </select>
             </Field>
-            <Field label="Enrollment / Scholar No" hint="Must match your physical College ID card">
+            <Field label="Enrollment / Scholar No" hint="Must match physical College ID card">
               <input
                 required
                 disabled={isClosed}
@@ -334,6 +342,7 @@ export default function ParticipantRegisterPage() {
           </div>
         </div>
 
+        {/* Player 2 Card */}
         <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div className="flex items-center gap-2">
@@ -383,15 +392,19 @@ export default function ParticipantRegisterPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Select College / Campus">
+            <Field label="Select College">
               <select
+                required
                 disabled={isClosed}
                 value={member.college}
                 onChange={(e) => setMember((m) => ({ ...m, college: e.target.value }))}
-                className={`${inputClass} font-medium text-slate-800`}
+                className={`${inputClass} font-medium ${member.college ? "text-slate-800" : "text-slate-400"}`}
               >
+                <option value="" disabled>
+                  Select College
+                </option>
                 {COLLEGE_OPTIONS.map((c) => (
-                  <option key={c.id} value={c.name}>
+                  <option key={c.id} value={c.name} className="text-slate-800">
                     {c.name}
                   </option>
                 ))}
