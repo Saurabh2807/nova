@@ -70,11 +70,27 @@ export async function sendEmail({ to, subject, html, attachments = [] }: SendEma
       const rawFrom = (process.env.SMTP_FROM || process.env.EMAIL_FROM || "").replace(/^["']|["']$/g, "").trim();
       const fromAddress = rawFrom || `Nova Forge <${smtpUser}>`;
 
+      // Generate clean plain text fallback to drastically improve spam score
+      const plainText = processedHtml
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/&nbsp;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
       const info = await transporter.sendMail({
         from: fromAddress.includes("<") ? fromAddress : `Nova Forge <${fromAddress}>`,
+        replyTo: smtpUser,
         to,
         subject,
+        text: plainText,
         html: processedHtml,
+        headers: {
+          "X-Priority": "3",
+          "X-MSMail-Priority": "Normal",
+          "Importance": "Normal",
+        },
         attachments: finalAttachments.map((a) => ({
           filename: a.filename,
           content: a.content,
