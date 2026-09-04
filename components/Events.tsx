@@ -214,9 +214,19 @@ export function Events() {
 
             {/* ── DAY 1 — CREATION DAY CARD ── */}
             <div
-              className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#2872A1]/40"
+              role="button"
+              tabIndex={0}
+              aria-expanded={hoveredCard === 1}
+              className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#2872A1]/40 cursor-pointer select-none"
+              onClick={() => setHoveredCard((prev) => (prev === 1 ? null : 1))}
               onMouseEnter={() => setHoveredCard(1)}
               onMouseLeave={() => setHoveredCard(null)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setHoveredCard((prev) => (prev === 1 ? null : 1));
+                }
+              }}
             >
               <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[165px]">
                 {/* Left Info */}
@@ -227,7 +237,7 @@ export function Events() {
                         Day 1 · 18 Sep
                       </span>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-nf-blue transition-colors">
-                        <span>Event Flow</span>
+                        <span>{hoveredCard === 1 ? "Close Flow" : "Event Flow"}</span>
                         <ChevronDown size={13} className={`transition-transform duration-300 ${hoveredCard === 1 ? "rotate-180 text-nf-blue" : ""}`} />
                       </span>
                     </div>
@@ -282,9 +292,14 @@ export function Events() {
                             Day 1 Programme Flow
                           </span>
                         </div>
-                        <span className="text-[10px] font-bold text-slate-400">
-                          13 Activities
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="hidden sm:inline text-[10px] font-bold text-slate-400">
+                            13 Activities
+                          </span>
+                          <span className="rounded-md border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 hover:bg-slate-200 transition-colors">
+                            Tap to close ✕
+                          </span>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -338,9 +353,19 @@ export function Events() {
 
             {/* ── DAY 2 — GAMING DAY CARD ── */}
             <div
-              className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#2872A1]/40"
+              role="button"
+              tabIndex={0}
+              aria-expanded={hoveredCard === 2}
+              className="group relative overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-sm transition-all duration-300 hover:shadow-xl hover:border-[#2872A1]/40 cursor-pointer select-none"
+              onClick={() => setHoveredCard((prev) => (prev === 2 ? null : 2))}
               onMouseEnter={() => setHoveredCard(2)}
               onMouseLeave={() => setHoveredCard(null)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setHoveredCard((prev) => (prev === 2 ? null : 2));
+                }
+              }}
             >
               <div className="grid grid-cols-[1fr_160px] sm:grid-cols-[1fr_210px] items-stretch min-h-[165px]">
                 {/* Left Info */}
@@ -351,7 +376,7 @@ export function Events() {
                         Day 2 · 19 Sep
                       </span>
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-nf-blue transition-colors">
-                        <span>Event Flow</span>
+                        <span>{hoveredCard === 2 ? "Close Flow" : "Event Flow"}</span>
                         <ChevronDown size={13} className={`transition-transform duration-300 ${hoveredCard === 2 ? "rotate-180 text-nf-blue" : ""}`} />
                       </span>
                     </div>
@@ -406,9 +431,14 @@ export function Events() {
                             Day 2 Tournament & Watch Party Flow
                           </span>
                         </div>
-                        <span className="text-[10px] font-bold text-slate-400">
-                          13 Activities
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="hidden sm:inline text-[10px] font-bold text-slate-400">
+                            13 Activities
+                          </span>
+                          <span className="rounded-md border border-slate-200/80 bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600 hover:bg-slate-200 transition-colors">
+                            Tap to close ✕
+                          </span>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
