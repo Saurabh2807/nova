@@ -87,7 +87,7 @@ export function Events() {
               </div>
             </div>
 
-            {/* ── COUNTDOWN CARD WITH OVERFLOWING MONSTER CAN & ROTATING GLOW BORDER ── */}
+            {/* ── COUNTDOWN CARD WITH OVERFLOWING MONSTER CAN ── */}
             <div className="relative mt-3">
               {/* Monster Energy Can with Ice & Splash — positioned to overflow above card */}
               <div
@@ -103,73 +103,53 @@ export function Events() {
                 />
               </div>
 
-              {/* Dark Navy Countdown Box with Rotating Glow Border */}
-              <div className="relative rounded-2xl p-[1.5px] overflow-hidden shadow-lg group">
-                {/* Rotating Conic Gradient Glow Beam */}
-                <div 
-                  className="absolute -inset-[100%] animate-glow-rotate-slow opacity-85"
+              {/* Dark Navy Countdown Box */}
+              <div
+                className="relative rounded-2xl p-5 sm:p-6 shadow-md overflow-hidden"
+                style={{
+                  background: "linear-gradient(135deg, #091522 0%, #102336 55%, #152d45 100%)",
+                  border: "1px solid rgba(40, 114, 161, 0.2)",
+                }}
+              >
+                {/* Radial Glow Highlight */}
+                <div
+                  className="absolute inset-0 opacity-30 pointer-events-none"
                   style={{
-                    background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, #2872A1 60deg, #38bdf8 120deg, transparent 180deg, #2872A1 240deg, #38bdf8 300deg, transparent 360deg)",
+                    backgroundImage: "radial-gradient(circle at 75% 50%, #2872A1 0%, transparent 60%)",
                   }}
                 />
 
-                {/* Inner Content Surface */}
-                <div
-                  className="relative rounded-[15px] p-5 sm:p-6 overflow-hidden"
-                  style={{
-                    background: "linear-gradient(135deg, #091522 0%, #102336 55%, #152d45 100%)",
-                  }}
-                >
-                  {/* Radial Glow Highlight */}
-                  <div
-                    className="absolute inset-0 opacity-30 pointer-events-none"
-                    style={{
-                      backgroundImage: "radial-gradient(circle at 75% 50%, #2872A1 0%, transparent 60%)",
-                    }}
-                  />
-
-                  {/* Countdown Content */}
-                  <div className="relative z-10 pr-[140px] sm:pr-[165px]">
-                    <p className="mb-2.5 text-[9.5px] font-black uppercase tracking-[0.22em] text-cyan-300/85">
-                      Registration Closes In
-                    </p>
-                    <EventCountdown dark />
-                  </div>
+                {/* Countdown Content */}
+                <div className="relative z-10 pr-[140px] sm:pr-[165px]">
+                  <p className="mb-2.5 text-[9.5px] font-black uppercase tracking-[0.22em] text-white/50">
+                    Registration Closes In
+                  </p>
+                  <EventCountdown dark />
                 </div>
               </div>
             </div>
 
-            {/* ── DUAL REGISTRATION ACTION BUTTONS (WITH ROTATING GLOW BORDER ON PRIMARY CTA) ── */}
+            {/* ── DUAL REGISTRATION ACTION BUTTONS (WHITE WITH BLUE BORDERS & HOVER GLOW) ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {/* Primary CTA: Register as Participant with Rotating Glow Border */}
+              {/* Primary CTA: Register as Participant */}
               <Link
                 href="/register/participant"
-                className="group relative flex items-center justify-between gap-3 rounded-2xl p-[2px] overflow-hidden shadow-xs transition-all duration-300 hover:shadow-[0_8px_30px_rgba(40,114,161,0.35)] active:scale-[0.98]"
+                className="group flex items-center justify-between gap-3 rounded-2xl border-2 border-nf-blue bg-white px-5 py-4 text-nf-ink shadow-xs transition-all duration-300 hover:bg-nf-blue hover:text-white hover:border-nf-blue hover:shadow-[0_8px_25px_rgba(40,114,161,0.35)]"
               >
-                {/* Rotating Conic Beam */}
-                <span 
-                  className="absolute -inset-[100%] animate-glow-rotate-slow opacity-90"
-                  style={{
-                    background: "conic-gradient(from 0deg at 50% 50%, transparent 0deg, #2872A1 90deg, #38bdf8 180deg, transparent 270deg, #2872A1 360deg)",
-                  }}
-                />
-
-                <div className="relative flex w-full items-center justify-between gap-3 rounded-[14px] bg-white px-5 py-4 text-nf-ink transition-colors duration-300 group-hover:bg-nf-blue group-hover:text-white">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-nf-blue/10 text-nf-blue transition-colors duration-300 group-hover:bg-white/20 group-hover:text-white">
-                      <Trophy size={19} />
-                    </div>
-                    <div>
-                      <span className="block text-[9.5px] font-bold uppercase tracking-wider text-nf-ink-soft transition-colors duration-300 group-hover:text-white/75">
-                        Register as
-                      </span>
-                      <span className="block font-display text-[15px] font-black uppercase leading-tight text-nf-ink transition-colors duration-300 group-hover:text-white">
-                        Participant
-                      </span>
-                    </div>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-nf-blue/10 text-nf-blue transition-colors duration-300 group-hover:bg-white/20 group-hover:text-white">
+                    <Trophy size={19} />
                   </div>
-                  <ArrowRight size={18} className="text-nf-blue transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
+                  <div>
+                    <span className="block text-[9.5px] font-bold uppercase tracking-wider text-nf-ink-soft transition-colors duration-300 group-hover:text-white/75">
+                      Register as
+                    </span>
+                    <span className="block font-display text-[15px] font-black uppercase leading-tight text-nf-ink transition-colors duration-300 group-hover:text-white">
+                      Participant
+                    </span>
+                  </div>
                 </div>
+                <ArrowRight size={18} className="text-nf-blue transition-all duration-300 group-hover:translate-x-1 group-hover:text-white" />
               </Link>
 
               {/* Secondary CTA: Register as Audience */}
