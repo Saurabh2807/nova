@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyTokenOrId } from "@/lib/supabase/service";
+import { authenticateAdminRequest } from "@/lib/supabase/admin-auth";
 
 export async function POST(req: NextRequest) {
+  const auth = await authenticateAdminRequest(req, "volunteer");
+  if (!auth.success) {
+    return NextResponse.json({ status: "INVALID", message: auth.error }, { status: auth.status });
+  }
+
   try {
     const { token } = await req.json();
     if (!token) {

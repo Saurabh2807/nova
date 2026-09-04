@@ -96,16 +96,58 @@ export async function getEventSettings(): Promise<EventSettings> {
 }
 
 export async function updateEventSettings(newSettings: Partial<EventSettings>): Promise<boolean> {
+  const cleanSettings: any = {};
+  if (newSettings.registration_open !== undefined) cleanSettings.registration_open = newSettings.registration_open;
+  if (newSettings.participant_limit !== undefined) cleanSettings.participant_limit = Number(newSettings.participant_limit);
+  if (newSettings.audience_limit !== undefined) cleanSettings.audience_limit = Number(newSettings.audience_limit);
+  if (newSettings.event_name !== undefined) cleanSettings.event_name = newSettings.event_name;
+  if (newSettings.event_date !== undefined) cleanSettings.event_date = newSettings.event_date;
+  if (newSettings.venue !== undefined) cleanSettings.venue = newSettings.venue;
+  if (newSettings.reporting_time !== undefined) cleanSettings.reporting_time = newSettings.reporting_time;
+
   // Always update in-memory devStore so local state is instantly updated
-  Object.assign(devStore.settings, newSettings);
+  Object.assign(devStore.settings, cleanSettings);
 
   const supabase = getSupabaseServerClient();
   if (!supabase) {
     return true;
   }
   try {
-    const { error } = await supabase.from("event_settings").update(newSettings).neq("id", "00000000-0000-0000-0000-000000000000");
-    return !error;
+    const { data: existing } = await supabase.from("event_settings").select("id").limit(1).maybeSingle();
+    if (existing?.id) {
+      let { error } = await supabase.from("event_settings").update(cleanSettings).eq("id", existing.id);
+      if (error && error.message.includes("column")) {
+        // Fallback to core columns only
+        const coreSettings: any = {};
+        if (cleanSettings.registration_open !== undefined) coreSettings.registration_open = cleanSettings.registration_open;
+        if (cleanSettings.participant_limit !== undefined) coreSettings.participant_limit = cleanSettings.participant_limit;
+        if (cleanSettings.audience_limit !== undefined) coreSettings.audience_limit = cleanSettings.audience_limit;
+        
+        const retryRes = await supabase.from("event_settings").update(coreSettings).eq("id", existing.id);
+        error = retryRes.error;
+      }
+
+      if (error) {
+        console.warn("Supabase update error:", error.message);
+        return false;
+      }
+      return true;
+    } else {
+      let { error } = await supabase.from("event_settings").insert(cleanSettings);
+      if (error && error.message.includes("column")) {
+        const coreSettings: any = {};
+        if (cleanSettings.registration_open !== undefined) coreSettings.registration_open = cleanSettings.registration_open;
+        if (cleanSettings.participant_limit !== undefined) coreSettings.participant_limit = cleanSettings.participant_limit;
+        if (cleanSettings.audience_limit !== undefined) coreSettings.audience_limit = cleanSettings.audience_limit;
+        const retryRes = await supabase.from("event_settings").insert(coreSettings);
+        error = retryRes.error;
+      }
+      if (error) {
+        console.warn("Supabase insert error:", error.message);
+        return false;
+      }
+      return true;
+    }
   } catch (err) {
     console.warn("Supabase updateEventSettings fallback:", err);
     return true;
@@ -934,35 +976,60 @@ export async function undoCheckIn(
 }
 
 // ==============================================================================
-// 5. DASHBOARD STATS & SEARCH
+// 5. DASHBOARD STATS & MANAGEMENT QUERIES
 // ==============================================================================
 export async function getDashboardStats() {
   const supabase = getSupabaseServerClient();
 
   if (!supabase) {
-    const totalTeams = devStore.teams.filter((t) => t.registration_status !== "cancelled").length;
+    const totalTeams = devStore.teams.length;
+    const confirmedTeams = devStore.teams.filter((t) => t.registration_status === "confirmed").length;
+    const cancelledTeams = devStore.teams.filter((t) => t.registration_status === "cancelled").length;
+    const checkedInTeams = devStore.teams.filter((t) => t.check_in_status === "checked_in").length;
     const totalParticipants = devStore.participants.length;
-    const totalAudience = devStore.audience.filter((a) => a.registration_status !== "cancelled").length;
-    const teamsCheckedIn = devStore.teams.filter((t) => t.check_in_status === "checked_in" && t.registration_status !== "cancelled").length;
-    const checkedInParticipants = teamsCheckedIn * 2;
-    const audienceCheckedIn = devStore.audience.filter((a) => a.check_in_status === "checked_in" && a.registration_status !== "cancelled").length;
-    const totalCheckedIn = teamsCheckedIn + audienceCheckedIn;
-    const totalRegistrations = totalTeams + totalAudience;
+
+    const totalAudience = devStore.audience.length;
+    const confirmedAudience = devStore.audience.filter((a) => a.registration_status === "confirmed").length;
+    const cancelledAudience = devStore.audience.filter((a) => a.registration_status === "cancelled").length;
+    const checkedInAudience = devStore.audience.filter((a) => a.check_in_status === "checked_in").length;
+
+    const totalCheckedIn = checkedInTeams + checkedInAudience;
+    const totalRegistrations = confirmedTeams + confirmedAudience;
     const settings = devStore.settings;
 
+    const remainingTeamCapacity = Math.max(0, settings.participant_limit - confirmedTeams);
+    const remainingAudienceCapacity = Math.max(0, settings.audience_limit - confirmedAudience);
+
     return {
+      participant: {
+        totalTeams,
+        confirmedTeams,
+        cancelledTeams,
+        checkedInTeams,
+        remainingCapacity: remainingTeamCapacity,
+        limit: settings.participant_limit,
+      },
+      audience: {
+        totalAudience,
+        confirmedAudience,
+        cancelledAudience,
+        checkedInAudience,
+        remainingCapacity: remainingAudienceCapacity,
+        limit: settings.audience_limit,
+      },
+      // Backward-compatible fields
       totalTeams,
       totalParticipants,
       totalAudience,
-      teamsCheckedIn,
-      checkedInParticipants,
-      checkedInAudience: audienceCheckedIn,
-      audienceCheckedIn,
+      teamsCheckedIn: checkedInTeams,
+      checkedInParticipants: checkedInTeams * 2,
+      checkedInAudience,
+      audienceCheckedIn: checkedInAudience,
       totalCheckedIn,
       pendingCheckIn: Math.max(0, totalRegistrations - totalCheckedIn),
       checkInRate: totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0,
-      participantCapacity: `${totalTeams} / ${settings.participant_limit} Teams`,
-      audienceCapacity: `${totalAudience} / ${settings.audience_limit}`,
+      participantCapacity: `${confirmedTeams} / ${settings.participant_limit} Teams`,
+      audienceCapacity: `${confirmedAudience} / ${settings.audience_limit}`,
       settings,
     };
   }
@@ -975,35 +1042,63 @@ export async function getDashboardStats() {
       getEventSettings(),
     ]);
 
-    const teams = (teamsRes.data || []).filter((t: any) => t.registration_status !== "cancelled");
-    const audience = (audRes.data || []).filter((a: any) => a.registration_status !== "cancelled");
-    const totalTeams = teams.length;
-    const totalParticipants = partsRes.count || totalTeams * 2;
-    const totalAudience = audience.length;
-    const teamsCheckedIn = teams.filter((t: any) => t.check_in_status === "checked_in").length;
-    const checkedInParticipants = teamsCheckedIn * 2;
-    const audienceCheckedIn = audience.filter((a: any) => a.check_in_status === "checked_in").length;
-    const totalCheckedIn = teamsCheckedIn + audienceCheckedIn;
-    const totalRegistrations = totalTeams + totalAudience;
+    const allTeams = teamsRes.data || [];
+    const allAud = audRes.data || [];
+
+    const totalTeams = allTeams.length;
+    const confirmedTeams = allTeams.filter((t: any) => t.registration_status === "confirmed").length;
+    const cancelledTeams = allTeams.filter((t: any) => t.registration_status === "cancelled").length;
+    const checkedInTeams = allTeams.filter((t: any) => t.check_in_status === "checked_in").length;
+    const totalParticipants = partsRes.count || confirmedTeams * 2;
+
+    const totalAudience = allAud.length;
+    const confirmedAudience = allAud.filter((a: any) => a.registration_status === "confirmed").length;
+    const cancelledAudience = allAud.filter((a: any) => a.registration_status === "cancelled").length;
+    const checkedInAudience = allAud.filter((a: any) => a.check_in_status === "checked_in").length;
+
+    const totalCheckedIn = checkedInTeams + checkedInAudience;
+    const totalRegistrations = confirmedTeams + confirmedAudience;
     const settings = settingsRes;
 
+    const remainingTeamCapacity = Math.max(0, settings.participant_limit - confirmedTeams);
+    const remainingAudienceCapacity = Math.max(0, settings.audience_limit - confirmedAudience);
+
     return {
+      participant: {
+        totalTeams,
+        confirmedTeams,
+        cancelledTeams,
+        checkedInTeams,
+        remainingCapacity: remainingTeamCapacity,
+        limit: settings.participant_limit,
+      },
+      audience: {
+        totalAudience,
+        confirmedAudience,
+        cancelledAudience,
+        checkedInAudience,
+        remainingCapacity: remainingAudienceCapacity,
+        limit: settings.audience_limit,
+      },
+      // Backward-compatible fields
       totalTeams,
       totalParticipants,
       totalAudience,
-      teamsCheckedIn,
-      checkedInParticipants,
-      checkedInAudience: audienceCheckedIn,
-      audienceCheckedIn,
+      teamsCheckedIn: checkedInTeams,
+      checkedInParticipants: checkedInTeams * 2,
+      checkedInAudience,
+      audienceCheckedIn: checkedInAudience,
       totalCheckedIn,
       pendingCheckIn: Math.max(0, totalRegistrations - totalCheckedIn),
       checkInRate: totalRegistrations > 0 ? Math.round((totalCheckedIn / totalRegistrations) * 100) : 0,
-      participantCapacity: `${totalTeams} / ${settings.participant_limit} Teams`,
-      audienceCapacity: `${totalAudience} / ${settings.audience_limit}`,
+      participantCapacity: `${confirmedTeams} / ${settings.participant_limit} Teams`,
+      audienceCapacity: `${confirmedAudience} / ${settings.audience_limit}`,
       settings,
     };
   } catch (err) {
     return {
+      participant: { totalTeams: 0, confirmedTeams: 0, cancelledTeams: 0, checkedInTeams: 0, remainingCapacity: 0, limit: 250 },
+      audience: { totalAudience: 0, confirmedAudience: 0, cancelledAudience: 0, checkedInAudience: 0, remainingCapacity: 0, limit: 1000 },
       totalTeams: 0,
       totalParticipants: 0,
       totalAudience: 0,
@@ -1018,6 +1113,52 @@ export async function getDashboardStats() {
       audienceCapacity: `0 / ${devStore.settings.audience_limit}`,
       settings: devStore.settings,
     };
+  }
+}
+
+export async function getAllTeams() {
+  const supabase = getSupabaseServerClient();
+  if (!supabase) {
+    return devStore.teams;
+  }
+  try {
+    const { data, error } = await supabase.from("teams").select("*, participants(*)").order("created_at", { ascending: false });
+    if (error || !data) return devStore.teams;
+    return data;
+  } catch (err) {
+    return devStore.teams;
+  }
+}
+
+export async function getAllAudience() {
+  const supabase = getSupabaseServerClient();
+  if (!supabase) {
+    return devStore.audience;
+  }
+  try {
+    const { data, error } = await supabase.from("audience_registrations").select("*").order("created_at", { ascending: false });
+    if (error || !data) return devStore.audience;
+    return data;
+  } catch (err) {
+    return devStore.audience;
+  }
+}
+
+export async function getRecentAuditLogs(limit: number = 50) {
+  const supabase = getSupabaseServerClient();
+  if (!supabase) {
+    return devStore.logs.slice(0, limit);
+  }
+  try {
+    const { data, error } = await supabase
+      .from("check_in_logs")
+      .select("*")
+      .order("timestamp", { ascending: false })
+      .limit(limit);
+    if (error || !data) return devStore.logs.slice(0, limit);
+    return data;
+  } catch (err) {
+    return devStore.logs.slice(0, limit);
   }
 }
 
@@ -1091,7 +1232,7 @@ export async function searchRegistrations(query: string) {
 }
 
 // ==============================================================================
-// 6. CSV EXPORT FOR PHYSICAL PEN-AND-PAPER CHECK-IN SHEETS
+// 6. CSV EXPORT FOR PHYSICAL PEN-AND-PAPER CHECK-IN SHEETS (NO QR TOKEN)
 // ==============================================================================
 export async function getTeamsCsv(): Promise<string> {
   const supabase = getSupabaseServerClient();
@@ -1105,40 +1246,40 @@ export async function getTeamsCsv(): Promise<string> {
   }
 
   const headers = [
-    "S.No",
     "Team ID",
     "Team Name",
-    "Leader Name",
-    "Leader Mobile",
-    "Leader College ID",
+    "Player 1 Name",
+    "Player 1 Email",
+    "Player 1 Mobile",
+    "Player 1 College ID",
     "Player 2 Name",
+    "Player 2 Email",
     "Player 2 Mobile",
     "Player 2 College ID",
-    "Registration Time",
+    "Registration Status",
     "Check-in Status",
-    "Check-in Time",
-    "Physical Signature / Desk Verification",
+    "Created At",
   ];
 
-  const rows = teams.map((t, index) => {
+  const rows = teams.map((t) => {
     const members = t.members || t.participants || [];
     const leader = members.find((m: any) => m.role === "leader") || members[0] || {};
     const p2 = members.find((m: any) => m.role === "member") || members[1] || {};
 
     return [
-      index + 1,
       `"${t.team_id}"`,
       `"${t.name?.replace(/"/g, '""')}"`,
       `"${leader.full_name?.replace(/"/g, '""') || ""}"`,
+      `"${leader.email || ""}"`,
       `"${leader.phone || ""}"`,
       `"${leader.college_id || ""}"`,
       `"${p2.full_name?.replace(/"/g, '""') || ""}"`,
+      `"${p2.email || ""}"`,
       `"${p2.phone || ""}"`,
       `"${p2.college_id || ""}"`,
-      `"${new Date(t.created_at || Date.now()).toLocaleString()}"`,
-      `"${t.check_in_status === "checked_in" ? "CHECKED IN" : "PENDING"}"`,
-      `"${t.checked_in_at ? new Date(t.checked_in_at).toLocaleTimeString() : "-"}"`,
-      `"[   ]"`,
+      `"${t.registration_status}"`,
+      `"${t.check_in_status}"`,
+      `"${new Date(t.created_at || Date.now()).toISOString()}"`,
     ].join(",");
   });
 
@@ -1157,32 +1298,29 @@ export async function getAudienceCsv(): Promise<string> {
   }
 
   const headers = [
-    "S.No",
     "Pass ID",
-    "Full Name",
-    "Mobile Number",
-    "College ID / Scholar No",
-    "Email Address",
-    "Registration Time",
+    "Name",
+    "Email",
+    "Mobile",
+    "College ID",
+    "Registration Status",
     "Check-in Status",
-    "Check-in Time",
-    "Physical Signature / Desk Verification",
+    "Created At",
   ];
 
-  const rows = audience.map((a, index) => {
+  const rows = audience.map((a) => {
     return [
-      index + 1,
       `"${a.pass_id}"`,
       `"${a.full_name?.replace(/"/g, '""')}"`,
+      `"${a.email}"`,
       `"${a.phone}"`,
       `"${a.college_id}"`,
-      `"${a.email}"`,
-      `"${new Date(a.created_at || Date.now()).toLocaleString()}"`,
-      `"${a.check_in_status === "checked_in" ? "CHECKED IN" : "PENDING"}"`,
-      `"${a.checked_in_at ? new Date(a.checked_in_at).toLocaleTimeString() : "-"}"`,
-      `"[   ]"`,
+      `"${a.registration_status}"`,
+      `"${a.check_in_status}"`,
+      `"${new Date(a.created_at || Date.now()).toISOString()}"`,
     ].join(",");
   });
 
   return [headers.join(","), ...rows].join("\n");
 }
+
