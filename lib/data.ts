@@ -45,11 +45,122 @@ export const sponsors = [
   { name: "Nodwin Gaming", tier: "Official Esports Partner", confirmed: true },
 ];
 
-export const leadership = [
-  { name: "Sajal Verma", role: "Founder & CEO" },
-  { name: "Paras Parihar", role: "Co-Founder" },
-  { name: "Saurabh Kumar Singh", role: "Head of Operations" },
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  tags: string[];
+  linkedin?: string;
+  avatarBg?: string;
+  avatarText?: string;
+  image?: string;
+}
+
+export const teamMembers: TeamMember[] = [
+  {
+    id: "sajal",
+    name: "Sajal Verma",
+    role: "Founder & CEO",
+    description: "Leading Nova Forge's strategic roadmap, institutional partnerships, and building India's premier collegiate esports ecosystem.",
+    tags: ["Strategy", "Leadership", "Esports Ecosystem"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #0d2238 0%, #1a3a6b 100%)",
+    avatarText: "#CBDDE9",
+  },
+  {
+    id: "paras",
+    name: "Paras Parihar",
+    role: "Founder & CEO",
+    description: "Directing tournament operations, creator ecosystem initiatives, and championing competitive gaming opportunities across university campuses.",
+    tags: ["Operations", "Community", "Brand Growth"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #181d36 0%, #2a2558 100%)",
+    avatarText: "#d4b8ff",
+  },
+  {
+    id: "saurabh",
+    name: "Saurabh Kumar Singh",
+    role: "Lead Developer & Web Experience",
+    description: "Designed and built the Nova Forge website and digital web experience, shaping the platform's frontend, interactions and overall digital presence.",
+    tags: ["Web Development", "Frontend", "Digital Experience"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #091e30 0%, #174836 100%)",
+    avatarText: "#86efac",
+  },
+  {
+    id: "aditya",
+    name: "Aditya Singh",
+    role: "Community Lead",
+    description: "Fostering active student engagement across 40+ college esports clubs and managing Discord community operations.",
+    tags: ["Community Management", "Player Support", "Discord"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #241432 0%, #3e1b5b 100%)",
+    avatarText: "#f0abfc",
+  },
+  {
+    id: "rohan",
+    name: "Rohan Verma",
+    role: "Events & Partnerships",
+    description: "Executing on-ground LAN arena production, sponsor brand integrations, and collegiate venue coordination.",
+    tags: ["Event Management", "Sponsorships", "LAN Production"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #1f2937 0%, #374151 100%)",
+    avatarText: "#93c5fd",
+  },
+  {
+    id: "karan",
+    name: "Karan Mehta",
+    role: "Esports & Tournaments",
+    description: "Managing tournament rulebooks, referee rosters, competitive lobbies, and fair play governance across official titles.",
+    tags: ["Tournament Director", "BGMI Operations", "Fair Play"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)",
+    avatarText: "#c7d2fe",
+  },
+  {
+    id: "nisha",
+    name: "Nisha Rao",
+    role: "Creator Relations",
+    description: "Scouting college gaming creators, coordinating broadcast talent, and managing creator roster perk distribution.",
+    tags: ["Creator Program", "Talent Scouting", "Media"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #3b0764 0%, #581c87 100%)",
+    avatarText: "#f5d0fe",
+  },
+  {
+    id: "arjun",
+    name: "Arjun Pathak",
+    role: "Technology & Systems",
+    description: "Maintaining scoring telemetry, live match telemetry, registration pipelines, and tournament verification systems.",
+    tags: ["Systems", "Telemetry", "Infrastructure"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #022c22 0%, #064e3b 100%)",
+    avatarText: "#6ee7b7",
+  },
+  {
+    id: "rahul",
+    name: "Rahul Sharma",
+    role: "Operations Manager",
+    description: "Streamlining stage management, equipment logistics, college administration permissions, and on-site hospitality.",
+    tags: ["Logistics", "Stage Operations", "Coordination"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #1c1917 0%, #292524 100%)",
+    avatarText: "#fdba74",
+  },
+  {
+    id: "aman",
+    name: "Aman Kapoor",
+    role: "Production & Broadcast",
+    description: "Directing livestream broadcast feeds, multi-camera switching, live match overlays, and caster coordination.",
+    tags: ["Broadcast Direction", "Live Production", "Casting"],
+    linkedin: "#",
+    avatarBg: "linear-gradient(135deg, #172554 0%, #1e40af 100%)",
+    avatarText: "#bfdbfe",
+  },
 ];
+
+export const leadership = teamMembers;
 
 export const stats = [
   { label: "Discord Members", value: "1.2K+" },

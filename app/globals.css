@@ -88,3 +88,13 @@ body {
   background: var(--color-nf-blue);
   color: white;
 }
+
+/* Hide scrollbars for clean horizontal rail navigation */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
