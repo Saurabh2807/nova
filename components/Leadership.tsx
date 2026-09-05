@@ -177,7 +177,7 @@ export function Leadership() {
                         <h3 className="truncate font-display text-xs sm:text-[13px] font-bold text-nf-ink">
                           {member.name}
                         </h3>
-                        <p className="truncate text-[11px] font-medium text-nf-ink-soft">
+                        <p className="mt-0.5 text-[10.5px] font-semibold text-nf-ink-soft line-clamp-2 leading-tight">
                           {member.role}
                         </p>
                       </div>
@@ -196,7 +196,10 @@ export function Leadership() {
                         }}
                       >
                         <div className="flex flex-1 items-center justify-center">
-                          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-2xl font-black backdrop-blur-xs border border-white/20 shadow-md">
+                          <div 
+                            className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-2xl font-black backdrop-blur-xs border border-white/20 shadow-md"
+                            aria-label={`${member.name} — ${member.role}`}
+                          >
                             {initials}
                           </div>
                         </div>
