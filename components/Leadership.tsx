@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
-import { ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
-import { teamMembers, TeamMember } from "@/lib/data";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { teamMembers } from "@/lib/data";
 
 function LinkedInIcon({ className }: { className?: string }) {
   return (
@@ -15,7 +14,6 @@ function LinkedInIcon({ className }: { className?: string }) {
 
 export function Leadership() {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [mobileSelectedId, setMobileSelectedId] = useState<string>(teamMembers[0]?.id || "sajal");
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -54,8 +52,6 @@ export function Leadership() {
     const scrollAmount = direction === "left" ? -380 : 380;
     railRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
   };
-
-  const mobileSelectedMember = teamMembers.find((m) => m.id === mobileSelectedId) || teamMembers[0];
 
   return (
     <section id="team" className="bg-white py-14 sm:py-20 border-t border-nf-line overflow-hidden">
@@ -103,7 +99,7 @@ export function Leadership() {
                 <ChevronRight size={17} />
               </button>
 
-              {/* Progress Count (e.g. 1 / 10) */}
+              {/* Progress Count (e.g. 1 / 16) */}
               <span className="ml-2 text-[11px] font-mono font-semibold text-slate-400">
                 {String(currentSlideIndex + 1).padStart(2, "0")} / {String(teamMembers.length).padStart(2, "0")}
               </span>
@@ -111,7 +107,7 @@ export function Leadership() {
           </div>
         </div>
 
-        {/* ── DESKTOP & TABLET HORIZONTAL TEAM RAIL (With Signature Hover Expansion) ── */}
+        {/* ── HORIZONTAL TEAM RAIL (With Signature Hover/Tap Expansion) ── */}
         <div className="relative mt-8 w-full max-w-full min-w-0 overflow-hidden">
           <div
             ref={railRef}
@@ -133,24 +129,28 @@ export function Leadership() {
                   tabIndex={0}
                   role="button"
                   aria-expanded={isExpanded}
-                  onMouseEnter={() => setActiveId(member.id)}
-                  onMouseLeave={() => setActiveId(null)}
-                  onFocus={() => setActiveId(member.id)}
-                  onBlur={() => setActiveId(null)}
+                  onMouseEnter={() => {
+                    if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
+                      setActiveId(member.id);
+                    }
+                  }}
+                  onMouseLeave={() => {
+                    if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
+                      setActiveId(null);
+                    }
+                  }}
                   onClick={() => {
                     setActiveId((prev) => (prev === member.id ? null : member.id));
-                    setMobileSelectedId(member.id);
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       setActiveId((prev) => (prev === member.id ? null : member.id));
-                      setMobileSelectedId(member.id);
                     }
                   }}
                   className={`group relative shrink-0 cursor-pointer select-none rounded-2xl border transition-[width,box-shadow,border-color,transform] duration-350 ease-out outline-none focus-visible:ring-2 focus-visible:ring-nf-blue
                     ${isExpanded 
-                      ? "w-[390px] lg:w-[420px] border-[#2872A1]/40 bg-white shadow-xl -translate-y-0.5" 
+                      ? "w-[295px] xs:w-[345px] sm:w-[390px] lg:w-[420px] border-[#2872A1]/40 bg-white shadow-xl -translate-y-0.5" 
                       : "w-[155px] sm:w-[165px] lg:w-[175px] border-gray-200/90 bg-slate-50/60 shadow-xs hover:border-gray-300 hover:shadow-md"
                     }
                     h-[280px] overflow-hidden`}
@@ -189,7 +189,7 @@ export function Leadership() {
                     <div className="flex h-full w-full items-stretch">
                       {/* Left: Portrait Column */}
                       <div
-                        className="flex w-[140px] lg:w-[150px] shrink-0 flex-col items-center justify-between p-4 text-center"
+                        className="flex w-[115px] xs:w-[135px] lg:w-[150px] shrink-0 flex-col items-center justify-between p-3.5 xs:p-4 text-center"
                         style={{
                           background: member.avatarBg || "linear-gradient(135deg, #091522 0%, #1a3a6b 100%)",
                           color: member.avatarText || "#CBDDE9",
@@ -197,28 +197,28 @@ export function Leadership() {
                       >
                         <div className="flex flex-1 items-center justify-center">
                           <div 
-                            className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-2xl font-black backdrop-blur-xs border border-white/20 shadow-md"
+                            className="flex h-16 w-16 xs:h-20 xs:w-20 items-center justify-center rounded-2xl bg-white/10 text-xl xs:text-2xl font-black backdrop-blur-xs border border-white/20 shadow-md"
                             aria-label={`${member.name} — ${member.role}`}
                           >
                             {initials}
                           </div>
                         </div>
                         <div className="w-full pt-1">
-                          <span className="block text-[9.5px] font-mono uppercase tracking-widest text-white/60">
+                          <span className="block text-[9px] xs:text-[9.5px] font-mono uppercase tracking-widest text-white/60">
                             Leadership
                           </span>
                         </div>
                       </div>
 
                       {/* Right: Detailed Professional Profile */}
-                      <div className="flex flex-1 flex-col justify-between p-4.5 bg-white">
+                      <div className="flex flex-1 flex-col justify-between p-3.5 xs:p-4.5 bg-white min-w-0">
                         <div>
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <h3 className="font-display text-sm sm:text-base font-bold text-nf-ink leading-tight">
+                          <div className="flex items-start justify-between gap-1.5 xs:gap-2">
+                            <div className="min-w-0">
+                              <h3 className="font-display text-xs xs:text-sm sm:text-base font-bold text-nf-ink leading-tight truncate">
                                 {member.name}
                               </h3>
-                              <p className="text-[11.5px] font-semibold text-nf-blue mt-0.5">
+                              <p className="text-[10.5px] xs:text-[11.5px] font-semibold text-nf-blue mt-0.5 line-clamp-2">
                                 {member.role}
                               </p>
                             </div>
@@ -231,26 +231,26 @@ export function Leadership() {
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
                                 aria-label={`${member.name} LinkedIn Profile`}
-                                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:border-[#0077b5] hover:bg-blue-50 hover:text-[#0077b5]"
+                                className="flex h-6 w-6 xs:h-7 xs:w-7 shrink-0 items-center justify-center rounded-md border border-gray-200 text-gray-400 transition-colors hover:border-[#0077b5] hover:bg-blue-50 hover:text-[#0077b5]"
                               >
-                                <LinkedInIcon className="h-3.5 w-3.5" />
+                                <LinkedInIcon className="h-3 w-3 xs:h-3.5 xs:w-3.5" />
                               </a>
                             )}
                           </div>
 
                           {/* Short Professional Description */}
-                          <p className="mt-2.5 text-[11.5px] leading-relaxed text-slate-600 line-clamp-4">
+                          <p className="mt-2 text-[10.5px] xs:text-[11.5px] leading-relaxed text-slate-600 line-clamp-4">
                             {member.description}
                           </p>
                         </div>
 
                         {/* Expertise Area Tags */}
                         {member.tags && member.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 pt-3 border-t border-gray-100">
+                          <div className="flex flex-wrap gap-1 pt-2 xs:pt-3 border-t border-gray-100">
                             {member.tags.slice(0, 3).map((tag) => (
                               <span
                                 key={tag}
-                                className="rounded-md bg-slate-100 px-2 py-0.5 text-[9.5px] font-semibold text-slate-600 border border-slate-200/80"
+                                className="rounded-md bg-slate-100 px-1.5 xs:px-2 py-0.5 text-[9px] xs:text-[9.5px] font-semibold text-slate-600 border border-slate-200/80"
                               >
                                 {tag}
                               </span>
@@ -264,68 +264,6 @@ export function Leadership() {
               );
             })}
           </div>
-        </div>
-
-        {/* ── MOBILE FOCUSED PROFILE DRAWER (Appears on Mobile when a team card is selected) ── */}
-        <div className="mt-5 block lg:hidden">
-          {mobileSelectedMember && (
-            <div className="rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-slate-50/80 p-5 shadow-xs transition-all">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-base font-black shadow-xs"
-                    style={{
-                      background: mobileSelectedMember.avatarBg || "linear-gradient(135deg, #091522 0%, #1a3a6b 100%)",
-                      color: mobileSelectedMember.avatarText || "#CBDDE9",
-                    }}
-                  >
-                    {mobileSelectedMember.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .slice(0, 2)
-                      .join("")}
-                  </div>
-                  <div>
-                    <h3 className="font-display text-sm font-bold text-nf-ink">
-                      {mobileSelectedMember.name}
-                    </h3>
-                    <p className="text-xs font-semibold text-nf-blue">
-                      {mobileSelectedMember.role}
-                    </p>
-                  </div>
-                </div>
-
-                {mobileSelectedMember.linkedin && (
-                  <a
-                    href={mobileSelectedMember.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${mobileSelectedMember.name} LinkedIn Profile`}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-[#0077b5] hover:bg-blue-50"
-                  >
-                    <LinkedInIcon className="h-4 w-4" />
-                  </a>
-                )}
-              </div>
-
-              <p className="mt-3 text-xs leading-relaxed text-slate-600">
-                {mobileSelectedMember.description}
-              </p>
-
-              {mobileSelectedMember.tags && mobileSelectedMember.tags.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5 pt-3 border-t border-gray-100">
-                  {mobileSelectedMember.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 border border-slate-200/80"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
       </div>
