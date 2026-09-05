@@ -11,7 +11,7 @@ import { ContactFooter } from "@/components/ContactFooter";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white w-full max-w-full overflow-x-clip">
       <SiteNav />
       <Hero />
       <EventBanner />

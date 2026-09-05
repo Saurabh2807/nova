@@ -41,17 +41,17 @@ export function EventCountdown({ dark = false }: { dark?: boolean }) {
 
   if (dark) {
     return (
-      <div className="flex items-center gap-2 sm:gap-3.5">
+      <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3.5">
         {units.map((u, i) => (
-          <div key={u.label} className="flex items-center gap-2 sm:gap-3.5">
+          <div key={u.label} className="flex items-center gap-1.5 xs:gap-2 sm:gap-3.5">
             {i > 0 && (
-              <span className="font-display text-xl sm:text-2xl font-bold text-white/30 -mt-3.5">:</span>
+              <span className="font-display text-base xs:text-xl sm:text-2xl font-bold text-white/30 -mt-2.5 sm:-mt-3.5">:</span>
             )}
-            <div className="text-center min-w-[34px] sm:min-w-[42px]">
-              <div className="font-display text-2xl sm:text-3xl font-extrabold leading-none text-white">
+            <div className="text-center min-w-[26px] xs:min-w-[32px] sm:min-w-[42px]">
+              <div className="font-display text-xl xs:text-2xl sm:text-3xl font-extrabold leading-none text-white">
                 {String(u.value).padStart(2, "0")}
               </div>
-              <div className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/45">
+              <div className="mt-1 text-[8px] xs:text-[9px] font-bold uppercase tracking-wider text-white/45">
                 {u.label}
               </div>
             </div>
@@ -66,17 +66,17 @@ export function EventCountdown({ dark = false }: { dark?: boolean }) {
       <p className="mb-2.5 text-[10px] font-bold uppercase tracking-[0.2em] text-nf-ink-soft">
         Registration Closes In
       </p>
-      <div className="flex items-center justify-between sm:justify-start gap-2 sm:gap-3.5">
+      <div className="flex items-center justify-between sm:justify-start gap-1.5 xs:gap-2 sm:gap-3.5">
         {units.map((u, i) => (
-          <div key={u.label} className="flex items-center gap-2 sm:gap-3.5">
+          <div key={u.label} className="flex items-center gap-1.5 xs:gap-2 sm:gap-3.5">
             {i > 0 && (
-              <span className="font-display text-lg sm:text-2xl font-bold text-gray-300 -mt-3.5">:</span>
+              <span className="font-display text-base xs:text-lg sm:text-2xl font-bold text-gray-300 -mt-2.5 sm:-mt-3.5">:</span>
             )}
-            <div className="text-center min-w-[34px] sm:min-w-[40px]">
-              <div className="font-display text-2xl sm:text-3xl font-extrabold leading-none text-nf-ink">
+            <div className="text-center min-w-[26px] xs:min-w-[32px] sm:min-w-[40px]">
+              <div className="font-display text-xl xs:text-2xl sm:text-3xl font-extrabold leading-none text-nf-ink">
                 {String(u.value).padStart(2, "0")}
               </div>
-              <div className="mt-1 text-[9px] font-bold uppercase tracking-wider text-nf-ink-soft/70">
+              <div className="mt-1 text-[8px] xs:text-[9px] font-bold uppercase tracking-wider text-nf-ink-soft/70">
                 {u.label}
               </div>
             </div>

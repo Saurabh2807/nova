@@ -46,13 +46,13 @@ export function SiteNav() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full max-w-full transition-all duration-300 ${
         scrolled
           ? "bg-white/92 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.03)] border-b border-[#e8ecf4]/90"
           : "bg-white border-b border-[#e8ecf4]"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-2.5 sm:px-8 sm:py-3">
+      <div className="mx-auto flex max-w-7xl w-full items-center justify-between px-5 py-2.5 sm:px-8 sm:py-3">
         {/* Brand Logo */}
         <Link href="/" onClick={() => setOpen(false)} className="group transition-opacity hover:opacity-90">
           <LogoLockup markClassName="h-9 w-9 sm:h-9.5 sm:w-9.5 text-nf-blue transition-transform duration-200 group-hover:scale-[1.02]" wordmarkClassName="text-nf-ink" />

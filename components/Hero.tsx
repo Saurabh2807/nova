@@ -215,8 +215,8 @@ export function Hero() {
       </div>
 
       {/* ── Editorial "Trusted By" Infinite Rotating Ecosystem Strip ── */}
-      <div className="w-full border-t border-[#e8ecf4] bg-gradient-to-b from-slate-50/80 to-white py-4.5 sm:py-5 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-4 md:gap-6">
+      <div className="w-full max-w-full border-t border-[#e8ecf4] bg-gradient-to-b from-slate-50/80 to-white py-4.5 sm:py-5 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center gap-4 md:gap-6 min-w-0 max-w-full">
           
           {/* Static Title Header */}
           <div className="flex items-center gap-3 shrink-0">
@@ -227,7 +227,7 @@ export function Hero() {
           </div>
 
           {/* Infinite Smooth Carousel Track with Gradient Feathering */}
-          <div className="relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
+          <div className="relative w-full max-w-full min-w-0 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_24px,black_calc(100%-24px),transparent)]">
             <motion.div
               className="flex items-center w-max"
               animate={{ x: ["0%", "-50%"] }}

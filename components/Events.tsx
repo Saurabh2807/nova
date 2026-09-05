@@ -88,11 +88,11 @@ export function Events() {
             </div>
 
             {/* ── COUNTDOWN CARD WITH OVERFLOWING MONSTER CAN ── */}
-            <div className="relative mt-3">
+            <div className="relative mt-3 w-full max-w-full">
               {/* Monster Energy Can with Ice & Splash — positioned to overflow above card */}
               <div
-                className="absolute right-0 sm:right-2 bottom-0 pointer-events-none select-none z-20"
-                style={{ height: "135%", width: "170px" }}
+                className="absolute right-0 sm:right-2 bottom-0 pointer-events-none select-none z-20 w-[110px] xs:w-[130px] sm:w-[170px]"
+                style={{ height: "135%" }}
               >
                 <Image
                   src="/monster-can.png"
@@ -105,7 +105,7 @@ export function Events() {
 
               {/* Dark Navy Countdown Box */}
               <div
-                className="relative rounded-2xl p-5 sm:p-6 shadow-md overflow-hidden"
+                className="relative rounded-2xl p-4 xs:p-5 sm:p-6 shadow-md overflow-hidden"
                 style={{
                   background: "linear-gradient(135deg, #091522 0%, #102336 55%, #152d45 100%)",
                   border: "1px solid rgba(40, 114, 161, 0.2)",
@@ -120,7 +120,7 @@ export function Events() {
                 />
 
                 {/* Countdown Content */}
-                <div className="relative z-10 pr-[140px] sm:pr-[165px]">
+                <div className="relative z-10 pr-[90px] xs:pr-[110px] sm:pr-[165px]">
                   <p className="mb-2.5 text-[9.5px] font-black uppercase tracking-[0.22em] text-white/50">
                     Registration Closes In
                   </p>

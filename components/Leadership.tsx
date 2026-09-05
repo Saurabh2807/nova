@@ -112,10 +112,10 @@ export function Leadership() {
         </div>
 
         {/* ── DESKTOP & TABLET HORIZONTAL TEAM RAIL (With Signature Hover Expansion) ── */}
-        <div className="relative mt-8">
+        <div className="relative mt-8 w-full max-w-full min-w-0 overflow-hidden">
           <div
             ref={railRef}
-            className="flex items-stretch gap-4 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1"
+            className="flex items-stretch gap-4 overflow-x-auto no-scrollbar scroll-smooth py-3 px-1 w-full max-w-full min-w-0"
             tabIndex={0}
             aria-label="Nova Forge Leadership Horizontal Rail"
           >
