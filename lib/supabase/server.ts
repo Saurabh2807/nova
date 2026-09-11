@@ -5,14 +5,19 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.
 
 export const isServerSupabaseConfigured = Boolean(supabaseUrl && supabaseServiceKey);
 
+let cachedServerClient: any = null;
+
 export function getSupabaseServerClient() {
   if (!isServerSupabaseConfigured) {
     return null;
   }
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
+  if (!cachedServerClient) {
+    cachedServerClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    });
+  }
+  return cachedServerClient;
 }

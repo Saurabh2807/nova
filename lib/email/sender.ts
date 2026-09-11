@@ -23,6 +23,42 @@ interface SendEmailParams {
   attachments?: EmailAttachment[];
 }
 
+// Global cached connection pool to prevent per-request TLS handshakes
+let cachedTransporter: nodemailer.Transporter | null = null;
+let lastSmtpConfigKey = "";
+
+function getPooledTransporter(user: string, pass: string): nodemailer.Transporter {
+  const host = (process.env.SMTP_HOST || "smtp.gmail.com").replace(/^["']|["']$/g, "").trim();
+  const port = Number(process.env.SMTP_PORT) || 465;
+  const isSecure = port === 465;
+  const currentKey = `${host}:${port}:${user}`;
+
+  if (cachedTransporter && lastSmtpConfigKey === currentKey) {
+    return cachedTransporter;
+  }
+
+  cachedTransporter = nodemailer.createTransport({
+    pool: true, // Reuse open socket connections
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 1000,
+    rateLimit: 14, // Safe dispatch rate for Gmail SMTP
+    host,
+    port,
+    secure: isSecure,
+    auth: {
+      user,
+      pass,
+    },
+    connectionTimeout: 5000,
+    greetingTimeout: 5000,
+    socketTimeout: 10000,
+  });
+
+  lastSmtpConfigKey = currentKey;
+  return cachedTransporter;
+}
+
 export async function sendEmail({ to, subject, html, attachments = [] }: SendEmailParams): Promise<{ success: boolean; error?: string }> {
   // Auto-convert any embedded base64 data URIs into CID inline attachments for Gmail, Outlook & mobile mail clients
   let processedHtml = html;
@@ -50,22 +86,7 @@ export async function sendEmail({ to, subject, html, attachments = [] }: SendEma
   // 1. Preferred: Google SMTP / Custom SMTP
   if (smtpUser && smtpPass) {
     try {
-      const host = (process.env.SMTP_HOST || "smtp.gmail.com").replace(/^["']|["']$/g, "").trim();
-      const port = Number(process.env.SMTP_PORT) || 465;
-      const isSecure = port === 465;
-
-      const transporter = nodemailer.createTransport({
-        host,
-        port,
-        secure: isSecure, // true for 465, false for 587
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
-        socketTimeout: 15000,
-      });
+      const transporter = getPooledTransporter(smtpUser, smtpPass);
 
       const rawFrom = (process.env.SMTP_FROM || process.env.EMAIL_FROM || "").replace(/^["']|["']$/g, "").trim();
       const fromAddress = rawFrom || `Nova Forge <${smtpUser}>`;

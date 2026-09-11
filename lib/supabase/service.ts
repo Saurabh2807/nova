@@ -1332,3 +1332,288 @@ export async function getAudienceCsv(): Promise<string> {
   return [headers.join(","), ...rows].join("\n");
 }
 
+// ==============================================================================
+// 7. PASS LOOKUP & RESEND EMAIL (Self-service attendee recovery)
+// ==============================================================================
+export async function findPassByQuery(query: string) {
+  const q = query.trim().toLowerCase();
+  if (!q) return { success: false, error: "Please enter a search query." };
+
+  const supabase = getSupabaseServerClient();
+  const settings = await getEventSettings();
+
+  if (!supabase) {
+    // Check devStore teams
+    const team = devStore.teams.find(
+      (t) =>
+        t.team_id.toLowerCase() === q ||
+        t.name.toLowerCase() === q ||
+        t.members?.some(
+          (m) =>
+            m.phone === q ||
+            m.email.toLowerCase() === q ||
+            m.college_id.toLowerCase() === q
+        )
+    );
+
+    if (team) {
+      const leader = team.members?.find((m) => m.role === "leader") || team.members?.[0];
+      const member = team.members?.find((m) => m.role === "member") || team.members?.[1];
+      const qrDataUrl = await generateQrDataUrl(team.qr_token || generateQrToken("participant", team.team_id));
+      return {
+        success: true,
+        type: "participant" as const,
+        pass: {
+          teamId: team.team_id,
+          teamName: team.name,
+          leaderName: leader?.full_name || "",
+          leaderPhone: leader?.phone || "",
+          leaderEmail: leader?.email || "",
+          leaderCollegeId: leader?.college_id || "",
+          player2Name: member?.full_name || "",
+          player2Phone: member?.phone || "",
+          player2Email: member?.email || "",
+          player2CollegeId: member?.college_id || "",
+          registrationStatus: team.registration_status,
+          checkInStatus: team.check_in_status,
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        },
+      };
+    }
+
+    // Check devStore audience
+    const aud = devStore.audience.find(
+      (a) =>
+        a.pass_id.toLowerCase() === q ||
+        a.phone === q ||
+        a.email.toLowerCase() === q ||
+        a.college_id.toLowerCase() === q
+    );
+
+    if (aud) {
+      const qrDataUrl = await generateQrDataUrl(aud.qr_token || generateQrToken("audience", aud.pass_id));
+      return {
+        success: true,
+        type: "audience" as const,
+        pass: {
+          passId: aud.pass_id,
+          fullName: aud.full_name,
+          email: aud.email,
+          phone: aud.phone,
+          collegeId: aud.college_id,
+          registrationStatus: aud.registration_status,
+          checkInStatus: aud.check_in_status,
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        },
+      };
+    }
+
+    return { success: false, error: "No pass found for the provided information. Please verify your Mobile, Email, or College ID." };
+  }
+
+  try {
+    // 1. Search in Teams + Participants
+    const { data: teamsData } = await supabase
+      .from("teams")
+      .select("*, participants(*)")
+      .or(`team_id.ilike.${q},name.ilike.${q}`);
+
+    let matchedTeam = teamsData?.[0];
+
+    if (!matchedTeam) {
+      // Search participants directly
+      const { data: partData } = await supabase
+        .from("participants")
+        .select("team_id")
+        .or(`email.ilike.${q},phone.eq.${q},college_id.ilike.${q}`)
+        .limit(1);
+
+      if (partData?.[0]?.team_id) {
+        const { data: teamById } = await supabase
+          .from("teams")
+          .select("*, participants(*)")
+          .eq("team_id", partData[0].team_id)
+          .maybeSingle();
+        matchedTeam = teamById;
+      }
+    }
+
+    if (matchedTeam) {
+      const participants = matchedTeam.participants || [];
+      const leader = participants.find((p: any) => p.role === "leader") || participants[0] || {};
+      const member = participants.find((p: any) => p.role === "member") || participants[1] || {};
+      const qrDataUrl = await generateQrDataUrl(matchedTeam.qr_token || generateQrToken("participant", matchedTeam.team_id));
+
+      return {
+        success: true,
+        type: "participant" as const,
+        pass: {
+          teamId: matchedTeam.team_id,
+          teamName: matchedTeam.name,
+          leaderName: leader.full_name || "",
+          leaderPhone: leader.phone || "",
+          leaderEmail: leader.email || "",
+          leaderCollegeId: leader.college_id || "",
+          player2Name: member.full_name || "",
+          player2Phone: member.phone || "",
+          player2Email: member.email || "",
+          player2CollegeId: member.college_id || "",
+          registrationStatus: matchedTeam.registration_status,
+          checkInStatus: matchedTeam.check_in_status,
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        },
+      };
+    }
+
+    // 2. Search in Audience Registrations
+    const { data: audData } = await supabase
+      .from("audience_registrations")
+      .select("*")
+      .or(`pass_id.ilike.${q},email.ilike.${q},phone.eq.${q},college_id.ilike.${q}`)
+      .limit(1);
+
+    const aud = audData?.[0];
+    if (aud) {
+      const qrDataUrl = await generateQrDataUrl(aud.qr_token || generateQrToken("audience", aud.pass_id));
+      return {
+        success: true,
+        type: "audience" as const,
+        pass: {
+          passId: aud.pass_id,
+          fullName: aud.full_name,
+          email: aud.email,
+          phone: aud.phone,
+          collegeId: aud.college_id,
+          registrationStatus: aud.registration_status,
+          checkInStatus: aud.check_in_status,
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        },
+      };
+    }
+
+    return { success: false, error: "No pass found for the provided details. Please check your spelling or register now." };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to lookup pass." };
+  }
+}
+
+export async function resendConfirmationEmail(type: "participant" | "audience", id: string, targetEmail?: string) {
+  const supabase = getSupabaseServerClient();
+  const settings = await getEventSettings();
+
+  if (type === "participant") {
+    let team: any = null;
+    if (!supabase) {
+      team = devStore.teams.find((t) => t.team_id === id);
+    } else {
+      const { data } = await supabase.from("teams").select("*, participants(*)").eq("team_id", id).maybeSingle();
+      team = data;
+    }
+
+    if (!team) return { success: false, error: "Team not found." };
+
+    const members = team.members || team.participants || [];
+    const leader = members.find((m: any) => m.role === "leader") || members[0] || {};
+    const member = members.find((m: any) => m.role === "member") || members[1] || {};
+    const qrDataUrl = await generateQrDataUrl(team.qr_token || generateQrToken("participant", team.team_id));
+
+    const promises: Promise<any>[] = [];
+
+    // If targetEmail specified, send to that specific recipient; otherwise send to both
+    if (!targetEmail || targetEmail.toLowerCase() === leader.email?.toLowerCase()) {
+      if (leader.email) {
+        promises.push(
+          sendEmail({
+            to: leader.email,
+            subject: `[Pass Copy] Your Registration Pass — Nova Forge BGMI Squad`,
+            html: getLeaderEmailHtml({
+              teamName: team.name,
+              teamId: team.team_id,
+              leaderName: leader.full_name,
+              leaderPhone: leader.phone,
+              leaderCollegeId: leader.college_id,
+              player2Name: member.full_name,
+              player2Phone: member.phone,
+              player2CollegeId: member.college_id,
+              qrDataUrl,
+              eventDate: settings.event_date,
+              venue: settings.venue,
+              reportingTime: settings.reporting_time,
+            }),
+          })
+        );
+      }
+    }
+
+    if (!targetEmail || targetEmail.toLowerCase() === member.email?.toLowerCase()) {
+      if (member.email) {
+        promises.push(
+          sendEmail({
+            to: member.email,
+            subject: `[Pass Copy] You're Registered — Nova Forge BGMI Duo Squad`,
+            html: getPlayer2EmailHtml({
+              teamName: team.name,
+              teamId: team.team_id,
+              leaderName: leader.full_name,
+              player2Name: member.full_name,
+              player2Phone: member.phone,
+              player2CollegeId: member.college_id,
+              qrDataUrl,
+              eventDate: settings.event_date,
+              venue: settings.venue,
+              reportingTime: settings.reporting_time,
+            }),
+          })
+        );
+      }
+    }
+
+    await Promise.allSettled(promises);
+    return { success: true, message: "Confirmation pass re-sent successfully!" };
+  } else {
+    let aud: any = null;
+    if (!supabase) {
+      aud = devStore.audience.find((a) => a.pass_id === id);
+    } else {
+      const { data } = await supabase.from("audience_registrations").select("*").eq("pass_id", id).maybeSingle();
+      aud = data;
+    }
+
+    if (!aud) return { success: false, error: "Audience pass not found." };
+
+    const qrDataUrl = await generateQrDataUrl(aud.qr_token || generateQrToken("audience", aud.pass_id));
+    const recipient = targetEmail || aud.email;
+
+    if (recipient) {
+      await sendEmail({
+        to: recipient,
+        subject: "[Pass Copy] Your Entry Ticket — Nova Forge Campus Carnival Pass",
+        html: getAudienceEmailHtml({
+          fullName: aud.full_name,
+          passId: aud.pass_id,
+          phone: aud.phone,
+          collegeId: aud.college_id,
+          qrDataUrl,
+          eventDate: settings.event_date,
+          venue: settings.venue,
+          reportingTime: settings.reporting_time,
+        }),
+      });
+    }
+
+    return { success: true, message: "Confirmation pass re-sent successfully to your email!" };
+  }
+}
+

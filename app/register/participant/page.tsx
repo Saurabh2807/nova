@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Shield, AlertCircle, Loader2, Gamepad2, Calendar, MapPin, Clock, Building2, Ban, Flame } from "lucide-react";
+import { Users, Shield, AlertCircle, Loader2, Gamepad2, Calendar, MapPin, Clock, Building2, Ban, Flame, Search } from "lucide-react";
 import { RegisterShell, Field, inputClass } from "@/components/registration/RegisterShell";
 import { TeamCard } from "@/components/registration/TeamCard";
+import { FindPassModal } from "@/components/registration/FindPassModal";
 
 const COLLEGE_OPTIONS = [
   { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
@@ -34,6 +35,7 @@ export default function ParticipantRegisterPage() {
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [findPassOpen, setFindPassOpen] = useState(false);
   const [eventSettings, setEventSettings] = useState<{
     registration_open: boolean;
     event_date: string;
@@ -48,8 +50,10 @@ export default function ParticipantRegisterPage() {
     teamName: string;
     leaderName: string;
     leaderPhone: string;
+    leaderEmail?: string;
     player2Name: string;
     player2Phone: string;
+    player2Email?: string;
     qrDataUrl: string;
   } | null>(null);
 
@@ -135,8 +139,10 @@ export default function ParticipantRegisterPage() {
         teamName: data.team.name,
         leaderName: leader.fullName.trim(),
         leaderPhone: leader.phone.trim(),
+        leaderEmail: leader.email.trim(),
         player2Name: member.fullName.trim(),
         player2Phone: member.phone.trim(),
+        player2Email: member.email.trim(),
         qrDataUrl: data.qrDataUrl,
       });
     } catch (err: any) {
@@ -159,8 +165,10 @@ export default function ParticipantRegisterPage() {
             teamId={successData.teamId}
             leaderName={successData.leaderName}
             leaderPhone={successData.leaderPhone}
+            leaderEmail={successData.leaderEmail}
             player2Name={successData.player2Name}
             player2Phone={successData.player2Phone}
+            player2Email={successData.player2Email}
             qrDataUrl={successData.qrDataUrl}
           />
         </div>
@@ -171,12 +179,26 @@ export default function ParticipantRegisterPage() {
   const isClosed = eventSettings ? !eventSettings.registration_open || eventSettings.isTeamFull : false;
 
   return (
-    <RegisterShell
-      eyebrow="Participant Pass"
-      title="BGMI Duo Squad Registration"
-      description="Register your 2-player BGMI squad for the LAN Esports Championship at LNCT Bhopal."
-    >
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <RegisterShell
+        eyebrow="Participant Pass"
+        title="BGMI Duo Squad Registration"
+        description="Register your 2-player BGMI squad for the LAN Esports Championship at LNCT Bhopal."
+      >
+        {/* Already Registered Link */}
+        <div className="mb-4 flex items-center justify-between rounded-xl bg-blue-50/60 border border-blue-100/80 px-4 py-2.5 text-xs text-slate-700">
+          <span>Already registered your squad?</span>
+          <button
+            type="button"
+            onClick={() => setFindPassOpen(true)}
+            className="flex items-center gap-1 font-bold text-nf-blue hover:underline"
+          >
+            <Search size={13} />
+            <span>Find My Team Pass</span>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
         {/* Dynamic Tournament Banner */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-nf-line bg-slate-50/70 p-4">
           <div className="flex items-center gap-2.5 text-xs font-semibold text-nf-ink">
@@ -438,5 +460,8 @@ export default function ParticipantRegisterPage() {
         </p>
       </form>
     </RegisterShell>
+
+    <FindPassModal isOpen={findPassOpen} onClose={() => setFindPassOpen(false)} />
+  </>
   );
 }

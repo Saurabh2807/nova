@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { LogoMark } from "@/components/Logo";
-import { CheckCircle2, Download, Printer, ShieldCheck, MapPin, Calendar } from "lucide-react";
+import { CheckCircle2, Download, Printer, ShieldCheck, MapPin, Calendar, Mail, Loader2, Info } from "lucide-react";
 import Image from "next/image";
 
 interface TeamCardProps {
@@ -9,8 +10,10 @@ interface TeamCardProps {
   teamId: string;
   leaderName: string;
   leaderPhone?: string;
+  leaderEmail?: string;
   player2Name: string;
   player2Phone?: string;
+  player2Email?: string;
   qrDataUrl?: string;
 }
 
@@ -19,12 +22,53 @@ export function TeamCard({
   teamId,
   leaderName,
   leaderPhone,
+  leaderEmail,
   player2Name,
   player2Phone,
+  player2Email,
   qrDataUrl,
 }: TeamCardProps) {
+  const [resending, setResending] = useState(false);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+
   function handlePrint() {
     window.print();
+  }
+
+  function handleDownloadQr() {
+    if (!qrDataUrl) return;
+    const link = document.createElement("a");
+    link.href = qrDataUrl;
+    link.download = `${teamId}_BGMI_PASS.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  async function handleResendEmail() {
+    if (resending) return;
+    setResending(true);
+    setResendStatus(null);
+    try {
+      const res = await fetch("/api/pass/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "participant",
+          id: teamId,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setResendStatus("Pass re-sent! Check your Inbox and Spam/Updates folder.");
+      } else {
+        setResendStatus(data.error || "Failed to resend. Please try again.");
+      }
+    } catch {
+      setResendStatus("Network error. Please try again.");
+    } finally {
+      setResending(false);
+    }
   }
 
   return (
@@ -106,19 +150,54 @@ export function TeamCard({
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-4 flex items-center justify-center gap-3">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+        <button
+          type="button"
+          onClick={handleDownloadQr}
+          className="flex items-center gap-1.5 rounded-full bg-nf-blue px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-nf-blue-bright active:scale-95"
+        >
+          <Download size={14} /> Download QR Pass
+        </button>
+
         <button
           type="button"
           onClick={handlePrint}
           className="flex items-center gap-1.5 rounded-full border border-nf-line bg-white px-4 py-2 text-xs font-bold text-nf-ink shadow-sm transition hover:bg-gray-50 active:scale-95"
         >
-          <Printer size={14} /> Print / Save Pass
+          <Printer size={14} /> Print Pass
+        </button>
+
+        <button
+          type="button"
+          disabled={resending}
+          onClick={handleResendEmail}
+          className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-100 active:scale-95 disabled:opacity-50"
+        >
+          {resending ? <Loader2 size={13} className="animate-spin" /> : <Mail size={13} />}
+          <span>{resending ? "Sending..." : "Resend Email"}</span>
         </button>
       </div>
 
-      <p className="mt-3 text-center text-xs text-nf-ink-soft">
-        Confirmation emails with individual passes and reporting details have been sent to both players.
-      </p>
+      {resendStatus && (
+        <div className="mt-3 rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-center text-xs font-semibold text-emerald-800 animate-in fade-in duration-200">
+          {resendStatus}
+        </div>
+      )}
+
+      {/* Safe info / spam reminder */}
+      <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3 text-left text-xs text-slate-700">
+        <div className="flex items-start gap-2">
+          <Info size={15} className="text-nf-blue mt-0.5 shrink-0" />
+          <div className="space-y-1 text-[11.5px] leading-relaxed">
+            <p className="font-semibold text-slate-900">
+              Emails have been dispatched to both players.
+            </p>
+            <p className="text-slate-600">
+              If not visible in your Primary Inbox, please check your <strong>Spam</strong> or <strong>Updates / Promotions</strong> tab. You can also save/screenshot the QR pass above for direct gate entry.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
