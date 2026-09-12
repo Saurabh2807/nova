@@ -27,11 +27,12 @@ export async function GET() {
         isAudienceFull: totalAudience >= audienceLimit,
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to fetch event settings";
     return NextResponse.json(
       {
         success: false,
-        error: err.message || "Failed to fetch event settings",
+        error: message,
         settings: {
           id: "default",
           registration_open: true,

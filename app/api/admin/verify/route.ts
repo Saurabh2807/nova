@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
 
     const result = await verifyTokenOrId(token);
     return NextResponse.json(result);
-  } catch (err: any) {
-    return NextResponse.json({ status: "INVALID", message: err.message || "Verification failed" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Verification failed";
+    return NextResponse.json({ status: "INVALID", message }, { status: 500 });
   }
 }

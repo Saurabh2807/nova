@@ -11,8 +11,9 @@ export async function GET(req: NextRequest) {
   try {
     const stats = await getDashboardStats();
     return NextResponse.json({ success: true, stats, currentUser: auth.user });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to load dashboard stats";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
 
@@ -38,7 +39,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: ok });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to update event settings";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

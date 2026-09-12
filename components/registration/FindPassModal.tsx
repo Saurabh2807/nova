@@ -5,25 +5,29 @@ import { Search, X, Loader2, AlertCircle, Sparkles, ArrowLeft, Ticket } from "lu
 import { TeamCard } from "./TeamCard";
 import { TicketCard } from "./TicketCard";
 
+import { ParticipantPassData, AudiencePassData } from "@/lib/types/registration";
+
 interface FindPassModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
 export function FindPassModal({ isOpen, onClose }: FindPassModalProps) {
+  const [email, setEmail] = useState("");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [foundData, setFoundData] = useState<{
-    type: "participant" | "audience";
-    pass: any;
-  } | null>(null);
+  const [foundData, setFoundData] = useState<
+    | { type: "participant"; pass: ParticipantPassData }
+    | { type: "audience"; pass: AudiencePassData }
+    | null
+  >(null);
 
   if (!isOpen) return null;
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!query.trim()) return;
+    if (!email.trim() || !query.trim()) return;
 
     setLoading(true);
     setErrorMsg(null);
@@ -33,13 +37,16 @@ export function FindPassModal({ isOpen, onClose }: FindPassModalProps) {
       const res = await fetch("/api/pass/lookup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: query.trim() }),
+        body: JSON.stringify({
+          email: email.trim(),
+          query: query.trim(),
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setErrorMsg(data.error || "No pass found for this search. Please check the details.");
+        setErrorMsg(data.error || "No pass found for these details. Please check your spelling.");
         return;
       }
 
@@ -57,6 +64,7 @@ export function FindPassModal({ isOpen, onClose }: FindPassModalProps) {
   function handleReset() {
     setFoundData(null);
     setErrorMsg(null);
+    setEmail("");
     setQuery("");
   }
 
@@ -82,13 +90,27 @@ export function FindPassModal({ isOpen, onClose }: FindPassModalProps) {
               Find & Download Your Pass
             </h2>
             <p className="mt-1 text-xs text-slate-500 leading-relaxed">
-              Enter the 10-digit mobile number, email address, or college scholar ID used during registration.
+              Verify your identity by entering your registered email and your Pass ID, Team ID, or 10-digit mobile number.
             </p>
 
             <form onSubmit={handleSearch} className="mt-5 space-y-4">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                  Mobile Number / Email / College ID / Pass ID
+                  Registered Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="e.g. yourname@gmail.com"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-nf-blue focus:bg-white focus:ring-2 focus:ring-nf-blue/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Pass ID / Team ID / 10-Digit Mobile *
                 </label>
                 <div className="relative">
                   <input
@@ -96,7 +118,7 @@ export function FindPassModal({ isOpen, onClose }: FindPassModalProps) {
                     required
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="e.g. 9876543210, user@gmail.com, 0103CS231001, NF-BGMI..."
+                    placeholder="e.g. NF-BGMI-..., NF-AUD-SA-..., or 9876543210"
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-900 outline-none transition focus:border-nf-blue focus:bg-white focus:ring-2 focus:ring-nf-blue/20"
                   />
                   <Search size={18} className="absolute right-3.5 top-3.5 text-slate-400" />
@@ -112,25 +134,25 @@ export function FindPassModal({ isOpen, onClose }: FindPassModalProps) {
 
               <button
                 type="submit"
-                disabled={loading || !query.trim()}
+                disabled={loading || !email.trim() || !query.trim()}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-nf-blue py-3.5 text-sm font-bold text-white shadow-md transition hover:bg-nf-blue-bright active:scale-[0.99] disabled:opacity-50"
               >
                 {loading ? (
                   <>
                     <Loader2 size={16} className="animate-spin" />
-                    <span>Searching Tickets...</span>
+                    <span>Searching Pass...</span>
                   </>
                 ) : (
                   <>
                     <Search size={16} />
-                    <span>Search My Pass</span>
+                    <span>Verify & Retrieve Pass</span>
                   </>
                 )}
               </button>
             </form>
 
             <div className="mt-5 rounded-2xl bg-slate-50 border border-slate-100 p-3.5 text-center text-xs text-slate-500">
-              💡 <strong>Tip:</strong> If you just registered, your pass was also sent to your email. Be sure to check your <strong>Spam</strong> folder!
+              💡 <strong>Tip:</strong> Your pass was also sent to your email after registration. Check your <strong>Spam / Promotions</strong> folder!
             </div>
           </div>
         ) : (
@@ -154,7 +176,7 @@ export function FindPassModal({ isOpen, onClose }: FindPassModalProps) {
                 leaderName={foundData.pass.leaderName}
                 leaderPhone={foundData.pass.leaderPhone}
                 leaderEmail={foundData.pass.leaderEmail}
-                player2Name={foundData.pass.player2Name}
+                player2Name={foundData.pass.player2Name || ""}
                 player2Phone={foundData.pass.player2Phone}
                 player2Email={foundData.pass.player2Email}
                 qrDataUrl={foundData.pass.qrDataUrl}

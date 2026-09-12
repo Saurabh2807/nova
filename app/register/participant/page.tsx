@@ -5,19 +5,11 @@ import { Users, Shield, AlertCircle, Loader2, Gamepad2, Calendar, MapPin, Clock,
 import { RegisterShell, Field, inputClass } from "@/components/registration/RegisterShell";
 import { TeamCard } from "@/components/registration/TeamCard";
 import { FindPassModal } from "@/components/registration/FindPassModal";
-
-const COLLEGE_OPTIONS = [
-  { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
-  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0176)", prefix: "0176" },
-  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0157)", prefix: "0157" },
-  { id: "lnctu", name: "LNCT University (LNCTU), Bhopal", prefix: "LNCTU" },
-  { id: "lncp", name: "LNCP (Pharmacy), Bhopal", prefix: "LNCP" },
-  { id: "lnct-mca-mba", name: "LNCT MCA / MBA Department", prefix: "LNCT-PG" },
-  { id: "other", name: "Other College / External Institution", prefix: "" },
-];
+import { COLLEGE_OPTIONS } from "@/lib/config/colleges";
 
 export default function ParticipantRegisterPage() {
   const [teamName, setTeamName] = useState("");
+  const [website, setWebsite] = useState("");
   const [leader, setLeader] = useState({
     fullName: "",
     email: "",
@@ -103,13 +95,18 @@ export default function ParticipantRegisterPage() {
 
     setLoading(true);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
       const res = await fetch("/api/register/participant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           teamName: teamName.trim(),
           game: "bgmi",
+          website: website.trim(),
           leader: {
             fullName: leader.fullName.trim(),
             email: leader.email.trim(),
@@ -126,6 +123,8 @@ export default function ParticipantRegisterPage() {
           },
         }),
       });
+
+      clearTimeout(timeoutId);
 
       const data = await res.json();
       if (!res.ok || !data.success) {
@@ -145,8 +144,15 @@ export default function ParticipantRegisterPage() {
         player2Email: member.email.trim(),
         qrDataUrl: data.qrDataUrl,
       });
-    } catch (err: any) {
-      setErrorMsg("An unexpected network error occurred.");
+    } catch (err: unknown) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === "AbortError") {
+        setErrorMsg(
+          "The registration request timed out. Your registration may have already succeeded in the database! Please DO NOT submit again. Open 'Find My Pass' with your email to check your confirmation."
+        );
+      } else {
+        setErrorMsg("An unexpected network error occurred. If you submitted, please check 'Find My Pass' before re-registering.");
+      }
     } finally {
       setLoading(false);
     }
@@ -199,6 +205,20 @@ export default function ParticipantRegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Honeypot field - invisible to real users */}
+          <div className="opacity-0 absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+            <label htmlFor="participant-website">Leave blank</label>
+            <input
+              id="participant-website"
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
+          </div>
+
         {/* Dynamic Tournament Banner */}
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-nf-line bg-slate-50/70 p-4">
           <div className="flex items-center gap-2.5 text-xs font-semibold text-nf-ink">

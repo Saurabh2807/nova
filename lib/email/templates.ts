@@ -41,6 +41,18 @@ interface AudienceEmailProps {
   reportingTime?: string;
 }
 
+/**
+ * HTML Sanitizer to prevent HTML/script injection in email templates
+ */
+export function escapeHtml(str: string = ""): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 export function getLeaderEmailHtml({
   teamName,
   teamId,
@@ -55,6 +67,18 @@ export function getLeaderEmailHtml({
   venue = "LNCT Bhopal",
   reportingTime = "09:00 AM IST",
 }: LeaderEmailProps): string {
+  const safeTeamName = escapeHtml(teamName);
+  const safeTeamId = escapeHtml(teamId);
+  const safeLeaderName = escapeHtml(leaderName);
+  const safeLeaderPhone = escapeHtml(leaderPhone);
+  const safeLeaderCollegeId = escapeHtml(leaderCollegeId);
+  const safePlayer2Name = escapeHtml(player2Name);
+  const safePlayer2Phone = escapeHtml(player2Phone);
+  const safePlayer2CollegeId = escapeHtml(player2CollegeId);
+  const safeEventDate = escapeHtml(eventDate);
+  const safeVenue = escapeHtml(venue);
+  const safeReportingTime = escapeHtml(reportingTime);
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -89,12 +113,12 @@ export function getLeaderEmailHtml({
       <p class="subtitle">BGMI Tournament Registration Confirmed</p>
     </div>
     <div class="content">
-      <p style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Hey ${leaderName},</p>
-      <p style="font-size: 14px; color: #475569; margin-top: 0;">Your team <strong>${teamName}</strong> has been successfully registered for the BGMI tournament on Day 2.</p>
+      <p style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Hey ${safeLeaderName},</p>
+      <p style="font-size: 14px; color: #475569; margin-top: 0;">Your team <strong>${safeTeamName}</strong> has been successfully registered for the BGMI tournament on Day 2.</p>
       
       <div class="pass-card">
         <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.1em;">Official Team ID</div>
-        <div class="team-id">${teamId}</div>
+        <div class="team-id">${safeTeamId}</div>
         
         <div class="qr-container" style="margin: 16px auto; width: 180px; height: 180px; background: #ffffff; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
           <img src="${qrDataUrl}" alt="Team QR Pass" width="160" height="160" style="display: block; margin: 0 auto; width: 160px; height: 160px; border: 0;" />
@@ -105,29 +129,29 @@ export function getLeaderEmailHtml({
       <div class="grid">
         <div class="row">
           <div class="cell cell-header">Team Name</div>
-          <div class="cell"><strong>${teamName}</strong></div>
+          <div class="cell"><strong>${safeTeamName}</strong></div>
         </div>
         <div class="row">
           <div class="cell cell-header">Team Leader (P1)</div>
-          <div class="cell">${leaderName} (${leaderPhone})<br><span style="color:#64748b; font-size:11px;">ID: ${leaderCollegeId}</span></div>
+          <div class="cell">${safeLeaderName} (${safeLeaderPhone})<br><span style="color:#64748b; font-size:11px;">ID: ${safeLeaderCollegeId}</span></div>
         </div>
         <div class="row">
           <div class="cell cell-header">Team Member (P2)</div>
-          <div class="cell">${player2Name} (${player2Phone})<br><span style="color:#64748b; font-size:11px;">ID: ${player2CollegeId}</span></div>
+          <div class="cell">${safePlayer2Name} (${safePlayer2Phone})<br><span style="color:#64748b; font-size:11px;">ID: ${safePlayer2CollegeId}</span></div>
         </div>
         <div class="row">
           <div class="cell cell-header">Venue</div>
-          <div class="cell"><strong>${venue}</strong></div>
+          <div class="cell"><strong>${safeVenue}</strong></div>
         </div>
         <div class="row">
           <div class="cell cell-header">Date & Reporting</div>
-          <div class="cell"><strong>${eventDate}</strong> · Reporting by <strong>${reportingTime}</strong></div>
+          <div class="cell"><strong>${safeEventDate}</strong> · Reporting by <strong>${safeReportingTime}</strong></div>
         </div>
       </div>
 
       <div class="alert-box">
         <strong>Mandatory Reporting Instructions:</strong><br>
-        • Both players must arrive at the venue by <strong>${reportingTime}</strong> with their official College ID / Enrollment Card.<br>
+        • Both players must arrive at the venue by <strong>${safeReportingTime}</strong> with their official College ID / Enrollment Card.<br>
         • Present this email or QR Code at the registration desk for verification.
       </div>
     </div>
@@ -152,6 +176,16 @@ export function getPlayer2EmailHtml({
   venue = "LNCT Bhopal",
   reportingTime = "09:00 AM IST",
 }: Player2EmailProps): string {
+  const safeTeamName = escapeHtml(teamName);
+  const safeTeamId = escapeHtml(teamId);
+  const safeLeaderName = escapeHtml(leaderName);
+  const safePlayer2Name = escapeHtml(player2Name);
+  const safePlayer2Phone = escapeHtml(player2Phone);
+  const safePlayer2CollegeId = escapeHtml(player2CollegeId);
+  const safeEventDate = escapeHtml(eventDate);
+  const safeVenue = escapeHtml(venue);
+  const safeReportingTime = escapeHtml(reportingTime);
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -186,12 +220,12 @@ export function getPlayer2EmailHtml({
       <p class="subtitle">BGMI Squad Confirmation</p>
     </div>
     <div class="content">
-      <p style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Hey ${player2Name},</p>
-      <p style="font-size: 14px; color: #475569; margin-top: 0;">You have been registered as a Team Member under Team Leader <strong>${leaderName}</strong> for squad <strong>${teamName}</strong>.</p>
+      <p style="font-size: 15px; font-weight: 600; margin-bottom: 6px;">Hey ${safePlayer2Name},</p>
+      <p style="font-size: 14px; color: #475569; margin-top: 0;">You have been registered as a Team Member under Team Leader <strong>${safeLeaderName}</strong> for squad <strong>${safeTeamName}</strong>.</p>
       
       <div class="pass-card">
         <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.1em;">Team ID</div>
-        <div class="team-id">${teamId}</div>
+        <div class="team-id">${safeTeamId}</div>
         
         <div class="qr-container" style="margin: 16px auto; width: 180px; height: 180px; background: #ffffff; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center;">
           <img src="${qrDataUrl}" alt="Team QR Pass" width="160" height="160" style="display: block; margin: 0 auto; width: 160px; height: 160px; border: 0;" />
@@ -206,26 +240,26 @@ export function getPlayer2EmailHtml({
         </div>
         <div class="row">
           <div class="cell cell-header">Team Name</div>
-          <div class="cell"><strong>${teamName}</strong></div>
+          <div class="cell"><strong>${safeTeamName}</strong></div>
         </div>
         <div class="row">
           <div class="cell cell-header">Team Leader</div>
-          <div class="cell">${leaderName}</div>
+          <div class="cell">${safeLeaderName}</div>
         </div>
         <div class="row">
           <div class="cell cell-header">Your Details</div>
-          <div class="cell">${player2Name} (${player2Phone})<br><span style="color:#64748b; font-size:11px;">College ID: ${player2CollegeId}</span></div>
+          <div class="cell">${safePlayer2Name} (${safePlayer2Phone})<br><span style="color:#64748b; font-size:11px;">College ID: ${safePlayer2CollegeId}</span></div>
         </div>
         <div class="row">
           <div class="cell cell-header">Venue & Date</div>
-          <div class="cell"><strong>${venue}</strong> · <strong>${eventDate}</strong></div>
+          <div class="cell"><strong>${safeVenue}</strong> · <strong>${safeEventDate}</strong></div>
         </div>
       </div>
 
       <div class="alert-box">
         <strong>Important Notice:</strong><br>
         • Your Team Leader completed the registration for your team.<br>
-        • Bring this email or the QR Code along with your physical College ID during check-in by <strong>${reportingTime}</strong>.
+        • Bring this email or the QR Code along with your physical College ID during check-in by <strong>${safeReportingTime}</strong>.
       </div>
     </div>
     <div class="footer">
@@ -247,6 +281,14 @@ export function getAudienceEmailHtml({
   venue = "LNCT Bhopal",
   reportingTime = "09:00 AM IST",
 }: AudienceEmailProps): string {
+  const safeFullName = escapeHtml(fullName);
+  const safePassId = escapeHtml(passId);
+  const safePhone = escapeHtml(phone);
+  const safeCollegeId = escapeHtml(collegeId);
+  const safeEventDate = escapeHtml(eventDate);
+  const safeVenue = escapeHtml(venue);
+  const safeReportingTime = escapeHtml(reportingTime);
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -274,24 +316,24 @@ export function getAudienceEmailHtml({
       <h1 class="title">NOVA FORGE CAMPUS CARNIVAL</h1>
     </div>
     <div class="content">
-      <p style="font-size: 15px; font-weight: 600;">Welcome, ${fullName}!</p>
+      <p style="font-size: 15px; font-weight: 600;">Welcome, ${safeFullName}!</p>
       <p style="font-size: 13.5px; color: #475569;">Here is your official digital entry ticket for the LNCT Campus Carnival.</p>
       
       <div class="ticket">
         <div style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.1em;">Audience Pass ID</div>
-        <div class="pass-id">${passId}</div>
+        <div class="pass-id">${safePassId}</div>
         
         <div class="qr-container" style="margin: 14px auto; width: 170px; height: 170px; background: #ffffff; padding: 8px; border-radius: 10px; border: 1px solid #cbd5e1; text-align: center;">
           <img src="${qrDataUrl}" alt="Audience QR Code" width="154" height="154" style="display: block; margin: 0 auto; width: 154px; height: 154px; border: 0;" />
         </div>
-        <div style="font-family: monospace; font-size: 14px; font-weight: 800; color: #2872A1; letter-spacing: 0.1em; margin-top: 6px;">${passId}</div>
-        <p style="font-size: 12px; font-weight: 700; color: #091522; margin: 6px 0 0 0;">${venue} · ${eventDate}</p>
-        <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Gates Open: ${reportingTime}</p>
+        <div style="font-family: monospace; font-size: 14px; font-weight: 800; color: #2872A1; letter-spacing: 0.1em; margin-top: 6px;">${safePassId}</div>
+        <p style="font-size: 12px; font-weight: 700; color: #091522; margin: 6px 0 0 0;">${safeVenue} · ${safeEventDate}</p>
+        <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">Gates Open: ${safeReportingTime}</p>
       </div>
 
       <div style="font-size: 12.5px; color: #475569; line-height: 1.6; margin-top: 18px;">
-        • <strong>Attendee:</strong> ${fullName} (${phone})<br>
-        • <strong>College ID:</strong> ${collegeId}<br>
+        • <strong>Attendee:</strong> ${safeFullName} (${safePhone})<br>
+        • <strong>College ID:</strong> ${safeCollegeId}<br>
         • <strong>Entry:</strong> Free Entry · Show this QR code at the gate.
       </div>
     </div>

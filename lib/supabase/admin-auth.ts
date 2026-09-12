@@ -123,10 +123,11 @@ export async function authenticateAdminRequest(
         role,
       },
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Authentication service error";
     return {
       success: false,
-      error: err?.message || "Authentication service error",
+      error: message,
       status: 500,
     };
   }

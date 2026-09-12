@@ -36,6 +36,7 @@ export interface Team {
   checked_in_by?: string | null;
   created_at?: string;
   members?: TeamMember[];
+  participants?: TeamMember[];
 }
 
 export interface AudienceRegistration {
@@ -91,4 +92,31 @@ export interface VerificationResult {
     }[];
   };
   message: string;
+}
+
+export interface ParticipantPassData {
+  teamName: string;
+  teamId: string;
+  leaderName: string;
+  leaderPhone?: string;
+  leaderEmail?: string;
+  player2Name?: string;
+  player2Phone?: string;
+  player2Email?: string;
+  qrDataUrl?: string;
+  eventDate?: string;
+  venue?: string;
+  reportingTime?: string;
+}
+
+export interface AudiencePassData {
+  passId: string;
+  fullName: string;
+  phone?: string;
+  email?: string;
+  collegeId?: string;
+  qrDataUrl?: string;
+  eventDate?: string;
+  venue?: string;
+  reportingTime?: string;
 }

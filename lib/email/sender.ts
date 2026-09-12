@@ -2,10 +2,7 @@ import nodemailer from "nodemailer";
 
 /**
  * Transactional Email Sender
- * Supports:
- * 1. Google Custom SMTP / Any SMTP (smtp.gmail.com with App Password)
- * 2. Resend API
- * 3. Fallback warning logger in development
+ * Exclusively uses Google SMTP (smtp.gmail.com with App Password)
  */
 
 export interface EmailAttachment {
@@ -122,57 +119,16 @@ export async function sendEmail({ to, subject, html, attachments = [] }: SendEma
 
       console.log(`[Google SMTP] Email sent successfully to ${to}. MessageId: ${info.messageId}`);
       return { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send email via SMTP";
       console.error("[Google SMTP Error] Failed to send email via SMTP:", err);
-      return { success: false, error: err?.message || "Failed to send email via SMTP" };
+      return { success: false, error: message };
     }
   }
 
-  // 2. Fallback: Resend API if configured
-  const resendApiKey = process.env.RESEND_API_KEY;
-  if (resendApiKey) {
-    try {
-      const fromAddress = process.env.EMAIL_FROM || "onboarding@resend.dev";
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendApiKey}`,
-        },
-        body: JSON.stringify({
-          from: fromAddress.includes("<") ? fromAddress : `Nova Forge <${fromAddress}>`,
-          to: [to],
-          subject,
-          html: processedHtml,
-          attachments: finalAttachments.map((a) => ({
-            filename: a.filename,
-            content: Buffer.isBuffer(a.content) ? a.content.toString("base64") : a.content,
-            content_id: a.cid,
-          })),
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        console.error("[Resend API Error]:", errData);
-        return { success: false, error: errData.message || "Failed to send email via Resend" };
-      }
-
-      console.log(`[Resend] Successfully delivered email to ${to}`);
-      return { success: true };
-    } catch (err: any) {
-      console.error("[Resend Exception]:", err);
-      return { success: false, error: err.message || "Unknown email error" };
-    }
-  }
-
-  // 3. Neither configured: Local warning
+  // Google SMTP credentials not configured (development warning)
   console.warn(
-    `[Email Sender] No SMTP credentials found in .env.local.\n` +
-    `To send via Google SMTP, configure:\n` +
-    `  SMTP_USER=your_email@gmail.com\n` +
-    `  SMTP_PASS=your_16_digit_app_password\n` +
-    `[Simulated Email to]: ${to} | Subject: ${subject}`
+    `[Google SMTP Warning] No SMTP credentials configured (SMTP_USER/SMTP_PASS). Simulated email to: ${to} | Subject: ${subject}`
   );
-  return { success: true };
+  return { success: false, error: "Google SMTP credentials not configured on server." };
 }

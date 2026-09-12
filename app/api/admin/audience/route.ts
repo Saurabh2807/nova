@@ -9,9 +9,21 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const { searchParams } = new URL(req.url);
+    const pageParam = searchParams.get("page");
+    const pageSizeParam = searchParams.get("pageSize") || searchParams.get("limit");
+
+    if (pageParam) {
+      const page = Math.max(1, parseInt(pageParam, 10) || 1);
+      const pageSize = Math.min(100, Math.max(1, parseInt(pageSizeParam || "25", 10) || 25));
+      const paginated = await getAllAudience(page, pageSize);
+      return NextResponse.json({ success: true, ...paginated });
+    }
+
     const audience = await getAllAudience();
     return NextResponse.json({ success: true, audience });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to load audience registrations";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }

@@ -6,18 +6,10 @@ import { RegisterShell, Field, inputClass } from "@/components/registration/Regi
 import { TicketCard } from "@/components/registration/TicketCard";
 import { FindPassModal } from "@/components/registration/FindPassModal";
 import { flagshipEvent } from "@/lib/data";
-
-const COLLEGE_OPTIONS = [
-  { id: "lnct-main", name: "LNCT Main, Bhopal (0103)", prefix: "0103" },
-  { id: "lnct-e", name: "LNCT Excellence - LNCTE, Bhopal (0176)", prefix: "0176" },
-  { id: "lnct-s", name: "LNCT Science - LNCTS, Bhopal (0157)", prefix: "0157" },
-  { id: "lnctu", name: "LNCT University (LNCTU), Bhopal", prefix: "LNCTU" },
-  { id: "lncp", name: "LNCP (Pharmacy), Bhopal", prefix: "LNCP" },
-  { id: "lnct-mca-mba", name: "LNCT MCA / MBA Department", prefix: "LNCT-PG" },
-  { id: "other", name: "Other College / External Institution", prefix: "" },
-];
+import { COLLEGE_OPTIONS } from "@/lib/config/colleges";
 
 export default function AudienceRegisterPage() {
+  const [website, setWebsite] = useState("");
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -94,17 +86,24 @@ export default function AudienceRegisterPage() {
 
     setLoading(true);
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
     try {
       const res = await fetch("/api/register/audience", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           fullName: form.name.trim(),
           email: form.email.trim(),
           phone: form.phone.trim(),
           collegeId: form.collegeId.trim(),
+          website: website.trim(),
         }),
       });
+
+      clearTimeout(timeoutId);
 
       const data = await res.json();
 
@@ -122,8 +121,15 @@ export default function AudienceRegisterPage() {
         collegeId: data.audience.college_id,
         qrDataUrl: data.qrDataUrl,
       });
-    } catch {
-      setErrorMsg("An unexpected network error occurred. Please try again.");
+    } catch (err: unknown) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === "AbortError") {
+        setErrorMsg(
+          "The registration request timed out. Your registration may have already succeeded in the database! Please DO NOT submit again. Open 'Find My Pass' with your email to check your confirmation."
+        );
+      } else {
+        setErrorMsg("An unexpected network error occurred. If you submitted, please check 'Find My Pass' before re-registering.");
+      }
     } finally {
       setLoading(false);
     }
@@ -188,6 +194,20 @@ export default function AudienceRegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Honeypot field - invisible to real users */}
+          <div className="opacity-0 absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+            <label htmlFor="audience-website">Leave blank</label>
+            <input
+              id="audience-website"
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
+          </div>
+
           {/* Banner */}
           <div className="flex items-center justify-between rounded-2xl border border-nf-line bg-gradient-to-r from-blue-50/80 via-white to-gray-50 p-4">
             <div className="flex items-center gap-3">

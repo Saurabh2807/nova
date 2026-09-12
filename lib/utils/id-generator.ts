@@ -17,14 +17,14 @@ export function generateTeamId(game: string = "bgmi"): string {
 }
 
 /**
- * Generate Audience Pass ID: NF-AUD-SA-XXXX
- * 4 uppercase alphanumeric characters
+ * Generate Audience Pass ID: NF-AUD-SA-XXXXXX
+ * 6 uppercase alphanumeric characters (32^6 = 1,073,741,824 combinations)
  */
 export function generateAudiencePassId(): string {
   const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
   let salt = "";
-  const randomBytes = crypto.randomBytes(4);
-  for (let i = 0; i < 4; i++) {
+  const randomBytes = crypto.randomBytes(6);
+  for (let i = 0; i < 6; i++) {
     salt += chars[randomBytes[i] % chars.length];
   }
   return `NF-AUD-SA-${salt}`;
