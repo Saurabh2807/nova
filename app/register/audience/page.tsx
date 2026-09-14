@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AlertCircle, Loader2, Ticket, Calendar, MapPin, Clock, Ban, Search } from "lucide-react";
+import { AlertCircle, Loader2, Ticket, Calendar, MapPin, Clock, Ban, Search, Instagram } from "lucide-react";
 import { RegisterShell, Field, inputClass } from "@/components/registration/RegisterShell";
 import { TicketCard } from "@/components/registration/TicketCard";
 import { FindPassModal } from "@/components/registration/FindPassModal";
@@ -194,157 +194,172 @@ export default function AudienceRegisterPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Honeypot field - invisible to real users */}
-          <div className="opacity-0 absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
-            <label htmlFor="audience-website">Leave blank</label>
-            <input
-              id="audience-website"
-              type="text"
-              name="website"
-              tabIndex={-1}
-              autoComplete="off"
-              value={website}
-              onChange={(e) => setWebsite(e.target.value)}
-            />
-          </div>
-
-          {/* Banner */}
-          <div className="flex items-center justify-between rounded-2xl border border-nf-line bg-gradient-to-r from-blue-50/80 via-white to-gray-50 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-nf-blue text-white shadow-sm">
-                <Ticket size={20} />
-              </div>
-              <div>
-                <p className="font-display text-sm font-extrabold text-nf-ink">Campus Arena Pass</p>
-                <p className="text-[11px] font-medium text-nf-ink-soft">Free entry with valid College ID</p>
-              </div>
+        {isClosed ? (
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-6 sm:p-8 text-center shadow-sm space-y-6">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 shadow-xs">
+              <Ban size={30} />
             </div>
-            {isClosed ? (
-              <span className="flex items-center gap-1 rounded-full bg-red-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-red-800">
-                <Ban size={12} /> Closed
+
+            <div className="space-y-2 max-w-md mx-auto">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-rose-800">
+                Registrations Closed
               </span>
-            ) : (
+              <h2 className="font-display text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900">
+                Registrations Are Closed
+              </h2>
+              <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                Registrations are closed. If registrations opens up again we will inform you on instagram
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <a
+                href="https://instagram.com/novaforge.gg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] px-6 py-3 text-sm font-bold text-white shadow-md transition-transform hover:scale-105 active:scale-95 w-full sm:w-auto"
+              >
+                <Instagram size={16} />
+                <span>Follow on Instagram (@novaforge.gg)</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setFindPassOpen(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 hover:bg-white hover:border-[#2872A1] hover:text-[#2872A1] transition-all w-full sm:w-auto"
+              >
+                <Search size={15} />
+                <span>Find My Pass</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Honeypot field - invisible to real users */}
+            <div className="opacity-0 absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+              <label htmlFor="audience-website">Leave blank</label>
+              <input
+                id="audience-website"
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
+            </div>
+
+            {/* Banner */}
+            <div className="flex items-center justify-between rounded-2xl border border-nf-line bg-gradient-to-r from-blue-50/80 via-white to-gray-50 p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-nf-blue text-white shadow-sm">
+                  <Ticket size={20} />
+                </div>
+                <div>
+                  <p className="font-display text-sm font-extrabold text-nf-ink">Campus Arena Pass</p>
+                  <p className="text-[11px] font-medium text-nf-ink-soft">Free entry with valid College ID</p>
+                </div>
+              </div>
               <div className="text-right">
                 <span className="rounded-full bg-cyan-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-cyan-800">
                   Free Pass
                 </span>
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Closed Warning if applicable */}
-          {isClosed && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-amber-300 bg-amber-50 p-4 text-xs font-semibold text-amber-900">
-              <AlertCircle size={16} className="mt-0.5 shrink-0 text-amber-700" />
-              <div>
-                <p className="font-bold">Audience pass registrations are currently closed or at full capacity.</p>
-                <p className="mt-0.5 text-amber-800/90 font-normal">
-                  Please check with desk organizers on the event day for spot entry availability.
-                </p>
+            {/* Error notification */}
+            {errorMsg && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
+                <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
+              <Field label="Full Name">
+                <input
+                  required
+                  className={inputClass}
+                  placeholder="Your full name"
+                  value={form.name}
+                  onChange={(e) => update("name", e.target.value)}
+                />
+              </Field>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Mobile Number (10 Digits)">
+                  <input
+                    required
+                    type="tel"
+                    maxLength={10}
+                    className={inputClass}
+                    placeholder="10-digit number"
+                    value={form.phone}
+                    onChange={(e) => update("phone", e.target.value.replace(/\D/g, ""))}
+                  />
+                </Field>
+                <Field label="Email Address" hint="Pass will be emailed here">
+                  <input
+                    required
+                    type="email"
+                    className={inputClass}
+                    placeholder="you@example.com"
+                    value={form.email}
+                    onChange={(e) => update("email", e.target.value)}
+                  />
+                </Field>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Field label="Select College">
+                  <select
+                    required
+                    value={form.college}
+                    onChange={(e) => update("college", e.target.value)}
+                    className={`${inputClass} font-medium ${form.college ? "text-slate-800" : "text-slate-400"}`}
+                  >
+                    <option value="" disabled>
+                      Select College
+                    </option>
+                    {COLLEGE_OPTIONS.map((c) => (
+                      <option key={c.id} value={c.name} className="text-slate-800">
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="Enrollment / Scholar No" hint="Must match physical College ID card">
+                  <input
+                    required
+                    className={inputClass}
+                    placeholder="e.g. 0103IT241045"
+                    value={form.collegeId}
+                    onChange={(e) => update("collegeId", e.target.value.toUpperCase())}
+                  />
+                </Field>
               </div>
             </div>
-          )}
 
-          {/* Error notification */}
-          {errorMsg && (
-            <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700">
-              <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-600" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-2xl bg-nf-blue py-4 font-display font-extrabold text-white text-base shadow-md transition-all hover:bg-nf-blue-bright active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  <span>Generating Entry Pass & QR Code...</span>
+                </>
+              ) : (
+                <span>Claim Free Audience Pass</span>
+              )}
+            </button>
 
-          <div className="rounded-2xl border border-nf-line bg-white p-5 space-y-4 shadow-sm">
-            <Field label="Full Name">
-              <input
-                required
-                disabled={isClosed}
-                className={inputClass}
-                placeholder="Your full name"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-              />
-            </Field>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Mobile Number (10 Digits)">
-                <input
-                  required
-                  disabled={isClosed}
-                  type="tel"
-                  maxLength={10}
-                  className={inputClass}
-                  placeholder="10-digit number"
-                  value={form.phone}
-                  onChange={(e) => update("phone", e.target.value.replace(/\D/g, ""))}
-                />
-              </Field>
-              <Field label="Email Address" hint="Pass will be emailed here">
-                <input
-                  required
-                  disabled={isClosed}
-                  type="email"
-                  className={inputClass}
-                  placeholder="you@example.com"
-                  value={form.email}
-                  onChange={(e) => update("email", e.target.value)}
-                />
-              </Field>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Select College">
-                <select
-                  required
-                  disabled={isClosed}
-                  value={form.college}
-                  onChange={(e) => update("college", e.target.value)}
-                  className={`${inputClass} font-medium ${form.college ? "text-slate-800" : "text-slate-400"}`}
-                >
-                  <option value="" disabled>
-                    Select College
-                  </option>
-                  {COLLEGE_OPTIONS.map((c) => (
-                    <option key={c.id} value={c.name} className="text-slate-800">
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Enrollment / Scholar No" hint="Must match physical College ID card">
-                <input
-                  required
-                  disabled={isClosed}
-                  className={inputClass}
-                  placeholder="e.g. 0103IT241045"
-                  value={form.collegeId}
-                  onChange={(e) => update("collegeId", e.target.value.toUpperCase())}
-                />
-              </Field>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || isClosed}
-            className="w-full rounded-2xl bg-nf-blue py-4 font-display font-extrabold text-white text-base shadow-md transition-all hover:bg-nf-blue-bright active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                <span>Generating Entry Pass & QR Code...</span>
-              </>
-            ) : isClosed ? (
-              <span>Passes Unavailable</span>
-            ) : (
-              <span>Claim Free Audience Pass</span>
-            )}
-          </button>
-
-          <p className="text-center text-[11.5px] text-nf-ink-soft">
-            Please carry your physical College ID card to the arena along with your digital QR pass.
-          </p>
-        </form>
+            <p className="text-center text-[11.5px] text-nf-ink-soft">
+              Please carry your physical College ID card to the arena along with your digital QR pass.
+            </p>
+          </form>
+        )}
       </RegisterShell>
 
       <FindPassModal isOpen={findPassOpen} onClose={() => setFindPassOpen(false)} />
