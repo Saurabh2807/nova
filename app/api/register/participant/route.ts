@@ -6,7 +6,7 @@ import { validateParticipantInput } from "@/lib/validation/registration";
 export async function POST(req: NextRequest) {
   // 1. IP Rate Limiting (15 registrations per 5 minutes per IP: campus Wi-Fi friendly, blocks automated bot spam)
   const rl = checkRateLimit(req, {
-    limit: 15,
+    limit: 100, // Bumped for campus Wi-Fi (shared IP among attendees)
     windowMs: 5 * 60 * 1000,
     keyPrefix: "reg_part",
   });
