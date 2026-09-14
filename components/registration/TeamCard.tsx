@@ -91,7 +91,7 @@ export function TeamCard({
             <LogoMark className="h-8 w-8 text-cyan-400" />
             <div>
               <p className="font-display text-sm font-extrabold tracking-wide text-white">NOVA FORGE</p>
-              <p className="text-[9px] uppercase tracking-widest text-white/50">Campus Carnival 2026</p>
+              <p className="text-[9px] uppercase tracking-widest text-white/50">Campus Unleashed 2026</p>
             </div>
           </div>
           <div className="text-right">

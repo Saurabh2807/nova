@@ -219,7 +219,7 @@ export function ContactFooter() {
             {/* Official Tournament */}
             <div className="col-span-2 sm:col-span-1">
               <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em] text-nf-ink">
-                Campus Carnival
+                Campus Unleashed
               </p>
               <div className="rounded-xl border border-gray-100 bg-slate-50 p-3 text-[11px] text-nf-ink-soft">
                 <p className="font-bold text-nf-ink">LNCT Bhopal LAN</p>

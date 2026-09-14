@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Trash2 } from "lucide-react";
 import { AdminRole, AudienceRegistration } from "@/lib/types/registration";
 
 interface AdminAudienceTabProps {
@@ -9,9 +9,10 @@ interface AdminAudienceTabProps {
   role: AdminRole;
   onCheckIn: (type: "audience", id: string, method?: "qr_scan" | "manual_search") => void;
   onUndoCheckIn: (type: "audience", id: string) => void;
+  onDeleteAudience?: (passId: string, name: string) => void;
 }
 
-export function AdminAudienceTab({ audienceList, role, onCheckIn, onUndoCheckIn }: AdminAudienceTabProps) {
+export function AdminAudienceTab({ audienceList, role, onCheckIn, onUndoCheckIn, onDeleteAudience }: AdminAudienceTabProps) {
   const [audienceSearch, setAudienceSearch] = useState("");
   const [audienceFilter, setAudienceFilter] = useState("all");
 
@@ -122,21 +123,35 @@ export function AdminAudienceTab({ audienceList, role, onCheckIn, onUndoCheckIn 
                       </span>
                     </td>
                     <td className="p-3.5 text-right whitespace-nowrap">
-                      {a.check_in_status === "not_checked_in" && a.registration_status === "confirmed" ? (
-                        <button
-                          onClick={() => onCheckIn("audience", a.pass_id, "manual_search")}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-xs"
-                        >
-                          Check In
-                        </button>
-                      ) : a.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
-                        <button
-                          onClick={() => onUndoCheckIn("audience", a.pass_id)}
-                          className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition"
-                        >
-                          Undo
-                        </button>
-                      ) : null}
+                      <div className="inline-flex items-center gap-1.5 justify-end">
+                        {a.check_in_status === "not_checked_in" && a.registration_status === "confirmed" ? (
+                          <button
+                            onClick={() => onCheckIn("audience", a.pass_id, "manual_search")}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-xs"
+                          >
+                            Check In
+                          </button>
+                        ) : a.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
+                          <button
+                            onClick={() => onUndoCheckIn("audience", a.pass_id)}
+                            className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition"
+                          >
+                            Undo
+                          </button>
+                        ) : null}
+
+                        {role === "super_admin" && onDeleteAudience && (
+                          <button
+                            type="button"
+                            onClick={() => onDeleteAudience(a.pass_id, a.full_name)}
+                            className="border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg text-xs transition inline-flex items-center gap-1"
+                            title="Delete Audience Pass"
+                          >
+                            <Trash2 size={12} />
+                            <span>Delete</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

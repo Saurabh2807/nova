@@ -32,3 +32,33 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const auth = await requireSuperAdmin(req);
+  if (!auth.success) {
+    return NextResponse.json(
+      { success: false, error: auth.error, code: auth.code },
+      { status: auth.status }
+    );
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const passId = searchParams.get("passId") || searchParams.get("id");
+
+    if (!passId) {
+      return NextResponse.json({ success: false, error: "Missing passId query parameter." }, { status: 400 });
+    }
+
+    const { deleteAudiencePass } = await import("@/lib/supabase/service");
+    const res = await deleteAudiencePass(passId);
+    if (!res.success) {
+      return NextResponse.json({ success: false, error: res.error }, { status: 400 });
+    }
+    return NextResponse.json({ success: true, message: `Audience pass ${passId} deleted successfully.` });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to delete audience pass";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+

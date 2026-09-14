@@ -7,7 +7,7 @@ interface EventBannerProps {
 }
 
 export function EventBanner({ settings }: EventBannerProps) {
-  const eventName = settings?.event_name || "LNCT Campus Carnival";
+  const eventName = settings?.event_name || "Campus Unleashed";
   const eventDate = settings?.event_date || "18–19 Sep 2026";
   const venue = settings?.venue || "LNCT Bhopal";
   const isRegistrationOpen = settings?.registration_open ?? true;

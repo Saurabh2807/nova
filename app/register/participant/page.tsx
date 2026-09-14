@@ -164,7 +164,7 @@ export default function ParticipantRegisterPage() {
       <RegisterShell
         eyebrow="Participant Pass"
         title="Squad Slot Confirmed"
-        description={`Your BGMI duo team is registered for the ${eventSettings?.event_name || "Nova Forge Campus Carnival"} on Day 2.`}
+        description={`Your BGMI duo team is registered for the ${eventSettings?.event_name || "Campus Unleashed"} on Day 2.`}
       >
         <div className="space-y-6">
           <TeamCard

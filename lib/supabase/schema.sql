@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- NOVA FORGE: Production Supabase Schema
--- LNCT Campus Carnival — BGMI Tournament & Audience Registration System
+-- Campus Unleashed — BGMI Tournament & Audience Registration System
 -- ==============================================================================
 
 -- Enable UUID extension
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS event_settings (
   registration_open BOOLEAN NOT NULL DEFAULT true,
   participant_limit INTEGER NOT NULL DEFAULT 250,
   audience_limit INTEGER NOT NULL DEFAULT 1000,
-  event_name TEXT NOT NULL DEFAULT 'Nova Forge Campus Carnival',
+  event_name TEXT NOT NULL DEFAULT 'Campus Unleashed',
   event_date TEXT NOT NULL DEFAULT '18–19 September 2026',
   venue TEXT NOT NULL DEFAULT 'LNCT Bhopal',
   reporting_time TEXT NOT NULL DEFAULT '09:00 AM IST',
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS event_settings (
 
 -- Insert default event settings if empty
 INSERT INTO event_settings (registration_open, participant_limit, audience_limit, event_name, event_date, venue, reporting_time)
-SELECT true, 250, 1000, 'Nova Forge Campus Carnival', '18–19 September 2026', 'LNCT Bhopal', '09:00 AM IST'
+SELECT true, 250, 1000, 'Campus Unleashed', '18–19 September 2026', 'LNCT Bhopal', '09:00 AM IST'
 WHERE NOT EXISTS (SELECT 1 FROM event_settings);
 
 -- 2. ADMIN PROFILES & ROLES
@@ -100,6 +100,27 @@ CREATE TRIGGER enforce_bgmi_team_size
 BEFORE INSERT ON participants
 FOR EACH ROW
 EXECUTE FUNCTION check_bgmi_team_size();
+
+-- 5B. TRIGGER: AUTO-DELETE TEAM WHEN PARTICIPANT IS DELETED
+-- BGMI teams are strictly 2-player squads. If any player is removed from the
+-- participants table (e.g. directly in Supabase table editor or SQL), this trigger
+-- automatically deletes the entire team (which cascades to remove any remaining player).
+CREATE OR REPLACE FUNCTION delete_team_on_participant_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Prevent infinite recursion when team deletion cascaded to participants
+  IF pg_trigger_depth() <= 1 THEN
+    DELETE FROM teams WHERE team_id = OLD.team_id;
+  END IF;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_delete_team_on_participant_delete ON participants;
+CREATE TRIGGER trg_delete_team_on_participant_delete
+AFTER DELETE ON participants
+FOR EACH ROW
+EXECUTE FUNCTION delete_team_on_participant_delete();
 
 -- 6. AUDIENCE REGISTRATIONS TABLE
 -- ID Format: NF-AUD-SA-Q9PL

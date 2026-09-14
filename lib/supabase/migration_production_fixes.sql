@@ -1,6 +1,6 @@
 -- ==============================================================================
 -- NOVA FORGE: Production Fixes Migration Script
--- LNCT Campus Carnival — BGMI Tournament & Audience Registration System
+-- Campus Unleashed — BGMI Tournament & Audience Registration System
 -- Idempotent, safe, preserves existing data, enforce dynamic capacity & email status
 -- ==============================================================================
 
@@ -65,6 +65,26 @@ CREATE TRIGGER enforce_bgmi_team_size
 BEFORE INSERT ON participants
 FOR EACH ROW
 EXECUTE FUNCTION check_bgmi_team_size();
+
+-- 4B. AUTO-DELETE TEAM WHEN PARTICIPANT IS DELETED
+-- When any participant is removed from the participants table (e.g. from Supabase Table Editor),
+-- automatically delete the entire team so no orphaned or incomplete squad remains.
+CREATE OR REPLACE FUNCTION delete_team_on_participant_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Prevent infinite recursion when deletion cascaded from teams table
+  IF pg_trigger_depth() <= 1 THEN
+    DELETE FROM teams WHERE team_id = OLD.team_id;
+  END IF;
+  RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_delete_team_on_participant_delete ON participants;
+CREATE TRIGGER trg_delete_team_on_participant_delete
+AFTER DELETE ON participants
+FOR EACH ROW
+EXECUTE FUNCTION delete_team_on_participant_delete();
 
 -- ==============================================================================
 -- 5. ATOMIC REGISTRATION POSTGRESQL FUNCTIONS (DYNAMIC CAPACITY ENFORCED)

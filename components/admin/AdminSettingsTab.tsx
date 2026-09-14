@@ -16,7 +16,7 @@ export function AdminSettingsTab({
   onSettingsUpdated,
 }: AdminSettingsTabProps) {
   const [formData, setFormData] = useState<Partial<EventSettings>>({
-    event_name: settings?.event_name ?? "Nova Forge Campus Carnival",
+    event_name: settings?.event_name ?? "Campus Unleashed",
     participant_limit: settings?.participant_limit ?? 250,
     audience_limit: settings?.audience_limit ?? 1000,
     venue: settings?.venue ?? "LNCT Bhopal",
@@ -27,7 +27,7 @@ export function AdminSettingsTab({
   useEffect(() => {
     if (settings) {
       setFormData({
-        event_name: settings.event_name ?? "Nova Forge Campus Carnival",
+        event_name: settings.event_name ?? "Campus Unleashed",
         participant_limit: settings.participant_limit ?? 250,
         audience_limit: settings.audience_limit ?? 1000,
         venue: settings.venue ?? "LNCT Bhopal",
@@ -73,7 +73,7 @@ export function AdminSettingsTab({
             </label>
             <input
               type="text"
-              value={formData.event_name ?? "Nova Forge Campus Carnival"}
+              value={formData.event_name ?? "Campus Unleashed"}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,

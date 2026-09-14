@@ -21,7 +21,7 @@ export function TicketCard({
   email,
   collegeId,
   ticketId,
-  eventLabel = "Nova Forge Campus Carnival · 18–19 Sep 2026",
+  eventLabel = "Campus Unleashed · 18–19 Sep 2026",
   qrDataUrl,
 }: TicketCardProps) {
   const [resending, setResending] = useState(false);

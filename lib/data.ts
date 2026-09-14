@@ -7,7 +7,7 @@ export const games: { id: GameId; name: string; squadSize: number; mode: string 
 ];
 
 export const flagshipEvent = {
-  name: "Nova Forge Campus Carnival",
+  name: "Campus Unleashed",
   tagline: "2 Days. One Campus. Every Kind of Player.",
   dateLabel: "18–19 September",
   dateRange: "18–19 Sep 2026",

@@ -32,3 +32,43 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  const auth = await requireSuperAdmin(req);
+  if (!auth.success) {
+    return NextResponse.json(
+      { success: false, error: auth.error, code: auth.code },
+      { status: auth.status }
+    );
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    const teamId = searchParams.get("teamId") || searchParams.get("id");
+    const participantIdentifier = searchParams.get("participant");
+
+    if (teamId) {
+      const { deleteTeam } = await import("@/lib/supabase/service");
+      const res = await deleteTeam(teamId);
+      if (!res.success) {
+        return NextResponse.json({ success: false, error: res.error }, { status: 400 });
+      }
+      return NextResponse.json({ success: true, message: `Team ${teamId} deleted successfully.` });
+    }
+
+    if (participantIdentifier) {
+      const { deleteParticipant } = await import("@/lib/supabase/service");
+      const res = await deleteParticipant(participantIdentifier);
+      if (!res.success) {
+        return NextResponse.json({ success: false, error: res.error }, { status: 400 });
+      }
+      return NextResponse.json({ success: true, message: `Participant and team deleted successfully.` });
+    }
+
+    return NextResponse.json({ success: false, error: "Missing teamId or participant query parameter." }, { status: 400 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to delete team";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}
+

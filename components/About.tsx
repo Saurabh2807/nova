@@ -32,7 +32,7 @@ export function About() {
                 href="#events"
                 className="inline-flex items-center gap-2 rounded-md border border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-50 hover:text-nf-blue"
               >
-                <span>View Carnival</span>
+                <span>View Campus Unleashed</span>
               </a>
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Trash2 } from "lucide-react";
 import { AdminRole, Team } from "@/lib/types/registration";
 
 interface AdminTeamsTabProps {
@@ -9,9 +9,11 @@ interface AdminTeamsTabProps {
   role: AdminRole;
   onCheckIn: (type: "participant", id: string, method?: "qr_scan" | "manual_search") => void;
   onUndoCheckIn: (type: "participant", id: string) => void;
+  onDeleteTeam?: (teamId: string, teamName: string) => void;
+  onDeleteParticipant?: (identifier: string, name: string) => void;
 }
 
-export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn }: AdminTeamsTabProps) {
+export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn, onDeleteTeam, onDeleteParticipant }: AdminTeamsTabProps) {
   const [teamSearch, setTeamSearch] = useState("");
   const [teamFilter, setTeamFilter] = useState("all");
 
@@ -106,12 +108,40 @@ export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn }: Adm
                       </td>
                       <td className="p-3.5 font-bold text-slate-900">{t.name}</td>
                       <td className="p-3.5 text-slate-700">
-                        <p className="font-semibold">{leader.full_name || "—"}</p>
-                        <p className="text-[10.5px] text-slate-400">{leader.phone} · {leader.college_id}</p>
+                        <div className="flex items-center justify-between gap-1">
+                          <div>
+                            <p className="font-semibold">{leader.full_name || "—"}</p>
+                            <p className="text-[10.5px] text-slate-400">{leader.phone} · {leader.college_id}</p>
+                          </div>
+                          {role === "super_admin" && leader.email && onDeleteParticipant && (
+                            <button
+                              type="button"
+                              onClick={() => onDeleteParticipant(leader.email, leader.full_name || "Leader")}
+                              title="Remove participant (will delete squad)"
+                              className="text-slate-300 hover:text-red-600 hover:bg-red-50 p-1 rounded-md transition"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="p-3.5 text-slate-700">
-                        <p className="font-semibold">{p2.full_name || "—"}</p>
-                        <p className="text-[10.5px] text-slate-400">{p2.phone} · {p2.college_id}</p>
+                        <div className="flex items-center justify-between gap-1">
+                          <div>
+                            <p className="font-semibold">{p2.full_name || "—"}</p>
+                            <p className="text-[10.5px] text-slate-400">{p2.phone} · {p2.college_id}</p>
+                          </div>
+                          {role === "super_admin" && p2.email && onDeleteParticipant && (
+                            <button
+                              type="button"
+                              onClick={() => onDeleteParticipant(p2.email, p2.full_name || "Player 2")}
+                              title="Remove participant (will delete squad)"
+                              className="text-slate-300 hover:text-red-600 hover:bg-red-50 p-1 rounded-md transition"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="p-3.5 text-center">
                         <span
@@ -136,21 +166,35 @@ export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn }: Adm
                         </span>
                       </td>
                       <td className="p-3.5 text-right whitespace-nowrap">
-                        {t.check_in_status === "not_checked_in" && t.registration_status === "confirmed" ? (
-                          <button
-                            onClick={() => onCheckIn("participant", t.team_id, "manual_search")}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-xs"
-                          >
-                            Check In
-                          </button>
-                        ) : t.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
-                          <button
-                            onClick={() => onUndoCheckIn("participant", t.team_id)}
-                            className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition"
-                          >
-                            Undo
-                          </button>
-                        ) : null}
+                        <div className="inline-flex items-center gap-1.5 justify-end">
+                          {t.check_in_status === "not_checked_in" && t.registration_status === "confirmed" ? (
+                            <button
+                              onClick={() => onCheckIn("participant", t.team_id, "manual_search")}
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition shadow-xs"
+                            >
+                              Check In
+                            </button>
+                          ) : t.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
+                            <button
+                              onClick={() => onUndoCheckIn("participant", t.team_id)}
+                              className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition"
+                            >
+                              Undo
+                            </button>
+                          ) : null}
+
+                          {role === "super_admin" && onDeleteTeam && (
+                            <button
+                              type="button"
+                              onClick={() => onDeleteTeam(t.team_id, t.name)}
+                              className="border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2.5 py-1.5 rounded-lg text-xs transition inline-flex items-center gap-1"
+                              title="Delete Team & Players"
+                            >
+                              <Trash2 size={12} />
+                              <span>Delete</span>
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

@@ -50,7 +50,7 @@ export function Events({ settings }: EventsProps = {}) {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [expandedDay, setExpandedDay] = useState<1 | 2 | null>(null);
 
-  const eventName = settings?.event_name || "Nova Forge Campus Carnival";
+  const eventName = settings?.event_name || "Campus Unleashed";
   const eventDate = settings?.event_date || "18 – 19 Sep 2026";
   const venue = settings?.venue || "LNCT Bhopal";
 

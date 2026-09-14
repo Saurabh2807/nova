@@ -1,4 +1,4 @@
-# Nova Forge — LNCT Campus Carnival & BGMI Tournament System
+# Nova Forge — Campus Unleashed & BGMI Tournament System
 
 A full-stack, enterprise-grade esports event platform and entry management system built with **Next.js 15 (App Router)**, **React 19**, **Supabase (PostgreSQL + Auth + RPCs)**, **Tailwind CSS v4**, and **Framer Motion**.
 
@@ -188,4 +188,4 @@ node scratch/test-admin-system.mjs
 
 ## 📄 License
 
-Developed for **Nova Forge Esports & LNCT Campus Carnival 2026**. All rights reserved.
+Developed for **Nova Forge Esports · Campus Unleashed 2026**. All rights reserved.

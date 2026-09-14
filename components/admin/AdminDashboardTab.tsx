@@ -50,7 +50,7 @@ export function AdminDashboardTab({ stats, role, onToggleRegistration }: AdminDa
           <div>
             <div className="flex items-center gap-2.5">
               <h2 className="font-display text-xl font-black text-slate-900">
-                {stats?.settings?.event_name || "Nova Forge Campus Carnival"}
+                {stats?.settings?.event_name || "Campus Unleashed"}
               </h2>
               <span
                 className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider ${

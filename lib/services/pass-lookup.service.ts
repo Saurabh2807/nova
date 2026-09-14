@@ -274,7 +274,7 @@ export async function resendConfirmationEmail(type: "participant" | "audience", 
     if (recipient) {
       await sendEmail({
         to: recipient,
-        subject: "[Pass Copy] Your Entry Ticket — Nova Forge Campus Carnival Pass",
+        subject: "[Pass Copy] Your Entry Ticket — Campus Unleashed Pass",
         html: getAudienceEmailHtml({
           fullName: aud.full_name,
           passId: aud.pass_id,

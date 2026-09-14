@@ -85,7 +85,7 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
     generateQrDataUrl(qrToken).then((qrDataUrl) => {
       sendEmail({
         to: input.email.trim(),
-        subject: "Your Entry Ticket — Nova Forge Campus Carnival Pass",
+        subject: "Your Entry Ticket — Campus Unleashed Pass",
         html: getAudienceEmailHtml({
           fullName: input.fullName.trim(),
           passId,
@@ -208,7 +208,7 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
     try {
       const emailRes = await sendEmail({
         to: input.email.trim(),
-        subject: "Your Entry Ticket — Nova Forge Campus Carnival Pass",
+        subject: "Your Entry Ticket — Campus Unleashed Pass",
         html: getAudienceEmailHtml({
           fullName: input.fullName.trim(),
           passId: finalPassId,
@@ -249,3 +249,30 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
     return { success: false, error: message };
   }
 }
+
+/**
+ * Delete an audience pass registration.
+ */
+export async function deleteAudiencePass(passId: string): Promise<{ success: boolean; error?: string }> {
+  const cleanId = passId.trim();
+  const supabase = getSupabaseServerClient();
+
+  if (!supabase) {
+    devStore.audience = devStore.audience.filter((a) => a.pass_id !== cleanId && a.id !== cleanId);
+    return { success: true };
+  }
+
+  try {
+    const { error } = await supabase.from("audience_registrations").delete().eq("pass_id", cleanId);
+    if (error) {
+      const retry = await supabase.from("audience_registrations").delete().eq("id", cleanId);
+      if (retry.error) throw retry.error;
+    }
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to delete audience pass";
+    console.error("Failed to delete audience pass:", err);
+    return { success: false, error: message };
+  }
+}
+

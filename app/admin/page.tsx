@@ -425,6 +425,102 @@ export default function AdminPortalPage() {
     }
   }
 
+  async function handleDeleteTeam(teamId: string, teamName: string) {
+    if (sessionUser?.role !== "super_admin") {
+      alert("Permission Denied: Only Super Admins can delete teams.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete team "${teamName}" (${teamId})?\n\nThis will remove all players from the participant list and delete the team registration permanently.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/admin/teams?teamId=${encodeURIComponent(teamId)}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
+      if (data.success) {
+        fetchStats();
+        fetchTeams();
+      } else {
+        alert(data.error || "Failed to delete team");
+      }
+    } catch (err) {
+      alert("Delete team request failed");
+    }
+  }
+
+  async function handleDeleteParticipant(identifier: string, name: string) {
+    if (sessionUser?.role !== "super_admin") {
+      alert("Permission Denied: Only Super Admins can remove participants.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to remove "${name}" from the participant list?\n\nBecause BGMI is a 2-player team tournament, removing this player will automatically delete their team squad.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/admin/teams?participant=${encodeURIComponent(identifier)}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
+      if (data.success) {
+        fetchStats();
+        fetchTeams();
+      } else {
+        alert(data.error || "Failed to remove participant");
+      }
+    } catch (err) {
+      alert("Remove participant request failed");
+    }
+  }
+
+  async function handleDeleteAudience(passId: string, name: string) {
+    if (sessionUser?.role !== "super_admin") {
+      alert("Permission Denied: Only Super Admins can delete audience passes.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete audience pass for "${name}" (${passId})?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch(`/api/admin/audience?passId=${encodeURIComponent(passId)}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
+      if (data.success) {
+        fetchStats();
+        fetchAudience();
+      } else {
+        alert(data.error || "Failed to delete audience pass");
+      }
+    } catch (err) {
+      alert("Delete audience pass request failed");
+    }
+  }
+
   // Toggle Registration Open/Closed (Super Admin only)
   async function toggleRegistration(currentState: boolean) {
     if (sessionUser?.role !== "super_admin") {
@@ -468,7 +564,7 @@ export default function AdminPortalPage() {
               Nova Forge Staff
             </h1>
             <p className="mt-1 text-xs text-white/50">
-              LNCT Campus Carnival · Authorized Organizers Only
+              Campus Unleashed · Authorized Organizers Only
             </p>
           </div>
 
@@ -580,7 +676,7 @@ export default function AdminPortalPage() {
                     : "Volunteer"}
                 </span>
               </div>
-              <p className="text-[11px] text-white/50">LNCT Campus Carnival Operations</p>
+              <p className="text-[11px] text-white/50">Campus Unleashed Operations</p>
             </div>
           </div>
 
@@ -681,6 +777,8 @@ export default function AdminPortalPage() {
             role={sessionUser.role}
             onCheckIn={handleCheckIn}
             onUndoCheckIn={handleUndoCheckIn}
+            onDeleteTeam={handleDeleteTeam}
+            onDeleteParticipant={handleDeleteParticipant}
           />
         )}
 
@@ -691,6 +789,7 @@ export default function AdminPortalPage() {
             role={sessionUser.role}
             onCheckIn={handleCheckIn}
             onUndoCheckIn={handleUndoCheckIn}
+            onDeleteAudience={handleDeleteAudience}
           />
         )}
 

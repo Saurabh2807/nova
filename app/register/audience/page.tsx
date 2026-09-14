@@ -141,7 +141,7 @@ export default function AudienceRegisterPage() {
       <RegisterShell
         eyebrow="Audience Pass"
         title="You’re on the guest list."
-        description={`Here is your official entry pass for ${eventSettings?.event_name || "Nova Forge Campus Carnival"}.`}
+        description={`Here is your official entry pass for ${eventSettings?.event_name || "Campus Unleashed"}.`}
       >
         <TicketCard
           name={successData.name}
@@ -163,7 +163,7 @@ export default function AudienceRegisterPage() {
       <RegisterShell
         eyebrow="Step into the crowd"
         title="Register as Audience"
-        description={`Claim your free entry ticket to the ${eventSettings?.event_name || "Nova Forge Campus Carnival"} at ${eventSettings?.venue || "LNCT Bhopal"}.`}
+        description={`Claim your free entry ticket to the ${eventSettings?.event_name || "Campus Unleashed"} at ${eventSettings?.venue || "LNCT Bhopal"}.`}
       >
         {/* Already Registered Link */}
         <div className="mb-4 flex items-center justify-between rounded-xl bg-blue-50/60 border border-blue-100/80 px-4 py-2.5 text-xs text-slate-700">

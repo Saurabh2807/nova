@@ -109,7 +109,7 @@ export function getLeaderEmailHtml({
   <div class="container">
     <div class="header">
       <span class="badge">Team Leader Pass</span>
-      <h1 class="title">NOVA FORGE CAMPUS CARNIVAL</h1>
+      <h1 class="title">CAMPUS UNLEASHED</h1>
       <p class="subtitle">BGMI Tournament Registration Confirmed</p>
     </div>
     <div class="content">
@@ -156,7 +156,7 @@ export function getLeaderEmailHtml({
       </div>
     </div>
     <div class="footer">
-      Nova Forge · LNCT Campus Carnival · For queries, reach out to organizers at the arena.
+      Nova Forge · Campus Unleashed · For queries, reach out to organizers at the arena.
     </div>
   </div>
 </body>
@@ -216,7 +216,7 @@ export function getPlayer2EmailHtml({
   <div class="container">
     <div class="header">
       <span class="badge">Team Member Pass</span>
-      <h1 class="title">NOVA FORGE CAMPUS CARNIVAL</h1>
+      <h1 class="title">CAMPUS UNLEASHED</h1>
       <p class="subtitle">BGMI Squad Confirmation</p>
     </div>
     <div class="content">
@@ -263,7 +263,7 @@ export function getPlayer2EmailHtml({
       </div>
     </div>
     <div class="footer">
-      Nova Forge · LNCT Campus Carnival · See you on the battleground.
+      Nova Forge · Campus Unleashed · See you on the battleground.
     </div>
   </div>
 </body>
@@ -294,7 +294,7 @@ export function getAudienceEmailHtml({
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Your Entry Ticket — Nova Forge Campus Carnival Pass</title>
+  <title>Your Entry Ticket — Campus Unleashed Pass</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6fa; margin: 0; padding: 24px; color: #091522; }
     .container { max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
@@ -313,11 +313,11 @@ export function getAudienceEmailHtml({
   <div class="container">
     <div class="header">
       <span class="badge">Audience Entry Pass</span>
-      <h1 class="title">NOVA FORGE CAMPUS CARNIVAL</h1>
+      <h1 class="title">CAMPUS UNLEASHED</h1>
     </div>
     <div class="content">
       <p style="font-size: 15px; font-weight: 600;">Welcome, ${safeFullName}!</p>
-      <p style="font-size: 13.5px; color: #475569;">Here is your official digital entry ticket for the LNCT Campus Carnival.</p>
+      <p style="font-size: 13.5px; color: #475569;">Here is your official digital entry ticket for Campus Unleashed.</p>
       
       <div class="ticket">
         <div style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.1em;">Audience Pass ID</div>

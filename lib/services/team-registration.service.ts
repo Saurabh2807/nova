@@ -336,3 +336,82 @@ export async function registerBgmiTeam(input: RegisterTeamInput): Promise<{
     return { success: false, error: message };
   }
 }
+
+/**
+ * Completely delete a team and all its participants.
+ */
+export async function deleteTeam(teamId: string): Promise<{ success: boolean; error?: string }> {
+  const cleanId = teamId.trim();
+  const supabase = getSupabaseServerClient();
+
+  if (!supabase) {
+    const team = devStore.teams.find((t) => t.team_id === cleanId || t.id === cleanId);
+    const resolvedTeamId = team ? team.team_id : cleanId;
+
+    devStore.teams = devStore.teams.filter((t) => t.team_id !== resolvedTeamId && t.id !== resolvedTeamId);
+    devStore.participants = devStore.participants.filter((p) => p.team_id !== resolvedTeamId);
+
+    return { success: true };
+  }
+
+  try {
+    // Delete participants first to maintain referential integrity, then delete team
+    await supabase.from("participants").delete().eq("team_id", cleanId);
+    const { error } = await supabase.from("teams").delete().eq("team_id", cleanId);
+
+    if (error) {
+      // Also attempt by primary key UUID
+      const retry = await supabase.from("teams").delete().eq("id", cleanId);
+      if (retry.error) throw retry.error;
+    }
+
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to delete team";
+    console.error("Failed to delete team:", err);
+    return { success: false, error: message };
+  }
+}
+
+/**
+ * Remove a participant by ID, email, or phone.
+ * Since this is a 2-player squad tournament, removing a participant automatically deletes the squad/team.
+ */
+export async function deleteParticipant(identifier: string): Promise<{ success: boolean; error?: string }> {
+  const clean = identifier.trim();
+  const supabase = getSupabaseServerClient();
+
+  if (!supabase) {
+    const p = devStore.participants.find(
+      (pt) =>
+        pt.email?.toLowerCase() === clean.toLowerCase() ||
+        pt.phone === clean ||
+        pt.team_id === clean ||
+        (pt as any).id === clean
+    );
+    if (p && p.team_id) {
+      return await deleteTeam(p.team_id);
+    }
+    return { success: true };
+  }
+
+  try {
+    const { data } = await supabase
+      .from("participants")
+      .select("team_id")
+      .or(`email.eq.${clean},phone.eq.${clean}`)
+      .limit(1)
+      .maybeSingle();
+
+    if (data?.team_id) {
+      return await deleteTeam(data.team_id);
+    }
+
+    await supabase.from("participants").delete().or(`email.eq.${clean},phone.eq.${clean}`);
+    return { success: true };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to delete participant";
+    return { success: false, error: message };
+  }
+}
+

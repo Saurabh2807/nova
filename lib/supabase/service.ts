@@ -15,12 +15,15 @@ export {
 export {
   type RegisterTeamInput,
   registerBgmiTeam,
+  deleteTeam,
+  deleteParticipant,
 } from "@/lib/services/team-registration.service";
 
 // 3. Audience Registration Service
 export {
   type RegisterAudienceInput,
   registerAudience,
+  deleteAudiencePass,
 } from "@/lib/services/audience-registration.service";
 
 // 4. QR Verification & Check-in Service

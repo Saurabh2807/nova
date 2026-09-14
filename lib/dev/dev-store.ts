@@ -30,7 +30,7 @@ export const devStore: DevStore = {
     registration_open: true,
     participant_limit: 250,
     audience_limit: 1000,
-    event_name: "Nova Forge Campus Carnival",
+    event_name: "Campus Unleashed",
     event_date: "18–19 September 2026",
     venue: "LNCT Bhopal",
     reporting_time: "09:00 AM IST",
