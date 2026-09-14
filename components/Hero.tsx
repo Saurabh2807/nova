@@ -60,6 +60,13 @@ const brandLogos = [
     imgClass: "h-8 sm:h-9.5 md:h-11 w-auto object-contain",
   },
   {
+    name: "LNCT University Bhopal",
+    src: "/logos/lnct-university.png",
+    width: 220,
+    height: 95,
+    imgClass: "h-8 sm:h-9.5 md:h-11 w-auto object-contain",
+  },
+  {
     name: "JNCT Professional University",
     src: "/logos/jnct.png",
     width: 200,
