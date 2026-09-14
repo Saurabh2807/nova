@@ -22,6 +22,7 @@ export default function AudienceRegisterPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [findPassOpen, setFindPassOpen] = useState(false);
   const [eventSettings, setEventSettings] = useState<{
+    event_name?: string;
     registration_open: boolean;
     event_date: string;
     venue: string;
@@ -140,7 +141,7 @@ export default function AudienceRegisterPage() {
       <RegisterShell
         eyebrow="Audience Pass"
         title="You’re on the guest list."
-        description="Here is your official entry pass for Nova Forge Campus Carnival."
+        description={`Here is your official entry pass for ${eventSettings?.event_name || "Nova Forge Campus Carnival"}.`}
       >
         <TicketCard
           name={successData.name}
@@ -148,7 +149,7 @@ export default function AudienceRegisterPage() {
           email={successData.email}
           collegeId={successData.collegeId}
           ticketId={successData.passId}
-          eventLabel={`${flagshipEvent.name} · ${eventSettings?.event_date || flagshipEvent.dateLabel}`}
+          eventLabel={`${eventSettings?.event_name || flagshipEvent.name} · ${eventSettings?.event_date || flagshipEvent.dateLabel}`}
           qrDataUrl={successData.qrDataUrl}
         />
       </RegisterShell>
@@ -162,7 +163,7 @@ export default function AudienceRegisterPage() {
       <RegisterShell
         eyebrow="Step into the crowd"
         title="Register as Audience"
-        description="Claim your free entry ticket to the Nova Forge Campus Carnival at LNCT Bhopal."
+        description={`Claim your free entry ticket to the ${eventSettings?.event_name || "Nova Forge Campus Carnival"} at ${eventSettings?.venue || "LNCT Bhopal"}.`}
       >
         {/* Already Registered Link */}
         <div className="mb-4 flex items-center justify-between rounded-xl bg-blue-50/60 border border-blue-100/80 px-4 py-2.5 text-xs text-slate-700">

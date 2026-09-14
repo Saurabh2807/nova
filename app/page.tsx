@@ -8,15 +8,25 @@ import { Sponsors } from "@/components/Sponsors";
 import { About } from "@/components/About";
 import { Leadership } from "@/components/Leadership";
 import { ContactFooter } from "@/components/ContactFooter";
+import { getEventSettings } from "@/lib/supabase/service";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  let settings;
+  try {
+    settings = await getEventSettings();
+  } catch (err) {
+    console.warn("Could not load dynamic settings for Home page:", err);
+  }
+
   return (
     <main className="min-h-screen bg-white w-full max-w-full overflow-x-clip">
       <SiteNav />
       <Hero />
-      <EventBanner />
+      <EventBanner settings={settings} />
       <StatsBar />
-      <Events />
+      <Events settings={settings} />
       <CreatorProgram />
       <Sponsors />
       <About />

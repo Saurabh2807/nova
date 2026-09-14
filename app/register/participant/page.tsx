@@ -29,6 +29,7 @@ export default function ParticipantRegisterPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [findPassOpen, setFindPassOpen] = useState(false);
   const [eventSettings, setEventSettings] = useState<{
+    event_name?: string;
     registration_open: boolean;
     event_date: string;
     venue: string;
@@ -163,7 +164,7 @@ export default function ParticipantRegisterPage() {
       <RegisterShell
         eyebrow="Participant Pass"
         title="Squad Slot Confirmed"
-        description="Your BGMI duo team is registered for the Nova Forge Campus Carnival on Day 2."
+        description={`Your BGMI duo team is registered for the ${eventSettings?.event_name || "Nova Forge Campus Carnival"} on Day 2.`}
       >
         <div className="space-y-6">
           <TeamCard
@@ -189,7 +190,7 @@ export default function ParticipantRegisterPage() {
       <RegisterShell
         eyebrow="Participant Pass"
         title="BGMI Duo Squad Registration"
-        description="Register your 2-player BGMI squad for the LAN Esports Championship at LNCT Bhopal."
+        description={`Register your 2-player BGMI squad for the ${eventSettings?.event_name || "Nova Forge"} LAN Esports Championship at ${eventSettings?.venue || "LNCT Bhopal"}.`}
       >
         {/* Already Registered Link */}
         <div className="mb-4 flex items-center justify-between rounded-xl bg-blue-50/60 border border-blue-100/80 px-4 py-2.5 text-xs text-slate-700">

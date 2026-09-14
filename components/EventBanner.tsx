@@ -1,7 +1,17 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { EventSettings } from "@/lib/types/registration";
 
-export function EventBanner() {
+interface EventBannerProps {
+  settings?: EventSettings;
+}
+
+export function EventBanner({ settings }: EventBannerProps) {
+  const eventName = settings?.event_name || "LNCT Campus Carnival";
+  const eventDate = settings?.event_date || "18–19 Sep 2026";
+  const venue = settings?.venue || "LNCT Bhopal";
+  const isRegistrationOpen = settings?.registration_open ?? true;
+
   return (
     <div
       className="relative w-full overflow-hidden border-y border-[#1e3a5f]"
@@ -16,24 +26,24 @@ export function EventBanner() {
           {/* Pulsing Live Ticker Pill */}
           <div className="inline-flex items-center gap-2 self-start rounded-full border border-[#2872A1]/40 bg-[#2872A1]/20 px-3 py-1 shadow-xs">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+              <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${isRegistrationOpen ? "bg-cyan-400" : "bg-rose-400"} opacity-75`} />
+              <span className={`relative inline-flex h-2 w-2 rounded-full ${isRegistrationOpen ? "bg-cyan-400" : "bg-rose-400"}`} />
             </span>
-            <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cyan-300">
-              LIVE NOW
+            <span className={`text-[10px] font-extrabold uppercase tracking-[0.2em] ${isRegistrationOpen ? "text-cyan-300" : "text-rose-300"}`}>
+              {isRegistrationOpen ? "LIVE NOW" : "REGISTRATION CLOSED"}
             </span>
           </div>
 
           {/* Event Headlines */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
             <p className="font-display text-[14.5px] font-bold text-white sm:text-[15px] tracking-tight">
-              LNCT Campus Carnival — Live Registrations Open
+              {eventName} — Live Registrations {isRegistrationOpen ? "Open" : "Closed"}
             </p>
             <div className="hidden h-3.5 w-px bg-white/20 sm:block" />
             <div className="flex flex-wrap items-center gap-2 text-[12px] font-medium text-slate-300/85">
-              <span>18–19 Sep 2026</span>
+              <span>{eventDate}</span>
               <span className="text-white/40">·</span>
-              <span>LNCT Bhopal</span>
+              <span>{venue}</span>
               <span className="text-white/40">·</span>
               <span className="font-bold text-cyan-300">Free Entry</span>
             </div>
@@ -45,7 +55,7 @@ export function EventBanner() {
           href="#events"
           className="group inline-flex w-full sm:w-auto justify-center shrink-0 items-center gap-2 rounded-md border border-[#2872A1] bg-[#2872A1]/30 px-5 py-2 sm:py-1.5 text-[12.5px] font-bold text-white shadow-xs backdrop-blur-sm transition-all duration-200 hover:bg-[#2872A1] hover:shadow-[0_2px_12px_rgba(40,114,161,0.4)] active:scale-[0.98]"
         >
-          <span>REGISTER NOW</span>
+          <span>{isRegistrationOpen ? "REGISTER NOW" : "VIEW DETAILS"}</span>
           <ArrowRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </div>

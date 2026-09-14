@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CalendarDays, MapPin, Ticket, Users, Trophy, ArrowRight, ChevronDown, ListOrdered, Sparkles } from "lucide-react";
 import { flagshipEvent } from "@/lib/data";
 import { EventCountdown } from "./EventCountdown";
+import { EventSettings } from "@/lib/types/registration";
 
 // Day 1 & Day 2 Activity Flows from Official Programme Schedule (No timings, pure activity names)
 const day1Activities = [
@@ -41,12 +42,24 @@ const day2Activities = [
   "Grand Finals & Results Announcement",
 ];
 
-export function Events() {
+interface EventsProps {
+  settings?: EventSettings;
+}
+
+export function Events({ settings }: EventsProps = {}) {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [expandedDay, setExpandedDay] = useState<1 | 2 | null>(null);
+
+  const eventName = settings?.event_name || "Nova Forge Campus Carnival";
+  const eventDate = settings?.event_date || "18 – 19 Sep 2026";
+  const venue = settings?.venue || "LNCT Bhopal";
 
   return (
-    <section id="events" className="bg-white py-14 sm:py-20 border-t border-nf-line/60">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+    <section
+      id="events"
+      className="relative overflow-hidden bg-gradient-to-b from-[#e8edf2] to-[#f4f7fa] py-14 sm:py-20 lg:py-24 text-nf-ink"
+    >
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* ── TOP SECTION: Main Event Details & Day Cards ── */}
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10 items-start">
@@ -62,7 +75,7 @@ export function Events() {
             {/* Main Title & Subtitle */}
             <div className="-mt-3.5">
               <h2 className="font-display text-[2.4rem] sm:text-[2.9rem] font-black uppercase leading-[1.02] tracking-tight text-nf-ink">
-                Nova Forge<br />Campus Carnival
+                {eventName}
               </h2>
               <p className="mt-3 text-[14.5px] font-medium text-nf-ink-soft">
                 {flagshipEvent.tagline}
@@ -73,11 +86,11 @@ export function Events() {
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] font-semibold text-nf-ink-soft">
               <div className="flex items-center gap-2">
                 <CalendarDays size={16} className="text-nf-blue shrink-0" />
-                <span>18 – 19 Sep 2026</span>
+                <span>{eventDate}</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin size={16} className="text-nf-blue shrink-0" />
-                <span>LNCT Bhopal</span>
+                <span>{venue}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Ticket size={16} className="text-nf-blue shrink-0" />
