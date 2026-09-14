@@ -35,12 +35,13 @@ export {
   getDashboardStats,
 } from "@/lib/services/stats.service";
 
-// 6. Registration Query Service
 export {
   getAllTeams,
   getAllAudience,
   getRecentAuditLogs,
   searchRegistrations,
+  searchRegistrationsByPhoneMinimized,
+  logAdminAudit,
 } from "@/lib/services/registration-query.service";
 
 // 7. CSV Export Service

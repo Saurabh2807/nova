@@ -75,7 +75,7 @@ export function AdminDashboardTab({ stats, role, onToggleRegistration }: AdminDa
             </div>
           </div>
 
-          {role === "admin" && (
+          {role === "super_admin" && (
             <button
               onClick={() => onToggleRegistration(Boolean(stats?.settings?.registration_open))}
               className={`rounded-xl px-5 py-2.5 text-xs font-bold transition shadow-sm ${

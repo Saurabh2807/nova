@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyTokenOrId } from "@/lib/supabase/service";
-import { authenticateAdminRequest } from "@/lib/supabase/admin-auth";
+import { requireOperationalStaff } from "@/lib/supabase/admin-auth";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const auth = await authenticateAdminRequest(req, "volunteer");
+  const auth = await requireOperationalStaff(req);
   if (!auth.success) {
-    return NextResponse.json({ status: "INVALID", message: auth.error }, { status: auth.status });
+    return NextResponse.json(
+      { status: "INVALID", message: auth.error, code: auth.code },
+      { status: auth.status }
+    );
   }
 
   try {

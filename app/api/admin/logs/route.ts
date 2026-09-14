@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRecentAuditLogs } from "@/lib/supabase/service";
-import { authenticateAdminRequest } from "@/lib/supabase/admin-auth";
+import { requireSuperAdmin } from "@/lib/supabase/admin-auth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const auth = await authenticateAdminRequest(req, "volunteer");
+  const auth = await requireSuperAdmin(req);
   if (!auth.success) {
-    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    return NextResponse.json(
+      { success: false, error: auth.error, code: auth.code },
+      { status: auth.status }
+    );
   }
 
   try {

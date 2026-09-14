@@ -319,10 +319,10 @@ export async function performCheckIn(
 export async function undoCheckIn(
   type: "participant" | "audience",
   id: string,
-  userRole: AdminRole = "admin"
+  userRole: AdminRole = "super_admin"
 ): Promise<{ success: boolean; error?: string }> {
-  if (userRole !== "admin") {
-    return { success: false, error: "Permission Denied: Only Admins can undo check-ins. Volunteers cannot undo." };
+  if (userRole === "volunteer") {
+    return { success: false, error: "Permission Denied: Volunteers cannot undo check-ins." };
   }
 
   const supabase = getSupabaseServerClient();

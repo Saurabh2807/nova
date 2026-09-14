@@ -26,13 +26,17 @@ SELECT true, 250, 1000, 'Nova Forge Campus Carnival', '18–19 September 2026', 
 WHERE NOT EXISTS (SELECT 1 FROM event_settings);
 
 -- 2. ADMIN PROFILES & ROLES
--- Role: 'admin' (can undo check-in, export, modify settings) vs 'volunteer' (scanner & check-in only)
+-- Roles: 'super_admin' (Full system & staff control), 'core_member' (Operational & undo), 'volunteer' (Scanner & check-in only)
 CREATE TABLE IF NOT EXISTS admin_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('admin', 'volunteer')) DEFAULT 'volunteer',
-  created_at TIMESTAMPTZ DEFAULT now()
+  role TEXT NOT NULL CHECK (role IN ('super_admin', 'core_member', 'volunteer')) DEFAULT 'volunteer',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  last_login_at TIMESTAMPTZ
 );
 
 -- 3. TEAMS TABLE (BGMI Squads)

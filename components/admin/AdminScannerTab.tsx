@@ -94,7 +94,10 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
     try {
       const res = await fetch("/api/admin/checkin", {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           action: "check_in",
           type,
@@ -119,12 +122,18 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
   }
 
   async function handleUndoCheckIn(type: "participant" | "audience", id: string) {
-    if (role !== "admin") {
-      alert("Permission Denied: Only Admins can undo check-ins. Volunteers do not have this permission.");
+    if (role !== "super_admin" && role !== "core_member") {
+      alert("Permission Denied: Only Super Admin and Core Members can undo check-ins. Volunteers do not have this permission.");
       return;
     }
 
-    if (!confirm(`Are you sure you want to revert check-in for ${id}? Status will be reset to Not Checked In.`)) {
+    const reason = prompt(
+      `Enter reason for reverting check-in for ${id} (required for Super Admin audit log):`,
+      "Accidental gate scan"
+    );
+
+    if (!reason || !reason.trim()) {
+      alert("Undo cancelled: Reason is required for audit logs.");
       return;
     }
 
@@ -134,11 +143,15 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
     try {
       const res = await fetch("/api/admin/checkin", {
         method: "POST",
-        headers: getAuthHeaders(),
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           action: "undo",
           type,
           id,
+          reason: reason.trim(),
         }),
       });
 
@@ -311,13 +324,13 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
                   </p>
                 </div>
 
-                {role === "admin" && (
+                {(role === "super_admin" || role === "core_member") && (
                   <button
                     onClick={() => handleUndoCheckIn(scanResult.type || "participant", scanResult.data?.id || "")}
                     disabled={checkInLoading}
                     className="w-full rounded-xl bg-slate-800 hover:bg-slate-900 py-2.5 text-xs font-bold text-white shadow-xs transition flex items-center justify-center gap-1.5"
                   >
-                    <RotateCcw size={14} /> Revert Check-in (Admin Only)
+                    <RotateCcw size={14} /> Revert Check-in (Undo)
                   </button>
                 )}
               </div>
@@ -367,6 +380,195 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
           </div>
         )}
       </div>
+
+      {/* 2. MANUAL OPERATIONAL SEARCH SECTION */}
+      <div className="rounded-3xl border border-[#cbdde9] bg-white p-6 shadow-sm">
+        <div className="border-b border-slate-100 pb-4 mb-4">
+          <h3 className="font-display text-base font-black text-slate-900 flex items-center gap-2">
+            Manual Attendee Search
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {role === "volunteer"
+              ? "Volunteers: Enter attendee 10-digit phone number to verify and check in."
+              : "Search attendee by name, phone number, squad ID, or pass ID."}
+          </p>
+        </div>
+
+        <ManualSearchBox
+          role={role}
+          getAuthHeaders={getAuthHeaders}
+          onCheckIn={handleCheckIn}
+          onUndoCheckIn={handleUndoCheckIn}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ManualSearchBox({
+  role,
+  getAuthHeaders,
+  onCheckIn,
+  onUndoCheckIn,
+}: {
+  role: AdminRole;
+  getAuthHeaders: () => Record<string, string>;
+  onCheckIn: (type: "participant" | "audience", id: string, method: "qr_scan" | "manual_search") => void;
+  onUndoCheckIn: (type: "participant" | "audience", id: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+  const [searched, setSearched] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function performSearch(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+
+    if (role === "volunteer") {
+      const isDigits = /^[0-9+\s-]{7,15}$/.test(q);
+      const digits = q.replace(/[^0-9]/g, "");
+      if (!isDigits || digits.length < 10) {
+        setError("Please enter a valid 10-digit mobile number.");
+        return;
+      }
+    }
+
+    setLoading(true);
+    setError(null);
+    setSearched(true);
+
+    try {
+      const res = await fetch(`/api/admin/search?q=${encodeURIComponent(q)}`, {
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.mode === "volunteer_minimized") {
+          setResults(data.results || []);
+        } else {
+          // Normalize teams and audience for core_member / super_admin
+          const teams = (data.results?.teams || []).map((t: any) => ({
+            type: "participant",
+            id: t.team_id,
+            name: t.name,
+            registration_status: t.registration_status,
+            check_in_status: t.check_in_status,
+            checked_in_at: t.checked_in_at,
+          }));
+          const audience = (data.results?.audience || []).map((a: any) => ({
+            type: "audience",
+            id: a.pass_id,
+            name: a.full_name,
+            registration_status: a.registration_status,
+            check_in_status: a.check_in_status,
+            checked_in_at: a.checked_in_at,
+          }));
+          setResults([...teams, ...audience]);
+        }
+      } else {
+        setError(data.error || "Search failed");
+        setResults([]);
+      }
+    } catch (err) {
+      setError("Network error during search");
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <form onSubmit={performSearch} className="flex gap-2">
+        <input
+          type={role === "volunteer" ? "tel" : "text"}
+          placeholder={
+            role === "volunteer"
+              ? "Enter 10-digit mobile number..."
+              : "Search name, squad ID, pass ID, or phone..."
+          }
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="flex-1 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:border-[#2872A1] focus:bg-white focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-xl bg-[#2872A1] px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-[#1e5d85] disabled:opacity-50"
+        >
+          {loading ? "Searching..." : "Search"}
+        </button>
+      </form>
+
+      {error && (
+        <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-700">
+          {error}
+        </div>
+      )}
+
+      {searched && (
+        <div className="space-y-2 pt-2">
+          {results.length === 0 ? (
+            <p className="text-center py-6 text-xs text-slate-400">
+              No attendee matching this {role === "volunteer" ? "mobile number" : "query"}.
+            </p>
+          ) : (
+            results.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-2xl border border-slate-200 p-3.5 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-display font-black text-xs text-slate-900">{item.name}</span>
+                    <span className="rounded-full bg-blue-50 border border-blue-200 px-2 py-0.5 text-[9.5px] font-black uppercase text-[#2872A1]">
+                      {item.type === "participant" ? "BGMI Squad" : "Audience Pass"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 mt-1 text-[11px] font-mono text-slate-500">
+                    <span>ID: <strong>{item.id}</strong></span>
+                    <span>•</span>
+                    <span className="uppercase text-[10px] font-bold">
+                      Status: {item.registration_status}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-center">
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase ${
+                      item.check_in_status === "checked_in"
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                        : "bg-slate-200 text-slate-700"
+                    }`}
+                  >
+                    {item.check_in_status === "checked_in" ? "CHECKED IN" : "NOT CHECKED IN"}
+                  </span>
+
+                  {item.check_in_status === "not_checked_in" && item.registration_status === "confirmed" ? (
+                    <button
+                      onClick={() => onCheckIn(item.type, item.id, "manual_search")}
+                      className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 text-xs transition shadow-xs"
+                    >
+                      Check In
+                    </button>
+                  ) : item.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
+                    <button
+                      onClick={() => onUndoCheckIn(item.type, item.id)}
+                      className="rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 text-xs transition"
+                    >
+                      Undo
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

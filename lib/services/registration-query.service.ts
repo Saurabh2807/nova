@@ -197,3 +197,163 @@ export async function searchRegistrations(query: string) {
     return { teams: [], audience: [] };
   }
 }
+
+/**
+ * Volunteer Data-Minimized Search: Phone Number ONLY.
+ * Strips all unnecessary PII (phone, email, college ID, partner contact).
+ * Returns ONLY operational fields needed for check-in:
+ * Name, ID (Team ID or Pass ID), Registration Status, Check-in Status.
+ */
+export async function searchRegistrationsByPhoneMinimized(phone: string) {
+  const digits = phone.replace(/[^0-9]/g, "").slice(-10);
+  if (!digits || digits.length < 10) {
+    return [];
+  }
+
+  const supabase = getSupabaseServerClient();
+
+  // Local Dev Store Fallback
+  if (!supabase) {
+    const results: Array<{
+      type: "participant" | "audience";
+      id: string;
+      name: string;
+      registration_status: string;
+      check_in_status: string;
+      checked_in_at?: string | null;
+    }> = [];
+
+    // Check participants
+    const matchedParticipants = devStore.participants.filter((p) => p.phone.endsWith(digits));
+    for (const p of matchedParticipants) {
+      const team = devStore.teams.find((t) => t.team_id === p.team_id);
+      if (team && !results.some((r) => r.id === team.team_id)) {
+        results.push({
+          type: "participant",
+          id: team.team_id,
+          name: team.name,
+          registration_status: team.registration_status,
+          check_in_status: team.check_in_status,
+          checked_in_at: team.checked_in_at,
+        });
+      }
+    }
+
+    // Check audience
+    const matchedAudience = devStore.audience.filter((a) => a.phone.endsWith(digits));
+    for (const a of matchedAudience) {
+      if (!results.some((r) => r.id === a.pass_id)) {
+        results.push({
+          type: "audience",
+          id: a.pass_id,
+          name: a.full_name,
+          registration_status: a.registration_status,
+          check_in_status: a.check_in_status,
+          checked_in_at: a.checked_in_at,
+        });
+      }
+    }
+
+    return results;
+  }
+
+  try {
+    const results: Array<{
+      type: "participant" | "audience";
+      id: string;
+      name: string;
+      registration_status: string;
+      check_in_status: string;
+      checked_in_at?: string | null;
+    }> = [];
+
+    // 1. Query participants by phone to find team_id
+    const { data: matchedParticipants } = await supabase
+      .from("participants")
+      .select("team_id")
+      .ilike("phone", `%${digits}%`)
+      .limit(10);
+
+    const teamIds = (matchedParticipants || []).map((p: { team_id: string }) => p.team_id);
+    if (teamIds.length > 0) {
+      const { data: teams } = await supabase
+        .from("teams")
+        .select("team_id, name, registration_status, check_in_status, checked_in_at")
+        .in("team_id", teamIds);
+
+      for (const t of teams || []) {
+        if (!results.some((r) => r.id === t.team_id)) {
+          results.push({
+            type: "participant",
+            id: t.team_id,
+            name: t.name,
+            registration_status: t.registration_status,
+            check_in_status: t.check_in_status,
+            checked_in_at: t.checked_in_at,
+          });
+        }
+      }
+    }
+
+    // 2. Query audience by phone
+    const { data: audience } = await supabase
+      .from("audience_registrations")
+      .select("pass_id, full_name, registration_status, check_in_status, checked_in_at")
+      .ilike("phone", `%${digits}%`)
+      .limit(10);
+
+    for (const a of audience || []) {
+      if (!results.some((r) => r.id === a.pass_id)) {
+        results.push({
+          type: "audience",
+          id: a.pass_id,
+          name: a.full_name,
+          registration_status: a.registration_status,
+          check_in_status: a.check_in_status,
+          checked_in_at: a.checked_in_at,
+        });
+      }
+    }
+
+    return results;
+  } catch (err) {
+    console.error("Minimized phone search error:", err);
+    return [];
+  }
+}
+
+/**
+ * Log administrative or staff action to audit logs.
+ */
+export async function logAdminAudit(log: {
+  action: "check_in" | "undo_check_in" | "staff_created" | "staff_started" | "staff_stopped" | "manual_search";
+  reference_id: string;
+  scanned_by: string;
+  actor_role?: string;
+  method?: string;
+  type?: string;
+  reason?: string;
+}) {
+  const supabase = getSupabaseServerClient();
+  const entry = {
+    action: log.action,
+    reference_id: log.reference_id,
+    scanned_by: log.scanned_by,
+    actor_role: log.actor_role,
+    method: log.method || "admin_portal",
+    type: log.type || "staff",
+    reason: log.reason,
+    timestamp: new Date().toISOString(),
+  };
+
+  if (!supabase) {
+    devStore.logs.unshift(entry as any);
+    return;
+  }
+
+  try {
+    await supabase.from("check_in_logs").insert(entry);
+  } catch (err) {
+    console.warn("Failed to record audit log:", err);
+  }
+}

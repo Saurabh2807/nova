@@ -1,6 +1,7 @@
 export type RegistrationStatus = "pending" | "confirmed" | "cancelled";
 export type CheckInStatus = "not_checked_in" | "checked_in";
-export type AdminRole = "admin" | "volunteer";
+export type StaffRole = "super_admin" | "core_member" | "volunteer";
+export type AdminRole = StaffRole;
 
 export interface EventSettings {
   id: string;
@@ -56,20 +57,47 @@ export interface AudienceRegistration {
 
 export interface AdminProfile {
   id: string;
+  user_id?: string;
   email: string;
   full_name: string;
-  role: AdminRole;
+  role: StaffRole;
+  is_active: boolean;
   created_at?: string;
+  updated_at?: string;
+  last_login_at?: string;
 }
 
 export interface CheckInLog {
   id?: string;
-  type: "participant" | "audience";
-  reference_id: string; // team_id or pass_id
-  action: "check_in" | "undo_check_in";
-  method: "qr_scan" | "manual_search";
+  type?: "participant" | "audience" | "staff" | "event";
+  reference_id: string; // team_id, pass_id, or staff email
+  action: "check_in" | "undo_check_in" | "staff_created" | "staff_started" | "staff_stopped" | "manual_search";
+  method: "qr_scan" | "manual_search" | "system" | "admin_portal";
   scanned_by: string;
+  actor_role?: StaffRole;
+  reason?: string;
   timestamp: string;
+}
+
+export interface VolunteerSearchResult {
+  type: "participant" | "audience";
+  id: string; // team_id or pass_id
+  name: string;
+  registration_status: RegistrationStatus;
+  check_in_status: CheckInStatus;
+  checked_in_at?: string | null;
+}
+
+export interface StaffAccount {
+  id: string;
+  user_id?: string;
+  email: string;
+  full_name: string;
+  role: StaffRole;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+  last_login_at?: string;
 }
 
 export interface VerificationResult {

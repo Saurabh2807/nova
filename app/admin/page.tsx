@@ -12,6 +12,7 @@ import {
   Ticket,
   History,
   FileSpreadsheet,
+  Users,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 import {
@@ -19,6 +20,7 @@ import {
   Team,
   AudienceRegistration,
   CheckInLog,
+  StaffAccount,
 } from "@/lib/types/registration";
 import {
   AdminDashboardTab,
@@ -30,10 +32,12 @@ import { AdminAudienceTab } from "@/components/admin/AdminAudienceTab";
 import { AdminLogsTab } from "@/components/admin/AdminLogsTab";
 import { AdminSettingsTab } from "@/components/admin/AdminSettingsTab";
 import { AdminExportTab } from "@/components/admin/AdminExportTab";
+import { AdminStaffTab } from "@/components/admin/AdminStaffTab";
 
 type AdminTab =
   | "dashboard"
   | "scanner"
+  | "staff"
   | "teams"
   | "audience"
   | "logs"
@@ -43,6 +47,7 @@ type AdminTab =
 export default function AdminPortalPage() {
   // Auth state
   const [sessionUser, setSessionUser] = useState<{
+    id: string;
     email: string;
     role: AdminRole;
     name: string;
@@ -66,6 +71,8 @@ export default function AdminPortalPage() {
   const [audienceLoading, setAudienceLoading] = useState(false);
   const [logsList, setLogsList] = useState<CheckInLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
+  const [staffList, setStaffList] = useState<StaffAccount[]>([]);
+  const [staffLoading, setStaffLoading] = useState(false);
 
   // Helper for authenticated API calls
   function getAuthHeaders(): Record<string, string> {
@@ -78,14 +85,24 @@ export default function AdminPortalPage() {
     return headers;
   }
 
+  function handleAccountDisabled() {
+    alert("Account Disabled: Your staff account has been stopped by the Super Admin.");
+    handleLogout();
+  }
+
   // Data Fetching
   async function fetchStats() {
+    if (sessionUser?.role === "volunteer") return;
     setStatsLoading(true);
     try {
       const res = await fetch("/api/admin/stats", {
         headers: getAuthHeaders(),
       });
       const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
       if (data.success) {
         setStats(data.stats);
       }
@@ -97,12 +114,17 @@ export default function AdminPortalPage() {
   }
 
   async function fetchTeams() {
+    if (sessionUser?.role !== "super_admin") return;
     setTeamsLoading(true);
     try {
       const res = await fetch("/api/admin/teams", {
         headers: getAuthHeaders(),
       });
       const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
       if (data.success) {
         setTeamsList(data.teams || []);
       }
@@ -114,12 +136,17 @@ export default function AdminPortalPage() {
   }
 
   async function fetchAudience() {
+    if (sessionUser?.role !== "super_admin") return;
     setAudienceLoading(true);
     try {
       const res = await fetch("/api/admin/audience", {
         headers: getAuthHeaders(),
       });
       const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
       if (data.success) {
         setAudienceList(data.audience || []);
       }
@@ -131,12 +158,17 @@ export default function AdminPortalPage() {
   }
 
   async function fetchLogs() {
+    if (sessionUser?.role !== "super_admin") return;
     setLogsLoading(true);
     try {
       const res = await fetch("/api/admin/logs", {
         headers: getAuthHeaders(),
       });
       const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
       if (data.success) {
         setLogsList(data.logs || []);
       }
@@ -147,12 +179,54 @@ export default function AdminPortalPage() {
     }
   }
 
+  async function fetchStaff() {
+    if (sessionUser?.role !== "super_admin") return;
+    setStaffLoading(true);
+    try {
+      const res = await fetch("/api/admin/staff", {
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
+      if (data.success) {
+        setStaffList(data.staff || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setStaffLoading(false);
+    }
+  }
+
+  // Direct Tab Navigation Security Guard
   useEffect(() => {
     if (sessionUser) {
-      fetchStats();
-      if (activeTab === "teams") fetchTeams();
-      if (activeTab === "audience") fetchAudience();
-      if (activeTab === "logs") fetchLogs();
+      if (sessionUser.role === "volunteer" && activeTab !== "scanner") {
+        setActiveTab("scanner");
+      } else if (
+        sessionUser.role === "core_member" &&
+        activeTab !== "dashboard" &&
+        activeTab !== "scanner"
+      ) {
+        setActiveTab("dashboard");
+      }
+    }
+  }, [sessionUser, activeTab]);
+
+  useEffect(() => {
+    if (sessionUser) {
+      if (sessionUser.role === "super_admin" || sessionUser.role === "core_member") {
+        fetchStats();
+      }
+      if (sessionUser.role === "super_admin") {
+        if (activeTab === "staff") fetchStaff();
+        if (activeTab === "teams") fetchTeams();
+        if (activeTab === "audience") fetchAudience();
+        if (activeTab === "logs") fetchLogs();
+      }
     }
   }, [sessionUser, activeTab]);
 
@@ -178,26 +252,52 @@ export default function AdminPortalPage() {
           return;
         }
 
-        // Fetch user profile role from admin_profiles
+        // Fetch user profile from admin_profiles
         const { data: profile, error: profErr } = await supabase
           .from("admin_profiles")
           .select("*")
-          .eq("id", data.user.id)
+          .or(`id.eq.${data.user.id},user_id.eq.${data.user.id}`)
           .single();
 
         if (profErr || !profile) {
-          setAuthError("Forbidden: Your account does not have admin/volunteer access.");
+          setAuthError("Forbidden: Your account does not have authorized staff access.");
           await supabase.auth.signOut();
           setAuthLoading(false);
           return;
         }
 
+        // Strict is_active check
+        if (profile.is_active === false) {
+          setAuthError("Account Disabled: Your staff account has been stopped by the Super Admin.");
+          await supabase.auth.signOut();
+          setAuthLoading(false);
+          return;
+        }
+
+        let assignedRole = (profile.role as AdminRole) || "volunteer";
+        // Safe mapping for legacy accounts
+        if ((profile.role as string) === "admin") {
+          if (email === "saurabhsinghkarmwarrajput@gmail.com") {
+            assignedRole = "super_admin";
+          } else {
+            assignedRole = "core_member";
+          }
+        }
+
         setSessionUser({
+          id: data.user.id,
           email: data.user.email || email,
-          role: (profile?.role as AdminRole) || "volunteer",
+          role: assignedRole,
           name: profile?.full_name || email.split("@")[0],
           token: data.session?.access_token,
         });
+
+        // Set role-appropriate default landing tab
+        if (assignedRole === "volunteer") {
+          setActiveTab("scanner");
+        } else {
+          setActiveTab("dashboard");
+        }
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "Authentication failed";
         setAuthError(message);
@@ -208,20 +308,37 @@ export default function AdminPortalPage() {
     }
 
     // 2. Dev / Offline Fallback Mode
-    if (email.includes("admin")) {
+    if (email.includes("saurabh") || email.includes("super")) {
       setSessionUser({
+        id: "super-admin-dev-1",
         email,
-        role: "admin",
-        name: "Lead Admin (Dev)",
-        token: "dev-admin-token",
+        role: "super_admin",
+        name: "Saurabh Kumar Singh (Super Admin)",
+        token: "dev-super_admin-token",
       });
+      setActiveTab("dashboard");
+    } else if (email.includes("core")) {
+      setSessionUser({
+        id: "core-dev-1",
+        email,
+        role: "core_member",
+        name: "Core Coordinator (Dev)",
+        token: "dev-core_member-token",
+      });
+      setActiveTab("dashboard");
+    } else if (email.includes("stopped")) {
+      setAuthError("Account Disabled: Your staff account has been stopped by the Super Admin.");
+      setAuthLoading(false);
+      return;
     } else {
       setSessionUser({
+        id: "volunteer-dev-1",
         email,
         role: "volunteer",
-        name: "Desk Volunteer (Dev)",
+        name: "Gate Volunteer (Dev)",
         token: "dev-volunteer-token",
       });
+      setActiveTab("scanner");
     }
     setAuthLoading(false);
   }
@@ -265,12 +382,17 @@ export default function AdminPortalPage() {
   }
 
   async function handleUndoCheckIn(type: "participant" | "audience", id: string) {
-    if (sessionUser?.role !== "admin") {
-      alert("Permission Denied: Only Admins can undo check-ins. Volunteers do not have this permission.");
+    if (sessionUser?.role === "volunteer") {
+      alert("Permission Denied: Volunteers do not have permission to undo check-ins.");
       return;
     }
 
-    if (!confirm(`Are you sure you want to revert check-in for ${id}? Status will be reset to Not Checked In.`)) {
+    const reason = prompt(
+      `Please enter a mandatory reason for reverting check-in for ${id}:`,
+      "Accidental check-in"
+    );
+    if (!reason || !reason.trim()) {
+      alert("Undo cancelled: A reason is required to revert check-in.");
       return;
     }
 
@@ -282,10 +404,15 @@ export default function AdminPortalPage() {
           action: "undo",
           type,
           id,
+          reason: reason.trim(),
         }),
       });
 
       const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
       if (data.success) {
         fetchStats();
         if (activeTab === "teams") fetchTeams();
@@ -298,10 +425,10 @@ export default function AdminPortalPage() {
     }
   }
 
-  // Toggle Registration Open/Closed (Admin only)
+  // Toggle Registration Open/Closed (Super Admin only)
   async function toggleRegistration(currentState: boolean) {
-    if (sessionUser?.role !== "admin") {
-      alert("Only Admins can change registration status.");
+    if (sessionUser?.role !== "super_admin") {
+      alert("Only Super Admin can change registration status.");
       return;
     }
 
@@ -312,6 +439,10 @@ export default function AdminPortalPage() {
         body: JSON.stringify({ registration_open: !currentState }),
       });
       const data = await res.json();
+      if (data.code === "ACCOUNT_DISABLED") {
+        handleAccountDisabled();
+        return;
+      }
       if (data.success) {
         fetchStats();
       } else {
@@ -334,7 +465,7 @@ export default function AdminPortalPage() {
               <Lock size={28} />
             </div>
             <h1 className="mt-4 font-display text-2xl font-black uppercase tracking-tight text-white">
-              Nova Forge Admin
+              Nova Forge Staff
             </h1>
             <p className="mt-1 text-xs text-white/50">
               LNCT Campus Carnival · Authorized Organizers Only
@@ -351,12 +482,12 @@ export default function AdminPortalPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-white/60 mb-1.5">
-                Organizer Email
+                Staff Email
               </label>
               <input
                 required
                 type="email"
-                placeholder="admin@novaforge.gg or volunteer@novaforge.gg"
+                placeholder="staff@novaforge.gg"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
                 className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/30 focus:border-[#2872A1] focus:outline-none"
@@ -382,19 +513,41 @@ export default function AdminPortalPage() {
               disabled={authLoading}
               className="w-full mt-2 rounded-xl bg-[#2872A1] py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-[#205d84] active:scale-[0.99] disabled:opacity-50"
             >
-              {authLoading ? "Authenticating with Supabase..." : "Sign In to Organizer Panel"}
+              {authLoading ? "Authenticating with Supabase..." : "Sign In to Staff Panel"}
             </button>
           </form>
 
           {!isSupabaseConfigured && (
             <div className="mt-6 rounded-xl bg-blue-950/40 border border-blue-800/30 p-3 text-center text-[11px] text-blue-200">
-              ⚡ <strong>Local Dev Fallback:</strong> Type any email with <code>admin</code> for Admin role, or any other email for Volunteer role.
+              ⚡ <strong>Local Dev Fallback:</strong> Type <code>super</code> or <code>saurabh</code> for Super Admin, <code>core</code> for Core Member, or any other email for Volunteer.
             </div>
           )}
         </div>
       </div>
     );
   }
+
+  // Determine permitted navigation tabs based on staff role
+  const navTabs = [
+    ...(sessionUser.role !== "volunteer"
+      ? [{ id: "dashboard" as AdminTab, label: "Dashboard", icon: Sliders }]
+      : []),
+    {
+      id: "scanner" as AdminTab,
+      label: sessionUser.role === "volunteer" ? "QR Check-in & Search" : "QR Check-in",
+      icon: QrCode,
+    },
+    ...(sessionUser.role === "super_admin"
+      ? [
+          { id: "staff" as AdminTab, label: "Staff Management", icon: Users },
+          { id: "teams" as AdminTab, label: "BGMI Teams", icon: Gamepad2 },
+          { id: "audience" as AdminTab, label: "Audience Passes", icon: Ticket },
+          { id: "logs" as AdminTab, label: "Audit Logs", icon: History },
+          { id: "settings" as AdminTab, label: "Event Settings", icon: Sliders },
+          { id: "export" as AdminTab, label: "CSV Export", icon: FileSpreadsheet },
+        ]
+      : []),
+  ];
 
   // ==============================================================================
   // RENDER: MAIN ADMIN PORTAL
@@ -410,15 +563,21 @@ export default function AdminPortalPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-display text-lg font-black tracking-wide text-white">NOVA FORGE ADMIN</h1>
+                <h1 className="font-display text-lg font-black tracking-wide text-white">NOVA FORGE OPS</h1>
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-[9.5px] font-extrabold uppercase tracking-wider ${
-                    sessionUser.role === "admin"
-                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
-                      : "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40"
+                    sessionUser.role === "super_admin"
+                      ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
+                      : sessionUser.role === "core_member"
+                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                      : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
                   }`}
                 >
-                  {sessionUser.role === "admin" ? "Admin (Full Access)" : "Volunteer (Check-in Only)"}
+                  {sessionUser.role === "super_admin"
+                    ? "Super Admin"
+                    : sessionUser.role === "core_member"
+                    ? "Core Member"
+                    : "Volunteer"}
                 </span>
               </div>
               <p className="text-[11px] text-white/50">LNCT Campus Carnival Operations</p>
@@ -445,25 +604,13 @@ export default function AdminPortalPage() {
       <div className="border-b border-[#d2e0ea] bg-white px-6 py-2 shadow-xs sticky top-0 z-30">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 overflow-x-auto">
           <div className="flex items-center gap-1.5">
-            {[
-              { id: "dashboard", label: "Dashboard", icon: Sliders },
-              { id: "scanner", label: "QR Check-in", icon: QrCode },
-              { id: "teams", label: "BGMI Teams", icon: Gamepad2 },
-              { id: "audience", label: "Audience Passes", icon: Ticket },
-              { id: "logs", label: "Audit Logs", icon: History },
-              ...(sessionUser.role === "admin"
-                ? [
-                    { id: "settings", label: "Event Settings", icon: Sliders },
-                    { id: "export", label: "CSV Export", icon: FileSpreadsheet },
-                  ]
-                : []),
-            ].map((tab) => {
+            {navTabs.map((tab) => {
               const Icon = tab.icon;
               const active = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as AdminTab)}
+                  onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition whitespace-nowrap ${
                     active
                       ? "bg-[#2872A1] text-white shadow-sm"
@@ -479,10 +626,13 @@ export default function AdminPortalPage() {
 
           <button
             onClick={() => {
-              fetchStats();
-              if (activeTab === "teams") fetchTeams();
-              if (activeTab === "audience") fetchAudience();
-              if (activeTab === "logs") fetchLogs();
+              if (sessionUser.role !== "volunteer") fetchStats();
+              if (sessionUser.role === "super_admin") {
+                if (activeTab === "staff") fetchStaff();
+                if (activeTab === "teams") fetchTeams();
+                if (activeTab === "audience") fetchAudience();
+                if (activeTab === "logs") fetchLogs();
+              }
             }}
             className="flex items-center gap-1 text-xs font-semibold text-[#2872A1] hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition"
           >
@@ -493,8 +643,8 @@ export default function AdminPortalPage() {
 
       {/* Main Content Area */}
       <main className="flex-1 mx-auto w-full max-w-7xl p-6">
-        {/* 1. DASHBOARD OVERVIEW */}
-        {activeTab === "dashboard" && (
+        {/* 1. DASHBOARD OVERVIEW (SUPER ADMIN & CORE MEMBER ONLY) */}
+        {activeTab === "dashboard" && sessionUser.role !== "volunteer" && (
           <AdminDashboardTab
             stats={stats}
             role={sessionUser.role}
@@ -502,19 +652,30 @@ export default function AdminPortalPage() {
           />
         )}
 
-        {/* 2. QR CODE SCANNER & CHECK-IN */}
+        {/* 2. QR CODE SCANNER & MANUAL SEARCH (ALL STAFF) */}
         {activeTab === "scanner" && (
           <AdminScannerTab
             role={sessionUser.role}
             getAuthHeaders={getAuthHeaders}
             onDataMutated={() => {
-              fetchStats();
+              if (sessionUser.role !== "volunteer") fetchStats();
             }}
           />
         )}
 
-        {/* 3. BGMI TEAMS ROSTER */}
-        {activeTab === "teams" && (
+        {/* 3. STAFF MANAGEMENT (SUPER ADMIN EXCLUSIVE) */}
+        {activeTab === "staff" && sessionUser.role === "super_admin" && (
+          <AdminStaffTab
+            staffList={staffList}
+            loading={staffLoading}
+            onRefresh={fetchStaff}
+            getAuthHeaders={getAuthHeaders}
+            currentUserId={sessionUser.id}
+          />
+        )}
+
+        {/* 4. BGMI TEAMS ROSTER (SUPER ADMIN EXCLUSIVE) */}
+        {activeTab === "teams" && sessionUser.role === "super_admin" && (
           <AdminTeamsTab
             teamsList={teamsList}
             role={sessionUser.role}
@@ -523,8 +684,8 @@ export default function AdminPortalPage() {
           />
         )}
 
-        {/* 4. AUDIENCE PASSES */}
-        {activeTab === "audience" && (
+        {/* 5. AUDIENCE PASSES (SUPER ADMIN EXCLUSIVE) */}
+        {activeTab === "audience" && sessionUser.role === "super_admin" && (
           <AdminAudienceTab
             audienceList={audienceList}
             role={sessionUser.role}
@@ -533,13 +694,13 @@ export default function AdminPortalPage() {
           />
         )}
 
-        {/* 5. AUDIT LOGS */}
-        {activeTab === "logs" && (
+        {/* 6. AUDIT LOGS (SUPER ADMIN EXCLUSIVE) */}
+        {activeTab === "logs" && sessionUser.role === "super_admin" && (
           <AdminLogsTab logsList={logsList} />
         )}
 
-        {/* 6. EVENT SETTINGS (ADMIN ONLY) */}
-        {activeTab === "settings" && sessionUser.role === "admin" && (
+        {/* 7. EVENT SETTINGS (SUPER ADMIN EXCLUSIVE) */}
+        {activeTab === "settings" && sessionUser.role === "super_admin" && (
           <AdminSettingsTab
             settings={stats?.settings}
             getAuthHeaders={getAuthHeaders}
@@ -547,8 +708,8 @@ export default function AdminPortalPage() {
           />
         )}
 
-        {/* 7. CSV EXPORT (ADMIN ONLY) */}
-        {activeTab === "export" && sessionUser.role === "admin" && (
+        {/* 8. CSV EXPORT (SUPER ADMIN EXCLUSIVE) */}
+        {activeTab === "export" && sessionUser.role === "super_admin" && (
           <AdminExportTab
             role={sessionUser.role}
             getAuthHeaders={getAuthHeaders}

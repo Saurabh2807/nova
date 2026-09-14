@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTeamsCsv, getAudienceCsv } from "@/lib/supabase/service";
-import { authenticateAdminRequest } from "@/lib/supabase/admin-auth";
+import { requireSuperAdmin } from "@/lib/supabase/admin-auth";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  // Export is strictly restricted to Admin role
-  const auth = await authenticateAdminRequest(req, "admin");
+  // Export is strictly restricted to Super Admin role
+  const auth = await requireSuperAdmin(req);
   if (!auth.success) {
-    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    return NextResponse.json(
+      { success: false, error: auth.error, code: auth.code },
+      { status: auth.status }
+    );
   }
 
   try {

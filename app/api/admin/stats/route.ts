@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getDashboardStats, updateEventSettings } from "@/lib/supabase/service";
-import { authenticateAdminRequest } from "@/lib/supabase/admin-auth";
+import { getDashboardStats, updateEventSettings, logAdminAudit } from "@/lib/supabase/service";
+import { requireCoreMember, requireSuperAdmin } from "@/lib/supabase/admin-auth";
 
+export const dynamic = "force-dynamic";
+
+/**
+ * GET /api/admin/stats
+ * Operational Dashboard Overview. Allowed for SUPER ADMIN & CORE MEMBER.
+ * Volunteers do NOT have access to dashboard attendee data (403).
+ */
 export async function GET(req: NextRequest) {
-  const auth = await authenticateAdminRequest(req, "volunteer");
+  const auth = await requireCoreMember(req);
   if (!auth.success) {
-    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    return NextResponse.json(
+      { success: false, error: auth.error, code: auth.code },
+      { status: auth.status }
+    );
   }
 
   try {
@@ -17,11 +27,18 @@ export async function GET(req: NextRequest) {
   }
 }
 
+/**
+ * POST /api/admin/stats
+ * Modify event settings, toggle registrations & adjust capacities.
+ * STRICTLY SUPER ADMIN ONLY. Core members and volunteers receive 403.
+ */
 export async function POST(req: NextRequest) {
-  // Only ADMIN can modify event settings & capacities
-  const auth = await authenticateAdminRequest(req, "admin");
+  const auth = await requireSuperAdmin(req);
   if (!auth.success) {
-    return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
+    return NextResponse.json(
+      { success: false, error: auth.error, code: auth.code },
+      { status: auth.status }
+    );
   }
 
   try {
@@ -37,6 +54,16 @@ export async function POST(req: NextRequest) {
       venue,
       reporting_time,
     });
+
+    if (ok) {
+      await logAdminAudit({
+        action: "staff_started", // reuse or general admin action
+        reference_id: "event_settings",
+        scanned_by: auth.user.fullName || auth.user.email,
+        actor_role: auth.user.role,
+        reason: `Updated settings: registration_open=${registration_open}, limits=[${participant_limit}, ${audience_limit}]`,
+      });
+    }
 
     return NextResponse.json({ success: ok });
   } catch (err: unknown) {
