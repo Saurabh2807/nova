@@ -368,7 +368,7 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
                   </p>
                 </div>
 
-                {(role === "super_admin" || role === "core_member") && (
+                {(role === "super_admin" || role === "admin" || role === "core_member") && (
                   <button
                     onClick={() => handleUndoCheckIn(scanResult.type || "participant", scanResult.data?.id || "")}
                     disabled={checkInLoading}
@@ -599,7 +599,7 @@ function ManualSearchBox({
                     >
                       Check In
                     </button>
-                  ) : item.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
+                  ) : item.check_in_status === "checked_in" && (role === "super_admin" || role === "admin" || role === "core_member") ? (
                     <button
                       onClick={() => onUndoCheckIn(item.type, item.id)}
                       className="rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 text-xs transition"
