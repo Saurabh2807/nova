@@ -8,9 +8,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Nova Forge Esports — We Forge Legends",
+  title: "Campus Unleashed — Nova Forge Esports",
   description:
-    "India's premium campus esports tournament & creator ecosystem. Nova Forge organizes gaming events, creator programs and campus festivals — starting in Bhopal.",
+    "Campus Unleashed — India's biggest campus esports event. Nova Forge organizes LAN gaming tournaments, creator programs and campus festivals — starting in Bhopal.",
 };
 
 export default function RootLayout({

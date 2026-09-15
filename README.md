@@ -79,7 +79,7 @@ novaforge/
 │   ├── admin/                 # Admin dashboard panels (Scanner, Tables, Logs, Settings)
 │   ├── registration/          # Registration shells, ticket cards, forms
 │   ├── Hero.tsx               # Hero banner with countdown & CTA
-│   ├── About.tsx              # About Nova Forge & LNCT Carnival
+│   ├── About.tsx              # About Nova Forge & Campus Unleashed
 │   ├── Events.tsx             # Tournament cards & schedule
 │   ├── Sponsors.tsx           # Partner showcase
 │   ├── Creators.tsx           # Featured creators & streamers

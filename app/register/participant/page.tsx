@@ -190,7 +190,7 @@ export default function ParticipantRegisterPage() {
       <RegisterShell
         eyebrow="Participant Pass"
         title="BGMI Duo Squad Registration"
-        description={`Register your 2-player BGMI squad for the ${eventSettings?.event_name || "Nova Forge"} LAN Esports Championship at ${eventSettings?.venue || "LNCT Bhopal"}.`}
+        description={`Register your 2-player BGMI squad for the ${eventSettings?.event_name || "Campus Unleashed"} LAN Esports Championship at ${eventSettings?.venue || "LNCT Bhopal"}.`}
       >
         {/* Already Registered Link */}
         <div className="mb-4 flex items-center justify-between rounded-xl bg-blue-50/60 border border-blue-100/80 px-4 py-2.5 text-xs text-slate-700">
