@@ -3,8 +3,6 @@ import { AudienceRegistration } from "@/lib/types/registration";
 import { devStore } from "@/lib/dev/dev-store";
 import { getEventSettings } from "@/lib/services/event-settings.service";
 import { generateAudiencePassId, generateQrToken, generateQrDataUrl } from "@/lib/utils/id-generator";
-import { getAudienceEmailHtml } from "@/lib/email/templates";
-import { sendEmail } from "@/lib/email/sender";
 
 // ==============================================================================
 // 3. AUDIENCE REGISTRATION (Atomic)
@@ -81,24 +79,7 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
 
     devStore.audience.unshift(newAud);
 
-    // Synchronous QR generation for devStore
-    generateQrDataUrl(qrToken).then((qrDataUrl) => {
-      sendEmail({
-        to: input.email.trim(),
-        subject: "Your Entry Ticket — Campus Unleashed Pass",
-        html: getAudienceEmailHtml({
-          fullName: input.fullName.trim(),
-          passId,
-          phone: input.phone.trim(),
-          collegeId: input.collegeId.trim(),
-          qrDataUrl,
-          eventDate: settings.event_date,
-          venue: settings.venue,
-          reportingTime: settings.reporting_time,
-        }),
-      });
-    });
-
+    // Audience registration emails are disabled to preserve Google SMTP quota for tournament participants
     return { success: true, audience: newAud };
   };
 
@@ -200,47 +181,8 @@ export async function registerAudience(input: RegisterAudienceInput): Promise<{
       return { success: false, error: "Failed to generate a unique pass ID. Please try again." };
     }
 
-    // 3. Email Delivery (Decoupled from Registration Success)
-    // Registration is officially confirmed in database regardless of Google SMTP quota
-    let emailStatus = "pending";
-    let emailError: string | null = null;
-
-    try {
-      const emailRes = await sendEmail({
-        to: input.email.trim(),
-        subject: "Your Entry Ticket — Campus Unleashed Pass",
-        html: getAudienceEmailHtml({
-          fullName: input.fullName.trim(),
-          passId: finalPassId,
-          phone: input.phone.trim(),
-          collegeId: input.collegeId.trim(),
-          qrDataUrl: finalQrDataUrl,
-          eventDate: settings.event_date,
-          venue: settings.venue,
-          reportingTime: settings.reporting_time,
-        }),
-      });
-
-      if (!emailRes.success) {
-        emailStatus = "failed";
-        emailError = emailRes.error || "Google SMTP delivery failed";
-        console.warn(`[Audience Registration] Email delivery failed (${emailError}), but registration is confirmed in DB.`);
-      } else {
-        emailStatus = "sent";
-      }
-
-      await supabase
-        .from("audience_registrations")
-        .update({
-          email_notification_status: emailStatus,
-          email_error: emailError,
-          email_sent_at: new Date().toISOString(),
-        })
-        .eq("pass_id", finalPassId);
-    } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : String(e);
-      console.warn("[Audience Registration] Google SMTP unexpected exception:", message);
-    }
+    // 3. Email Delivery: Skipped for audience registrations to preserve Google SMTP quota exclusively for tournament participants.
+    // Audience members download or take a screenshot of their pass QR code directly on the confirmation screen.
 
     return { success: true, audience: createdAudience as AudienceRegistration, qrDataUrl: finalQrDataUrl };
   } catch (err: unknown) {
