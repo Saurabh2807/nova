@@ -93,10 +93,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Role must be core_member or volunteer (Super Admin accounts cannot be created via this route)
-    if (role !== "core_member" && role !== "volunteer") {
+    // Role must be admin, core_member or volunteer (Super Admin accounts cannot be created via this route)
+    if (role !== "admin" && role !== "core_member" && role !== "volunteer") {
       return NextResponse.json(
-        { success: false, error: "Role must be either 'core_member' or 'volunteer'." },
+        { success: false, error: "Role must be 'admin', 'core_member', or 'volunteer'." },
         { status: 400 }
       );
     }

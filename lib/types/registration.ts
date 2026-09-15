@@ -1,6 +1,6 @@
 export type RegistrationStatus = "pending" | "confirmed" | "cancelled";
 export type CheckInStatus = "not_checked_in" | "checked_in";
-export type StaffRole = "super_admin" | "core_member" | "volunteer";
+export type StaffRole = "super_admin" | "admin" | "core_member" | "volunteer";
 export type AdminRole = StaffRole;
 
 export interface EventSettings {

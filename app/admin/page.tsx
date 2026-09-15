@@ -209,7 +209,13 @@ export default function AdminPortalPage() {
       } else if (
         sessionUser.role === "core_member" &&
         activeTab !== "dashboard" &&
-        activeTab !== "scanner"
+        activeTab !== "scanner" &&
+        activeTab !== "teams"
+      ) {
+        setActiveTab("dashboard");
+      } else if (
+        sessionUser.role === "admin" &&
+        (activeTab === "staff" || activeTab === "logs" || activeTab === "settings")
       ) {
         setActiveTab("dashboard");
       }
@@ -218,14 +224,18 @@ export default function AdminPortalPage() {
 
   useEffect(() => {
     if (sessionUser) {
-      if (sessionUser.role === "super_admin" || sessionUser.role === "core_member") {
+      if (sessionUser.role !== "volunteer") {
         fetchStats();
       }
       if (sessionUser.role === "super_admin") {
         if (activeTab === "staff") fetchStaff();
-        if (activeTab === "teams") fetchTeams();
-        if (activeTab === "audience") fetchAudience();
         if (activeTab === "logs") fetchLogs();
+      }
+      if (sessionUser.role === "super_admin" || sessionUser.role === "admin") {
+        if (activeTab === "audience") fetchAudience();
+      }
+      if (sessionUser.role === "super_admin" || sessionUser.role === "admin" || sessionUser.role === "core_member") {
+        if (activeTab === "teams") fetchTeams();
       }
     }
   }, [sessionUser, activeTab]);
@@ -633,14 +643,20 @@ export default function AdminPortalPage() {
       label: sessionUser.role === "volunteer" ? "QR Check-in & Search" : "QR Check-in",
       icon: QrCode,
     },
+    ...(sessionUser.role === "super_admin" || sessionUser.role === "admin" || sessionUser.role === "core_member"
+      ? [{ id: "teams" as AdminTab, label: "BGMI Teams", icon: Gamepad2 }]
+      : []),
+    ...(sessionUser.role === "super_admin" || sessionUser.role === "admin"
+      ? [
+          { id: "audience" as AdminTab, label: "Audience Passes", icon: Ticket },
+          { id: "export" as AdminTab, label: "CSV Export", icon: FileSpreadsheet },
+        ]
+      : []),
     ...(sessionUser.role === "super_admin"
       ? [
           { id: "staff" as AdminTab, label: "Staff Management", icon: Users },
-          { id: "teams" as AdminTab, label: "BGMI Teams", icon: Gamepad2 },
-          { id: "audience" as AdminTab, label: "Audience Passes", icon: Ticket },
           { id: "logs" as AdminTab, label: "Audit Logs", icon: History },
           { id: "settings" as AdminTab, label: "Event Settings", icon: Sliders },
-          { id: "export" as AdminTab, label: "CSV Export", icon: FileSpreadsheet },
         ]
       : []),
   ];
@@ -664,6 +680,8 @@ export default function AdminPortalPage() {
                   className={`rounded-full px-2.5 py-0.5 text-[9.5px] font-extrabold uppercase tracking-wider ${
                     sessionUser.role === "super_admin"
                       ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
+                      : sessionUser.role === "admin"
+                      ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40"
                       : sessionUser.role === "core_member"
                       ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
                       : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
@@ -671,6 +689,8 @@ export default function AdminPortalPage() {
                 >
                   {sessionUser.role === "super_admin"
                     ? "Super Admin"
+                    : sessionUser.role === "admin"
+                    ? "Admin"
                     : sessionUser.role === "core_member"
                     ? "Core Member"
                     : "Volunteer"}
@@ -725,9 +745,13 @@ export default function AdminPortalPage() {
               if (sessionUser.role !== "volunteer") fetchStats();
               if (sessionUser.role === "super_admin") {
                 if (activeTab === "staff") fetchStaff();
-                if (activeTab === "teams") fetchTeams();
-                if (activeTab === "audience") fetchAudience();
                 if (activeTab === "logs") fetchLogs();
+              }
+              if (sessionUser.role === "super_admin" || sessionUser.role === "admin") {
+                if (activeTab === "audience") fetchAudience();
+              }
+              if (sessionUser.role === "super_admin" || sessionUser.role === "admin" || sessionUser.role === "core_member") {
+                if (activeTab === "teams") fetchTeams();
               }
             }}
             className="flex items-center gap-1 text-xs font-semibold text-[#2872A1] hover:bg-blue-50 px-2.5 py-1.5 rounded-lg transition"
@@ -739,7 +763,7 @@ export default function AdminPortalPage() {
 
       {/* Main Content Area */}
       <main className="flex-1 mx-auto w-full max-w-7xl p-6">
-        {/* 1. DASHBOARD OVERVIEW (SUPER ADMIN & CORE MEMBER ONLY) */}
+        {/* 1. DASHBOARD OVERVIEW (SUPER ADMIN, ADMIN & CORE MEMBER) */}
         {activeTab === "dashboard" && sessionUser.role !== "volunteer" && (
           <AdminDashboardTab
             stats={stats}
@@ -770,8 +794,8 @@ export default function AdminPortalPage() {
           />
         )}
 
-        {/* 4. BGMI TEAMS ROSTER (SUPER ADMIN EXCLUSIVE) */}
-        {activeTab === "teams" && sessionUser.role === "super_admin" && (
+        {/* 4. BGMI TEAMS ROSTER (SUPER ADMIN, ADMIN & CORE MEMBER) */}
+        {activeTab === "teams" && (sessionUser.role === "super_admin" || sessionUser.role === "admin" || sessionUser.role === "core_member") && (
           <AdminTeamsTab
             teamsList={teamsList}
             role={sessionUser.role}
@@ -782,8 +806,8 @@ export default function AdminPortalPage() {
           />
         )}
 
-        {/* 5. AUDIENCE PASSES (SUPER ADMIN EXCLUSIVE) */}
-        {activeTab === "audience" && sessionUser.role === "super_admin" && (
+        {/* 5. AUDIENCE PASSES (SUPER ADMIN & ADMIN) */}
+        {activeTab === "audience" && (sessionUser.role === "super_admin" || sessionUser.role === "admin") && (
           <AdminAudienceTab
             audienceList={audienceList}
             role={sessionUser.role}
@@ -807,8 +831,8 @@ export default function AdminPortalPage() {
           />
         )}
 
-        {/* 8. CSV EXPORT (SUPER ADMIN EXCLUSIVE) */}
-        {activeTab === "export" && sessionUser.role === "super_admin" && (
+        {/* 8. CSV EXPORT (SUPER ADMIN & ADMIN) */}
+        {activeTab === "export" && (sessionUser.role === "super_admin" || sessionUser.role === "admin") && (
           <AdminExportTab
             role={sessionUser.role}
             getAuthHeaders={getAuthHeaders}

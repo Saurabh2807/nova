@@ -17,7 +17,8 @@ export type AuthResult =
   | { success: false; error: string; code?: string; status: number };
 
 const ROLE_HIERARCHY: Record<StaffRole, number> = {
-  super_admin: 3,
+  super_admin: 4,
+  admin: 3,
   core_member: 2,
   volunteer: 1,
 };
@@ -56,13 +57,15 @@ export async function authenticateAdminRequest(
       devProfile = devStore.adminProfiles.find((p) => p.id === "stopped-dev-1");
     } else if (token.includes("super")) {
       devProfile = devStore.adminProfiles.find((p) => p.role === "super_admin");
+    } else if (token.includes("admin") && !token.includes("super")) {
+      devProfile = devStore.adminProfiles.find((p) => p.role === "admin");
     } else if (token.includes("core")) {
       devProfile = devStore.adminProfiles.find((p) => p.role === "core_member");
     } else if (token.includes("volunteer")) {
       devProfile = devStore.adminProfiles.find((p) => p.role === "volunteer" && p.is_active);
     } else if (token.includes("@")) {
       devProfile = devStore.adminProfiles.find((p) => token.includes(p.email));
-    } else if (token === "dev-admin-token" || token.includes("admin")) {
+    } else if (token === "dev-admin-token") {
       devProfile = devStore.adminProfiles.find((p) => p.role === "super_admin");
     } else {
       devProfile = devStore.adminProfiles.find((p) => p.role === "volunteer" && p.is_active);
@@ -233,17 +236,22 @@ export async function requireSuperAdmin(req: NextRequest): Promise<AuthResult> {
   return authenticateAdminRequest(req, "super_admin");
 }
 
-/** Convenience helper: Requires core_member or super_admin role */
+/** Convenience helper: Requires admin or super_admin role */
+export async function requireAdmin(req: NextRequest): Promise<AuthResult> {
+  return authenticateAdminRequest(req, "admin");
+}
+
+/** Convenience helper: Requires core_member, admin, or super_admin role */
 export async function requireCoreMember(req: NextRequest): Promise<AuthResult> {
   return authenticateAdminRequest(req, "core_member");
 }
 
-/** Convenience helper: Allows any active staff (super_admin, core_member, volunteer) */
+/** Convenience helper: Allows any active staff (super_admin, admin, core_member, volunteer) */
 export async function requireOperationalStaff(req: NextRequest): Promise<AuthResult> {
   return authenticateAdminRequest(req, "volunteer");
 }
 
-/** Convenience helper: Undo check-in permission (super_admin or core_member) */
+/** Convenience helper: Undo check-in permission (super_admin, admin, or core_member) */
 export async function requireUndoPermission(req: NextRequest): Promise<AuthResult> {
   return authenticateAdminRequest(req, "core_member");
 }

@@ -45,7 +45,7 @@ export function AdminStaffTab({
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"core_member" | "volunteer">("volunteer");
+  const [role, setRole] = useState<"admin" | "core_member" | "volunteer">("volunteer");
 
   // Toggle Confirm State
   const [confirmStaff, setConfirmStaff] = useState<StaffAccount | null>(null);
@@ -53,6 +53,7 @@ export function AdminStaffTab({
 
   // Group staff members
   const superAdmins = staffList.filter((s) => s.role === "super_admin");
+  const admins = staffList.filter((s) => s.role === "admin");
   const coreMembers = staffList.filter((s) => s.role === "core_member");
   const volunteers = staffList.filter((s) => s.role === "volunteer");
 
@@ -197,7 +198,81 @@ export function AdminStaffTab({
         </div>
       </div>
 
-      {/* 2. CORE MEMBERS SECTION */}
+      {/* 2. ADMINS SECTION */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 px-1">
+          <Shield className="text-indigo-600" size={17} />
+          <h3 className="font-display text-sm font-black uppercase tracking-wider text-slate-800">
+            Admins ({admins.length})
+          </h3>
+        </div>
+
+        {admins.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-xs text-slate-400">
+            No Admins added yet. Click &quot;Add Staff Member&quot; above to create an Admin account.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3">
+            {admins.map((admin) => (
+              <div
+                key={admin.id || admin.email}
+                className="rounded-2xl border border-indigo-200 bg-white p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700 font-black text-sm">
+                    AD
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-display text-sm font-bold text-slate-900">{admin.full_name}</h4>
+                      <span className="rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold uppercase text-indigo-700">
+                        Admin
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-mono mt-0.5">{admin.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 self-end sm:self-center">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase ${
+                      admin.is_active
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                        : "bg-rose-100 text-rose-800 border border-rose-300"
+                    }`}
+                  >
+                    <span className={`h-1.5 w-1.5 rounded-full ${admin.is_active ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
+                    {admin.is_active ? "ACTIVE" : "STOPPED"}
+                  </span>
+
+                  <button
+                    onClick={() => setConfirmStaff(admin)}
+                    className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-xs ${
+                      admin.is_active
+                        ? "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100"
+                        : "bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100"
+                    }`}
+                  >
+                    {admin.is_active ? (
+                      <>
+                        <Square size={13} />
+                        <span>Stop Account</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play size={13} />
+                        <span>Activate</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* 3. CORE MEMBERS SECTION */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 px-1">
           <Shield className="text-[#2872A1]" size={17} />
@@ -424,7 +499,7 @@ export function AdminStaffTab({
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
                   Assigned Staff Role
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setRole("volunteer")}
@@ -435,7 +510,7 @@ export function AdminStaffTab({
                     }`}
                   >
                     <div className="font-display text-xs font-black text-slate-900">Volunteer</div>
-                    <p className="text-[10.5px] text-slate-500 mt-0.5">Gate Scanner & Phone Check-in only</p>
+                    <p className="text-[10.5px] text-slate-500 mt-0.5">Scanner & Phone Check-in only</p>
                   </button>
 
                   <button
@@ -448,7 +523,20 @@ export function AdminStaffTab({
                     }`}
                   >
                     <div className="font-display text-xs font-black text-slate-900">Core Member</div>
-                    <p className="text-[10.5px] text-slate-500 mt-0.5">Dashboard, Scanner, & Undo Check-in</p>
+                    <p className="text-[10.5px] text-slate-500 mt-0.5">Dashboard, Scanner, Undo & Teams</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRole("admin")}
+                    className={`rounded-xl border p-3 text-left transition ${
+                      role === "admin"
+                        ? "border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-500/20"
+                        : "border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <div className="font-display text-xs font-black text-slate-900">Admin</div>
+                    <p className="text-[10.5px] text-slate-500 mt-0.5">All except Staff, Logs & Settings</p>
                   </button>
                 </div>
               </div>
