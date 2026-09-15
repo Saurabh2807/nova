@@ -163,7 +163,7 @@ export default function AudienceRegisterPage() {
       <RegisterShell
         eyebrow="Step into the crowd"
         title="Register as Audience"
-        description={`Claim your free entry ticket to the ${eventSettings?.event_name || "Campus Unleashed"} at ${eventSettings?.venue || "LNCT Bhopal"}.`}
+        description={`Claim your free entry ticket to the ${eventSettings?.event_name || "Campus Unleashed"} at Aryabhatt auditorium.`}
       >
         {/* Already Registered Link */}
         <div className="mb-4 flex items-center justify-between rounded-xl bg-blue-50/60 border border-blue-100/80 px-4 py-2.5 text-xs text-slate-700">
@@ -186,11 +186,11 @@ export default function AudienceRegisterPage() {
           </div>
           <div className="flex items-center gap-2">
             <MapPin size={14} className="text-nf-blue shrink-0" />
-            <span>{eventSettings?.venue || "LNCT Bhopal"}</span>
+            <span>Aryabhatt auditorium</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock size={14} className="text-nf-blue shrink-0" />
-            <span>Entry: {eventSettings?.reporting_time || "09:00 AM"}</span>
+            <span>Entry: 1:15 PM</span>
           </div>
         </div>
 

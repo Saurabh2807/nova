@@ -6,9 +6,9 @@ import { MessageCircle, Instagram, Users, Globe, Gamepad2 } from "lucide-react";
 const statsData = [
   { label: "Discord Members", value: "1.2K+", icon: MessageCircle },
   { label: "Instagram Followers", value: "500+", icon: Instagram },
-  { label: "Teams Onboard", value: "40+", icon: Users },
-  { label: "Community Reach", value: "5K+", icon: Globe },
-  { label: "Supported Games", value: "3", icon: Gamepad2 },
+  { label: "Teams Onboard", value: "100+", icon: Users },
+  { label: "Community Reach", value: "500K", icon: Globe },
+  { label: "Supported Games", value: "1", icon: Gamepad2 },
 ];
 
 function parseValue(val: string) {

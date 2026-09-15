@@ -21,7 +21,7 @@ export function AdminSettingsTab({
     audience_limit: settings?.audience_limit ?? 1000,
     venue: settings?.venue ?? "LNCT Bhopal",
     event_date: settings?.event_date ?? "18–19 September 2026",
-    reporting_time: settings?.reporting_time ?? "09:00 AM IST",
+    reporting_time: settings?.reporting_time ?? "01:15 PM IST",
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function AdminSettingsTab({
         audience_limit: settings.audience_limit ?? 1000,
         venue: settings.venue ?? "LNCT Bhopal",
         event_date: settings.event_date ?? "18–19 September 2026",
-        reporting_time: settings.reporting_time ?? "09:00 AM IST",
+        reporting_time: settings.reporting_time ?? "01:15 PM IST",
       });
     }
   }, [settings]);
@@ -163,7 +163,7 @@ export function AdminSettingsTab({
               </label>
               <input
                 type="text"
-                value={formData.reporting_time ?? "09:00 AM IST"}
+                value={formData.reporting_time ?? "01:15 PM IST"}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,

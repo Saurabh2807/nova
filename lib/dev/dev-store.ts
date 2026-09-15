@@ -33,7 +33,7 @@ export const devStore: DevStore = {
     event_name: "Campus Unleashed",
     event_date: "18–19 September 2026",
     venue: "LNCT Bhopal",
-    reporting_time: "09:00 AM IST",
+    reporting_time: "01:15 PM IST",
   },
   teams: [],
   participants: [],

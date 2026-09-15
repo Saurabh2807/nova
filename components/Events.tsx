@@ -534,9 +534,9 @@ export function Events({ settings }: EventsProps = {}) {
           </div>
         </div>
 
-        {/* ── FEATURED GAMES SECTION ── */}
+        {/* ── FEATURED GAMES SECTION (Hidden as per requirement) ── */}
+        {/* 
         <div className="mt-16 sm:mt-20">
-          {/* Section Header */}
           <div className="mb-6 flex items-center justify-between">
             <span className="text-[11px] font-black uppercase tracking-[0.22em] text-nf-blue">
               Featured Games
@@ -546,10 +546,7 @@ export function Events({ settings }: EventsProps = {}) {
             </a>
           </div>
 
-          {/* 3 Featured Game Cards Grid (Cleaned of white frames with smooth hover pop-up) */}
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-
-            {/* 1. BGMI CARD */}
             <div className="group relative rounded-2xl overflow-hidden shadow-sm transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_16px_36px_rgba(245,158,11,0.2)]">
               <div className="relative w-full rounded-2xl overflow-hidden border border-amber-500/20 bg-slate-950">
                 <Image
@@ -563,7 +560,6 @@ export function Events({ settings }: EventsProps = {}) {
               </div>
             </div>
 
-            {/* 2. VALORANT CARD */}
             <div className="group relative rounded-2xl overflow-hidden shadow-sm transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_16px_36px_rgba(244,63,94,0.22)]">
               <div className="relative w-full rounded-2xl overflow-hidden border border-rose-500/25 bg-slate-950">
                 <Image
@@ -577,7 +573,6 @@ export function Events({ settings }: EventsProps = {}) {
               </div>
             </div>
 
-            {/* 3. FREE FIRE CARD */}
             <div className="group relative rounded-2xl overflow-hidden shadow-sm transition-all duration-400 hover:-translate-y-2 hover:shadow-[0_16px_36px_rgba(249,115,22,0.22)]">
               <div className="relative w-full rounded-2xl overflow-hidden border border-orange-500/25 bg-slate-950">
                 <Image
@@ -590,9 +585,9 @@ export function Events({ settings }: EventsProps = {}) {
                 />
               </div>
             </div>
-
           </div>
         </div>
+        */}
       </div>
     </section>
   );

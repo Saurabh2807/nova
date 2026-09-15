@@ -140,11 +140,11 @@ export function TeamCard({
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-dashed border-white/15 pt-3 text-[11px] text-white/70">
           <div className="flex items-center gap-1.5">
             <Calendar size={13} className="text-cyan-400" />
-            <span>18–19 Sep 2026 · 09:00 AM</span>
+            <span>18–19 Sep 2026 · 1:15 PM</span>
           </div>
           <div className="flex items-center gap-1.5">
             <MapPin size={13} className="text-cyan-400" />
-            <span>LNCT Bhopal</span>
+            <span>Ramanujam Auditorium</span>
           </div>
         </div>
       </div>

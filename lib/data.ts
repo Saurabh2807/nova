@@ -226,9 +226,9 @@ export const stats = [
   { label: "Discord Members", value: "1.2K+" },
   { label: "Instagram Followers", value: "500+" },
   { label: "Events Planned", value: "3+" },
-  { label: "Teams Onboard", value: "40+" },
-  { label: "Community Reach", value: "5K+" },
-  { label: "Supported Games", value: "3" },
+  { label: "Teams Onboard", value: "100+" },
+  { label: "Community Reach", value: "500K" },
+  { label: "Supported Games", value: "1" },
 ];
 
 export const creatorProgram = {

@@ -117,8 +117,8 @@ export function TicketCard({
 
         {/* Venue & Date */}
         <div className="mt-5 border-t border-dashed border-white/15 pt-3 text-center text-xs text-white/70">
-          <p className="font-semibold text-white">LNCT Bhopal · Campus Arena</p>
-          <p className="text-[11px] text-white/50">18–19 Sep 2026 · Gates Open 09:00 AM</p>
+          <p className="font-semibold text-white">Aryabhatt auditorium · LNCT Campus</p>
+          <p className="text-[11px] text-white/50">18–19 Sep 2026 · Gates Open 1:15 PM</p>
         </div>
       </div>
 

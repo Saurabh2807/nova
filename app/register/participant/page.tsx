@@ -267,10 +267,10 @@ export default function ParticipantRegisterPage() {
                 <span>{eventSettings?.event_date || "19 Sep 2026"} (Day 2)</span>
                 <span className="text-slate-300">•</span>
                 <MapPin size={15} className="text-nf-blue shrink-0" />
-                <span>{eventSettings?.venue || "LNCT Bhopal"}</span>
+                <span>Ramanujam Auditorium</span>
                 <span className="text-slate-300">•</span>
                 <Clock size={15} className="text-nf-blue shrink-0" />
-                <span>Report by {eventSettings?.reporting_time || "09:00 AM"}</span>
+                <span>Report by 1:15 PM</span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -491,7 +491,7 @@ export default function ParticipantRegisterPage() {
             </button>
 
             <p className="text-center text-[11.5px] text-nf-ink-soft">
-              By registering, both players agree to arrive at LNCT Bhopal by <strong>{eventSettings?.reporting_time || "09:00 AM"}</strong> with their physical College ID card.
+              By registering, both players agree to arrive at Ramanujam Auditorium by <strong>1:15 PM</strong> with their physical College ID card.
             </p>
           </form>
         )}

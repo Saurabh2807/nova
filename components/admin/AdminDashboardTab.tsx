@@ -70,7 +70,7 @@ export function AdminDashboardTab({ stats, role, onToggleRegistration }: AdminDa
                 <MapPin size={13} className="text-[#2872A1]" /> {stats?.settings?.venue || "LNCT Bhopal"}
               </span>
               <span className="flex items-center gap-1">
-                <Clock size={13} className="text-[#2872A1]" /> Gate: {stats?.settings?.reporting_time || "09:00 AM"}
+                <Clock size={13} className="text-[#2872A1]" /> Gate: {stats?.settings?.reporting_time || "01:15 PM"}
               </span>
             </div>
           </div>
