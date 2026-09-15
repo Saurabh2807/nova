@@ -40,10 +40,10 @@ const socialLinks = [
 const brandLogos = [
   {
     name: "Monster Energy",
-    src: "/logos/monster.png",
+    src: "/logos/monster.svg",
     width: 240,
-    height: 108,
-    imgClass: "h-9 sm:h-11 md:h-12 w-auto object-contain",
+    height: 70,
+    imgClass: "h-8 sm:h-9.5 md:h-10 w-auto object-contain",
   },
   {
     name: "Nodwin Gaming",
