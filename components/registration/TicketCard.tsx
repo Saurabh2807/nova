@@ -113,20 +113,11 @@ export function TicketCard({
       </div>
 
       {/* Screenshot & Download Notice */}
-      <div className="mt-4 rounded-2xl border-2 border-amber-400 bg-amber-50/90 p-4 text-left shadow-sm">
-        <div className="flex items-start gap-3">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-200 text-lg">
-            📸
-          </span>
-          <div className="space-y-1 text-xs leading-relaxed text-amber-950">
-            <p className="font-bold text-[13px] text-amber-950">
-              Please take a screenshot or download your pass now!
-            </p>
-            <p className="text-amber-900/90 text-[11.5px]">
-              No email will be sent for Audience passes. Save this QR code or take a screenshot to show at the entrance gate for entry.
-            </p>
-          </div>
-        </div>
+      <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50/90 px-4 py-3 text-center shadow-sm">
+        <p className="flex items-center justify-center gap-2 text-xs font-bold text-amber-950 sm:text-[13px]">
+          <span>📸</span>
+          <span>Please take a screenshot or download your pass now!</span>
+        </p>
       </div>
     </div>
   );
