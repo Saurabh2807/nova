@@ -1,6 +1,7 @@
 "use client";
 
-import { FileSpreadsheet } from "lucide-react";
+import { useState } from "react";
+import { FileSpreadsheet, Loader2 } from "lucide-react";
 import { AdminRole } from "@/lib/types/registration";
 
 interface AdminExportTabProps {
@@ -10,6 +11,8 @@ interface AdminExportTabProps {
 }
 
 export function AdminExportTab({ role, getAuthHeaders, onExportCsv }: AdminExportTabProps) {
+  const [downloadingType, setDownloadingType] = useState<string | null>(null);
+
   async function handleExport(type: "teams" | "audience") {
     if (onExportCsv) {
       onExportCsv(type);
@@ -21,6 +24,7 @@ export function AdminExportTab({ role, getAuthHeaders, onExportCsv }: AdminExpor
       return;
     }
 
+    setDownloadingType(type);
     try {
       const res = await fetch(`/api/admin/export?type=${type}`, {
         headers: getAuthHeaders(),
@@ -40,6 +44,8 @@ export function AdminExportTab({ role, getAuthHeaders, onExportCsv }: AdminExpor
       a.remove();
     } catch (err) {
       alert("Export download failed");
+    } finally {
+      setDownloadingType(null);
     }
   }
 
@@ -64,9 +70,11 @@ export function AdminExportTab({ role, getAuthHeaders, onExportCsv }: AdminExpor
             </div>
             <button
               onClick={() => handleExport("teams")}
-              className="mt-4 w-full rounded-xl bg-[#2872A1] hover:bg-[#205d84] text-white font-bold py-2.5 text-xs shadow-xs transition"
+              disabled={downloadingType === "teams"}
+              className="mt-4 w-full rounded-xl bg-[#2872A1] hover:bg-[#205d84] text-white font-bold py-2.5 text-xs shadow-xs transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              Download Teams CSV
+              {downloadingType === "teams" && <Loader2 size={14} className="animate-spin" />}
+              <span>{downloadingType === "teams" ? "Preparing CSV..." : "Download Teams CSV"}</span>
             </button>
           </div>
 
@@ -79,9 +87,11 @@ export function AdminExportTab({ role, getAuthHeaders, onExportCsv }: AdminExpor
             </div>
             <button
               onClick={() => handleExport("audience")}
-              className="mt-4 w-full rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 text-xs shadow-xs transition"
+              disabled={downloadingType === "audience"}
+              className="mt-4 w-full rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold py-2.5 text-xs shadow-xs transition flex items-center justify-center gap-2 disabled:opacity-60"
             >
-              Download Audience CSV
+              {downloadingType === "audience" && <Loader2 size={14} className="animate-spin" />}
+              <span>{downloadingType === "audience" ? "Preparing CSV..." : "Download Audience CSV"}</span>
             </button>
           </div>
         </div>
