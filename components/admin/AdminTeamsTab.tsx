@@ -7,13 +7,14 @@ import { AdminRole, Team } from "@/lib/types/registration";
 interface AdminTeamsTabProps {
   teamsList: Team[];
   role: AdminRole;
+  loading?: boolean;
   onCheckIn: (type: "participant", id: string, method?: "qr_scan" | "manual_search") => void;
   onUndoCheckIn: (type: "participant", id: string) => void;
   onDeleteTeam?: (teamId: string, teamName: string) => void;
   onDeleteParticipant?: (identifier: string, name: string) => void;
 }
 
-export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn, onDeleteTeam, onDeleteParticipant }: AdminTeamsTabProps) {
+export function AdminTeamsTab({ teamsList, role, loading = false, onCheckIn, onUndoCheckIn, onDeleteTeam, onDeleteParticipant }: AdminTeamsTabProps) {
   const [teamSearch, setTeamSearch] = useState("");
   const [teamFilter, setTeamFilter] = useState("all");
 
@@ -89,7 +90,16 @@ export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn, onDel
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredTeams.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="p-12 text-center text-slate-400">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-[#2872A1]" />
+                      <span className="text-xs font-bold text-slate-600">Loading BGMI teams...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredTeams.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-8 text-center text-slate-400">
                     No teams found matching search criteria.

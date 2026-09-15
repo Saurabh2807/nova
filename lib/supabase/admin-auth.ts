@@ -177,17 +177,14 @@ export async function authenticateAdminRequest(
     }
 
     // 7. Normalize and validate role
-    let role = profile.role as StaffRole;
-    // Map legacy 'admin' to super_admin for Saurabh Kumar Singh or core_member otherwise
-    if ((profile.role as string) === "admin") {
-      if (
-        profile.email?.toLowerCase() === "saurabhsinghkarmwarrajput@gmail.com" ||
-        user.email?.toLowerCase() === "saurabhsinghkarmwarrajput@gmail.com"
-      ) {
-        role = "super_admin";
-      } else {
-        role = "core_member";
-      }
+    let role = (profile.role as StaffRole) || "volunteer";
+    // Ensure primary super admin account retains super_admin role
+    if (
+      (profile.role as string) === "admin" &&
+      (profile.email?.toLowerCase() === "saurabhsinghkarmwarrajput@gmail.com" ||
+        user.email?.toLowerCase() === "saurabhsinghkarmwarrajput@gmail.com")
+    ) {
+      role = "super_admin";
     }
 
     if (!ROLE_HIERARCHY[role]) {

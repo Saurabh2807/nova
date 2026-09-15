@@ -58,6 +58,66 @@ export default function AdminPortalPage() {
   const [authPassword, setAuthPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [sessionChecking, setSessionChecking] = useState(true);
+
+  // Restore existing Supabase session on page load / refresh
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      setSessionChecking(false);
+      return;
+    }
+
+    const sb = supabase;
+    let mounted = true;
+    async function restoreSession() {
+      try {
+        const { data: { session }, error: sessErr } = await sb.auth.getSession();
+        if (sessErr || !session?.user || !mounted) {
+          if (mounted) setSessionChecking(false);
+          return;
+        }
+
+        const { data: profile, error: profErr } = await sb
+          .from("admin_profiles")
+          .select("*")
+          .or(`id.eq.${session.user.id},user_id.eq.${session.user.id}`)
+          .single();
+
+        if (profErr || !profile || profile.is_active === false || !mounted) {
+          if (mounted) setSessionChecking(false);
+          return;
+        }
+
+        let assignedRole = (profile.role as AdminRole) || "volunteer";
+        if (session.user.email?.toLowerCase() === "saurabhsinghkarmwarrajput@gmail.com") {
+          assignedRole = "super_admin";
+        }
+
+        if (mounted) {
+          setSessionUser({
+            id: session.user.id,
+            email: session.user.email || profile.email || "",
+            role: assignedRole,
+            name: profile.full_name || session.user.email?.split("@")[0] || "Staff",
+            token: session.access_token,
+          });
+
+          if (assignedRole === "volunteer") {
+            setActiveTab("scanner");
+          }
+        }
+      } catch (err) {
+        console.error("Session restore error:", err);
+      } finally {
+        if (mounted) setSessionChecking(false);
+      }
+    }
+
+    restoreSession();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
@@ -227,15 +287,15 @@ export default function AdminPortalPage() {
       if (sessionUser.role !== "volunteer") {
         fetchStats();
       }
+      if (sessionUser.role === "super_admin" || sessionUser.role === "admin" || sessionUser.role === "core_member") {
+        fetchTeams();
+      }
+      if (sessionUser.role === "super_admin" || sessionUser.role === "admin") {
+        fetchAudience();
+      }
       if (sessionUser.role === "super_admin") {
         if (activeTab === "staff") fetchStaff();
         if (activeTab === "logs") fetchLogs();
-      }
-      if (sessionUser.role === "super_admin" || sessionUser.role === "admin") {
-        if (activeTab === "audience") fetchAudience();
-      }
-      if (sessionUser.role === "super_admin" || sessionUser.role === "admin" || sessionUser.role === "core_member") {
-        if (activeTab === "teams") fetchTeams();
       }
     }
   }, [sessionUser, activeTab]);
@@ -565,8 +625,19 @@ export default function AdminPortalPage() {
   }
 
   // ==============================================================================
-  // RENDER: LOGIN GATE
+  // RENDER: SESSION VERIFICATION & LOGIN GATE
   // ==============================================================================
+  if (sessionChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#091522] text-white">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-[#2872A1]" />
+          <p className="text-xs text-white/50 tracking-wider uppercase font-bold">Verifying Session...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!sessionUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#091522] p-4 text-white">
@@ -804,6 +875,7 @@ export default function AdminPortalPage() {
           <AdminTeamsTab
             teamsList={teamsList}
             role={sessionUser.role}
+            loading={teamsLoading}
             onCheckIn={handleCheckIn}
             onUndoCheckIn={handleUndoCheckIn}
             onDeleteTeam={handleDeleteTeam}
@@ -816,6 +888,7 @@ export default function AdminPortalPage() {
           <AdminAudienceTab
             audienceList={audienceList}
             role={sessionUser.role}
+            loading={audienceLoading}
             onCheckIn={handleCheckIn}
             onUndoCheckIn={handleUndoCheckIn}
             onDeleteAudience={handleDeleteAudience}

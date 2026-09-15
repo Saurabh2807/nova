@@ -7,12 +7,13 @@ import { AdminRole, AudienceRegistration } from "@/lib/types/registration";
 interface AdminAudienceTabProps {
   audienceList: AudienceRegistration[];
   role: AdminRole;
+  loading?: boolean;
   onCheckIn: (type: "audience", id: string, method?: "qr_scan" | "manual_search") => void;
   onUndoCheckIn: (type: "audience", id: string) => void;
   onDeleteAudience?: (passId: string, name: string) => void;
 }
 
-export function AdminAudienceTab({ audienceList, role, onCheckIn, onUndoCheckIn, onDeleteAudience }: AdminAudienceTabProps) {
+export function AdminAudienceTab({ audienceList, role, loading = false, onCheckIn, onUndoCheckIn, onDeleteAudience }: AdminAudienceTabProps) {
   const [audienceSearch, setAudienceSearch] = useState("");
   const [audienceFilter, setAudienceFilter] = useState("all");
 
@@ -84,7 +85,16 @@ export function AdminAudienceTab({ audienceList, role, onCheckIn, onUndoCheckIn,
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredAudience.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="p-12 text-center text-slate-400">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-[#2872A1]" />
+                      <span className="text-xs font-bold text-slate-600">Loading audience passes...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : filteredAudience.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="p-8 text-center text-slate-400">
                     No audience passes found.
