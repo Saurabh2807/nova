@@ -30,7 +30,14 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const scanLoopRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   function stopCamera() {
+    if (scanLoopRef.current) {
+      clearInterval(scanLoopRef.current);
+      scanLoopRef.current = null;
+    }
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
@@ -54,8 +61,44 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
       mediaStreamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
+        await videoRef.current.play();
       }
+
+      // Start QR decode loop using BarcodeDetector (built-in Chrome/Android API)
+      const BarcodeDetectorAPI = (window as any).BarcodeDetector;
+      if (!BarcodeDetectorAPI) {
+        alert("Your browser does not support live QR scanning. Please use Chrome on Android or manually enter the token.");
+        return;
+      }
+
+      const detector = new BarcodeDetectorAPI({ formats: ["qr_code"] });
+
+      scanLoopRef.current = setInterval(async () => {
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+        if (!video || !canvas || video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        try {
+          const barcodes = await detector.detect(canvas);
+          if (barcodes && barcodes.length > 0) {
+            const rawValue = barcodes[0].rawValue;
+            if (rawValue) {
+              // Stop scanning once a QR is found
+              stopCamera();
+              setScanInput(rawValue);
+              handleVerify(rawValue);
+            }
+          }
+        } catch {
+          // ignore frame decode errors
+        }
+      }, 300);
     } catch (err) {
       console.warn("Camera access denied:", err);
       setCameraActive(false);
@@ -188,7 +231,8 @@ export function AdminScannerTab({ role, getAuthHeaders, onDataMutated }: AdminSc
         <div className="mt-5 text-center">
           {cameraActive ? (
             <div className="relative rounded-2xl overflow-hidden bg-black aspect-video max-w-md mx-auto border-2 border-[#2872A1]">
-              <video ref={videoRef} className="w-full h-full object-cover" />
+              <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
+              <canvas ref={canvasRef} className="hidden" />
               <div className="absolute inset-0 border-2 border-dashed border-[#2872A1]/70 pointer-events-none m-8 rounded-xl animate-pulse" />
             </div>
           ) : (
