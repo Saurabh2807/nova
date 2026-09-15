@@ -175,7 +175,9 @@ export function SiteNav() {
                     </svg>
                   </a>
                   <a
-                    href="#"
+                    href="https://youtube.com/@novaforgeesports?si=ZjnA7Oy87gZ8_WAC"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label="YouTube"
                     className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:text-[#2872A1] hover:border-[#2872A1]"
                   >

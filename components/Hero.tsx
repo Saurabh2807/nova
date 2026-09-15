@@ -33,7 +33,7 @@ function DiscordIcon({ className }: { className?: string }) {
 
 const socialLinks = [
   { icon: InstagramIcon, label: "Instagram", href: "https://instagram.com/novaforge.gg" },
-  { icon: YoutubeIcon, label: "YouTube", href: "#" },
+  { icon: YoutubeIcon, label: "YouTube", href: "https://youtube.com/@novaforgeesports?si=ZjnA7Oy87gZ8_WAC" },
   { icon: DiscordIcon, label: "Discord", href: "https://discord.gg/novaforge" },
 ];
 
@@ -250,13 +250,15 @@ export function Hero() {
                   className="flex items-center justify-center shrink-0 px-6 sm:px-8 md:px-10 opacity-85 transition-all duration-200 hover:opacity-100 hover:scale-105 cursor-pointer"
                   title={brand.name}
                 >
-                  <Image
-                    src={brand.src}
-                    alt={`${brand.name} Logo`}
-                    width={brand.width}
-                    height={brand.height}
-                    className={brand.imgClass}
-                  />
+                  <div className={brand.name === "Monster Energy" ? "bg-[#091522] px-3.5 py-1.5 rounded-xl border border-slate-800 shadow-xs flex items-center justify-center" : ""}>
+                    <Image
+                      src={brand.src}
+                      alt={`${brand.name} Logo`}
+                      width={brand.width}
+                      height={brand.height}
+                      className={brand.imgClass}
+                    />
+                  </div>
                 </div>
               ))}
             </motion.div>

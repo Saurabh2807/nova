@@ -270,7 +270,7 @@ export default function ParticipantRegisterPage() {
                 <span>Ramanujam Auditorium</span>
                 <span className="text-slate-300">•</span>
                 <Clock size={15} className="text-nf-blue shrink-0" />
-                <span>Report by 1:15 PM</span>
+                <span>Report by 9:00 AM</span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -491,7 +491,7 @@ export default function ParticipantRegisterPage() {
             </button>
 
             <p className="text-center text-[11.5px] text-nf-ink-soft">
-              By registering, both players agree to arrive at Ramanujam Auditorium by <strong>1:15 PM</strong> with their physical College ID card.
+              By registering, both players agree to arrive at Ramanujam Auditorium by <strong>9:00 AM</strong> with their physical College ID card.
             </p>
           </form>
         )}

@@ -150,7 +150,9 @@ export function ContactFooter() {
                   <DiscordIcon className="h-3.5 w-3.5" />
                 </a>
                 <a
-                  href="#"
+                  href="https://youtube.com/@novaforgeesports?si=ZjnA7Oy87gZ8_WAC"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-400 transition-colors hover:border-red-500 hover:text-red-600 hover:bg-red-50"
                   aria-label="YouTube"
                 >

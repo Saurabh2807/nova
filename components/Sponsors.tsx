@@ -76,16 +76,16 @@ const partnerLogos = [
     tag: "Featured Game",
   },
   {
-    name: "VALORANT",
-    tier: "Riot Games Tactical Shooter",
+    name: "LNCT University",
+    tier: "Official University Partner",
     type: "image",
-    src: "/logos/valorant.svg",
-    width: 220,
-    height: 48,
-    imgClass: "h-10 sm:h-12 w-auto object-contain",
-    glowColor: "rgba(255, 70, 85, 0.18)",
-    accentColor: "#FF4655",
-    tag: "Featured Game",
+    src: "/logos/lnct-university.png",
+    width: 240,
+    height: 104,
+    imgClass: "h-11 sm:h-13 w-auto object-contain",
+    glowColor: "rgba(227, 82, 5, 0.18)",
+    accentColor: "#E35205",
+    tag: "University Partner",
   },
   {
     name: "FREE FIRE",
@@ -152,13 +152,21 @@ export function Sponsors() {
               {/* Logo Area (Large & Centered) */}
               <div className="flex flex-1 items-center justify-center py-2">
                 {p.src && (
-                  <Image
-                    src={p.src}
-                    alt={`${p.name} Logo`}
-                    width={p.width}
-                    height={p.height}
-                    className={`${p.imgClass} transition-transform duration-300 group-hover:scale-110`}
-                  />
+                  <div
+                    className={
+                      p.name === "Monster Energy"
+                        ? "rounded-xl bg-[#091522] px-5 py-3 border border-slate-800 shadow-sm flex items-center justify-center w-full max-w-[260px]"
+                        : "flex items-center justify-center"
+                    }
+                  >
+                    <Image
+                      src={p.src}
+                      alt={`${p.name} Logo`}
+                      width={p.width}
+                      height={p.height}
+                      className={`${p.imgClass} transition-transform duration-300 group-hover:scale-105`}
+                    />
+                  </div>
                 )}
               </div>
 

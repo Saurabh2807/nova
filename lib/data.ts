@@ -249,4 +249,5 @@ export const contact = {
   creatorsEmail: "creators@novaforge.gg",
   discord: "discord.gg/novaforge",
   instagram: "@novaforge.gg",
+  youtube: "https://youtube.com/@novaforgeesports?si=ZjnA7Oy87gZ8_WAC",
 };
