@@ -114,7 +114,7 @@ export default function AdminPortalPage() {
   }
 
   async function fetchTeams() {
-    if (sessionUser?.role !== "super_admin") return;
+    if (sessionUser?.role === "volunteer") return;
     setTeamsLoading(true);
     try {
       const res = await fetch("/api/admin/teams", {
@@ -136,7 +136,7 @@ export default function AdminPortalPage() {
   }
 
   async function fetchAudience() {
-    if (sessionUser?.role !== "super_admin") return;
+    if (sessionUser?.role !== "super_admin" && sessionUser?.role !== "admin") return;
     setAudienceLoading(true);
     try {
       const res = await fetch("/api/admin/audience", {
@@ -285,13 +285,9 @@ export default function AdminPortalPage() {
         }
 
         let assignedRole = (profile.role as AdminRole) || "volunteer";
-        // Safe mapping for legacy accounts
-        if ((profile.role as string) === "admin") {
-          if (email === "saurabhsinghkarmwarrajput@gmail.com") {
-            assignedRole = "super_admin";
-          } else {
-            assignedRole = "core_member";
-          }
+        // Ensure owner email is always super_admin
+        if (email === "saurabhsinghkarmwarrajput@gmail.com") {
+          assignedRole = "super_admin";
         }
 
         setSessionUser({
@@ -325,6 +321,15 @@ export default function AdminPortalPage() {
         role: "super_admin",
         name: "Saurabh Kumar Singh (Super Admin)",
         token: "dev-super_admin-token",
+      });
+      setActiveTab("dashboard");
+    } else if (email.includes("admin")) {
+      setSessionUser({
+        id: "admin-dev-1",
+        email,
+        role: "admin",
+        name: "Admin Coordinator (Dev)",
+        token: "dev-admin-token",
       });
       setActiveTab("dashboard");
     } else if (email.includes("core")) {
@@ -436,8 +441,8 @@ export default function AdminPortalPage() {
   }
 
   async function handleDeleteTeam(teamId: string, teamName: string) {
-    if (sessionUser?.role !== "super_admin") {
-      alert("Permission Denied: Only Super Admins can delete teams.");
+    if (sessionUser?.role !== "super_admin" && sessionUser?.role !== "admin") {
+      alert("Permission Denied: Only Admins and Super Admins can delete teams.");
       return;
     }
 
@@ -468,8 +473,8 @@ export default function AdminPortalPage() {
   }
 
   async function handleDeleteParticipant(identifier: string, name: string) {
-    if (sessionUser?.role !== "super_admin") {
-      alert("Permission Denied: Only Super Admins can remove participants.");
+    if (sessionUser?.role !== "super_admin" && sessionUser?.role !== "admin") {
+      alert("Permission Denied: Only Admins and Super Admins can remove participants.");
       return;
     }
 
@@ -500,8 +505,8 @@ export default function AdminPortalPage() {
   }
 
   async function handleDeleteAudience(passId: string, name: string) {
-    if (sessionUser?.role !== "super_admin") {
-      alert("Permission Denied: Only Super Admins can delete audience passes.");
+    if (sessionUser?.role !== "super_admin" && sessionUser?.role !== "admin") {
+      alert("Permission Denied: Only Admins and Super Admins can delete audience passes.");
       return;
     }
 

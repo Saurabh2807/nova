@@ -13,6 +13,7 @@ import {
   Shield,
   Clock,
   AlertTriangle,
+  Trash2,
 } from "lucide-react";
 import { StaffAccount, StaffRole } from "@/lib/types/registration";
 
@@ -51,11 +52,38 @@ export function AdminStaffTab({
   const [confirmStaff, setConfirmStaff] = useState<StaffAccount | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Delete Confirm State
+  const [deleteConfirmStaff, setDeleteConfirmStaff] = useState<StaffAccount | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   // Group staff members
   const superAdmins = staffList.filter((s) => s.role === "super_admin");
   const admins = staffList.filter((s) => s.role === "admin");
   const coreMembers = staffList.filter((s) => s.role === "core_member");
   const volunteers = staffList.filter((s) => s.role === "volunteer");
+
+  async function handleDeleteStaff(staff: StaffAccount) {
+    setDeleteLoading(true);
+    try {
+      const idParam = staff.id || staff.user_id || staff.email;
+      const res = await fetch(`/api/admin/staff?staffId=${encodeURIComponent(idParam)}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setDeleteConfirmStaff(null);
+        triggerRefresh();
+      } else {
+        alert(data.error || "Failed to delete staff account");
+      }
+    } catch (err) {
+      alert("Network error while deleting staff account");
+    } finally {
+      setDeleteLoading(false);
+    }
+  }
 
   async function handleCreateStaff(e: React.FormEvent) {
     e.preventDefault();
@@ -265,6 +293,16 @@ export function AdminStaffTab({
                       </>
                     )}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmStaff(admin)}
+                    title="Delete Staff Account"
+                    className="flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition shadow-xs"
+                  >
+                    <Trash2 size={13} />
+                    <span>Delete</span>
+                  </button>
                 </div>
               </div>
             ))}
@@ -339,6 +377,16 @@ export function AdminStaffTab({
                       </>
                     )}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmStaff(member)}
+                    title="Delete Staff Account"
+                    className="flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition shadow-xs"
+                  >
+                    <Trash2 size={13} />
+                    <span>Delete</span>
+                  </button>
                 </div>
               </div>
             ))}
@@ -412,6 +460,16 @@ export function AdminStaffTab({
                         <span>Start</span>
                       </>
                     )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeleteConfirmStaff(vol)}
+                    title="Delete Staff Account"
+                    className="flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-400 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition shadow-xs"
+                  >
+                    <Trash2 size={13} />
+                    <span>Delete</span>
                   </button>
                 </div>
               </div>
@@ -601,6 +659,60 @@ export function AdminStaffTab({
                 }`}
               >
                 {actionLoading ? "Updating..." : confirmStaff.is_active ? "Confirm Stop" : "Confirm Start"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteConfirmStaff && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl border border-red-100 text-center">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-600">
+              <Trash2 size={24} />
+            </div>
+
+            <h3 className="font-display text-base font-black text-slate-900">
+              Delete Staff Account?
+            </h3>
+
+            <p className="text-xs text-slate-500 mt-1">
+              Are you sure you want to permanently delete this account? This action cannot be undone.
+            </p>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 my-4 text-xs text-left space-y-1">
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Name:</span>
+                <span className="font-bold text-slate-800">{deleteConfirmStaff.full_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Email:</span>
+                <span className="font-mono font-bold text-slate-800">{deleteConfirmStaff.email}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500 font-medium">Role:</span>
+                <span className="font-bold uppercase text-[#2872A1]">{deleteConfirmStaff.role}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-2">
+              <button
+                type="button"
+                disabled={deleteLoading}
+                onClick={() => setDeleteConfirmStaff(null)}
+                className="rounded-xl px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleteLoading}
+                onClick={() => handleDeleteStaff(deleteConfirmStaff)}
+                className="rounded-xl bg-red-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 disabled:opacity-50 flex items-center gap-1.5"
+              >
+                <Trash2 size={13} />
+                <span>{deleteLoading ? "Deleting..." : "Permanently Delete"}</span>
               </button>
             </div>
           </div>

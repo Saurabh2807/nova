@@ -71,7 +71,7 @@ export interface CheckInLog {
   id?: string;
   type?: "participant" | "audience" | "staff" | "event";
   reference_id: string; // team_id, pass_id, or staff email
-  action: "check_in" | "undo_check_in" | "staff_created" | "staff_started" | "staff_stopped" | "manual_search";
+  action: "check_in" | "undo_check_in" | "staff_created" | "staff_started" | "staff_stopped" | "staff_deleted" | "manual_search";
   method: "qr_scan" | "manual_search" | "system" | "admin_portal";
   scanned_by: string;
   actor_role?: StaffRole;

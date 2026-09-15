@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const auth = await requireSuperAdmin(req);
+  const auth = await requireAdmin(req);
   if (!auth.success) {
     return NextResponse.json(
       { success: false, error: auth.error, code: auth.code },

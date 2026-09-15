@@ -326,7 +326,7 @@ export async function searchRegistrationsByPhoneMinimized(phone: string) {
  * Log administrative or staff action to audit logs.
  */
 export async function logAdminAudit(log: {
-  action: "check_in" | "undo_check_in" | "staff_created" | "staff_started" | "staff_stopped" | "manual_search";
+  action: "check_in" | "undo_check_in" | "staff_created" | "staff_started" | "staff_stopped" | "staff_deleted" | "manual_search";
   reference_id: string;
   scanned_by: string;
   actor_role?: string;

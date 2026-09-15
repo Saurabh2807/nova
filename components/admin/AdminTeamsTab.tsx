@@ -113,7 +113,7 @@ export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn, onDel
                             <p className="font-semibold">{leader.full_name || "—"}</p>
                             <p className="text-[10.5px] text-slate-400">{leader.phone} · {leader.college_id}</p>
                           </div>
-                          {role === "super_admin" && leader.email && onDeleteParticipant && (
+                          {(role === "super_admin" || role === "admin") && leader.email && onDeleteParticipant && (
                             <button
                               type="button"
                               onClick={() => onDeleteParticipant(leader.email, leader.full_name || "Leader")}
@@ -131,7 +131,7 @@ export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn, onDel
                             <p className="font-semibold">{p2.full_name || "—"}</p>
                             <p className="text-[10.5px] text-slate-400">{p2.phone} · {p2.college_id}</p>
                           </div>
-                          {role === "super_admin" && p2.email && onDeleteParticipant && (
+                          {(role === "super_admin" || role === "admin") && p2.email && onDeleteParticipant && (
                             <button
                               type="button"
                               onClick={() => onDeleteParticipant(p2.email, p2.full_name || "Player 2")}
@@ -174,7 +174,7 @@ export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn, onDel
                             >
                               Check In
                             </button>
-                          ) : t.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
+                          ) : t.check_in_status === "checked_in" && (role === "super_admin" || role === "admin" || role === "core_member") ? (
                             <button
                               onClick={() => onUndoCheckIn("participant", t.team_id)}
                               className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition"
@@ -183,7 +183,7 @@ export function AdminTeamsTab({ teamsList, role, onCheckIn, onUndoCheckIn, onDel
                             </button>
                           ) : null}
 
-                          {role === "super_admin" && onDeleteTeam && (
+                          {(role === "super_admin" || role === "admin") && onDeleteTeam && (
                             <button
                               type="button"
                               onClick={() => onDeleteTeam(t.team_id, t.name)}

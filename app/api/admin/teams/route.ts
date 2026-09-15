@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllTeams } from "@/lib/supabase/service";
-import { requireSuperAdmin, requireCoreMember } from "@/lib/supabase/admin-auth";
+import { requireAdmin, requireCoreMember } from "@/lib/supabase/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const auth = await requireSuperAdmin(req);
+  const auth = await requireAdmin(req);
   if (!auth.success) {
     return NextResponse.json(
       { success: false, error: auth.error, code: auth.code },

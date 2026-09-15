@@ -131,7 +131,7 @@ export function AdminAudienceTab({ audienceList, role, onCheckIn, onUndoCheckIn,
                           >
                             Check In
                           </button>
-                        ) : a.check_in_status === "checked_in" && (role === "super_admin" || role === "core_member") ? (
+                        ) : a.check_in_status === "checked_in" && (role === "super_admin" || role === "admin" || role === "core_member") ? (
                           <button
                             onClick={() => onUndoCheckIn("audience", a.pass_id)}
                             className="bg-slate-800 hover:bg-slate-900 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs transition"
@@ -140,7 +140,7 @@ export function AdminAudienceTab({ audienceList, role, onCheckIn, onUndoCheckIn,
                           </button>
                         ) : null}
 
-                        {role === "super_admin" && onDeleteAudience && (
+                        {(role === "super_admin" || role === "admin") && onDeleteAudience && (
                           <button
                             type="button"
                             onClick={() => onDeleteAudience(a.pass_id, a.full_name)}

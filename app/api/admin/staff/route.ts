@@ -310,3 +310,149 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
+
+/**
+ * DELETE /api/admin/staff
+ * Permanently deletes a staff account. STRICTLY SUPER ADMIN ONLY.
+ */
+export async function DELETE(req: NextRequest) {
+  const auth = await requireSuperAdmin(req);
+  if (!auth.success) {
+    return NextResponse.json(
+      { success: false, error: auth.error, code: auth.code },
+      { status: auth.status }
+    );
+  }
+
+  try {
+    const { searchParams } = new URL(req.url);
+    let staffId = searchParams.get("staffId") || searchParams.get("id");
+
+    if (!staffId) {
+      try {
+        const body = await req.json();
+        staffId = body.staffId || body.id;
+      } catch {
+        // query param fallback
+      }
+    }
+
+    if (!staffId) {
+      return NextResponse.json(
+        { success: false, error: "Staff ID is required." },
+        { status: 400 }
+      );
+    }
+
+    // CRITICAL PROTECTION: Super Admin cannot delete themselves!
+    if (
+      auth.user.userId === staffId ||
+      auth.user.profileId === staffId ||
+      auth.user.email.toLowerCase() === staffId.toLowerCase()
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Safety Violation: Super Admin cannot delete their own account." },
+        { status: 400 }
+      );
+    }
+
+    const supabase = getSupabaseServerClient();
+    const isDevSession =
+      !supabase || auth.user.userId.startsWith("dev-") || auth.user.userId === "super-admin-dev-1";
+
+    // Local Dev Store Fallback
+    if (isDevSession) {
+      const index = devStore.adminProfiles.findIndex(
+        (p) => p.id === staffId || p.user_id === staffId || p.email.toLowerCase() === staffId.toLowerCase()
+      );
+
+      if (index === -1) {
+        return NextResponse.json({ success: false, error: "Staff member not found." }, { status: 404 });
+      }
+
+      const profile = devStore.adminProfiles[index];
+
+      if (profile.role === "super_admin") {
+        return NextResponse.json(
+          { success: false, error: "Super Admin accounts cannot be deleted." },
+          { status: 400 }
+        );
+      }
+
+      devStore.adminProfiles.splice(index, 1);
+
+      await logAdminAudit({
+        action: "staff_deleted",
+        reference_id: profile.email,
+        scanned_by: auth.user.fullName || auth.user.email,
+        actor_role: auth.user.role,
+        reason: `Permanently deleted staff account for ${profile.full_name} (${profile.role})`,
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Staff account for ${profile.full_name} deleted successfully.`,
+      });
+    }
+
+    // Production / Supabase Flow
+    // 1. Fetch target profile
+    const { data: targetProfile, error: fetchErr } = await supabase
+      .from("admin_profiles")
+      .select("id, user_id, email, full_name, role")
+      .or(`id.eq.${staffId},user_id.eq.${staffId},email.eq.${staffId.toLowerCase()}`)
+      .single();
+
+    if (fetchErr || !targetProfile) {
+      return NextResponse.json({ success: false, error: "Staff member not found." }, { status: 404 });
+    }
+
+    // Protect Super Admin accounts from deletion
+    if (
+      targetProfile.role === "super_admin" ||
+      targetProfile.email.toLowerCase() === "saurabhsinghkarmwarrajput@gmail.com"
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Safety Violation: Super Admin accounts cannot be deleted." },
+        { status: 400 }
+      );
+    }
+
+    // 2. Delete from auth.users (if user_id or id is valid auth user)
+    const authUserId = targetProfile.user_id || targetProfile.id;
+    if (authUserId) {
+      try {
+        await supabase.auth.admin.deleteUser(authUserId);
+      } catch (authDelErr) {
+        console.warn("Auth user deletion warning:", authDelErr);
+      }
+    }
+
+    // 3. Delete from admin_profiles explicitly
+    const { error: delErr } = await supabase
+      .from("admin_profiles")
+      .delete()
+      .or(`id.eq.${targetProfile.id},email.eq.${targetProfile.email}`);
+
+    if (delErr) {
+      return NextResponse.json({ success: false, error: delErr.message }, { status: 500 });
+    }
+
+    // 4. Record Audit Log
+    await logAdminAudit({
+      action: "staff_deleted",
+      reference_id: targetProfile.email,
+      scanned_by: auth.user.fullName || auth.user.email,
+      actor_role: auth.user.role,
+      reason: `Permanently deleted staff account for ${targetProfile.full_name} (${targetProfile.role})`,
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Staff account for ${targetProfile.full_name} deleted successfully.`,
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Internal error deleting staff account";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}

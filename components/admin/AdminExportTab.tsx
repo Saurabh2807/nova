@@ -16,8 +16,8 @@ export function AdminExportTab({ role, getAuthHeaders, onExportCsv }: AdminExpor
       return;
     }
 
-    if (role !== "super_admin") {
-      alert("Permission Denied: Only Super Admin can export attendee data.");
+    if (role !== "super_admin" && role !== "admin") {
+      alert("Permission Denied: Only Admins and Super Admins can export attendee data.");
       return;
     }
 
